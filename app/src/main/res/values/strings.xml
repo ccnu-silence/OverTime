@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">OverTime</string>
+
+    <!-- MainActivity -->
+    <string name="under_construction">前方正在施工&#8230;</string>
+    <string name="no_tasks">没有活动的任务</string>
+    <string name="activate_tasks">当前任务</string>
+
+    <string name="tasks_manager">任务管理</string>
+    <string name="tasks_analysis">任务统计</string>
+    <string name="tasks_add">添加任务</string>
+    
+    <string name="tasks_more">更多>></string>
+
+    <!-- AddTaskActivity -->
+    <string name="create_task">创建新任务</string>
+    <string name="create_manual">创建长期任务</string>
+    <string name="create_timing">创建定时任务</string>
+    <string name="create_short">创建单次任务</string>
+    <string name="create_limited">创建定期任务</string>
+
+</resources>

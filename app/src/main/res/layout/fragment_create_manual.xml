@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wistcat.overtime.widget.RippleFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <include layout="@layout/include_empty_toolbar"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/tintBackground">
+            <include layout="@layout/include_construction"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+</wistcat.overtime.widget.RippleFrameLayout>

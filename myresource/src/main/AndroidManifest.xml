@@ -1,0 +1,6 @@
+<manifest package="sample.myresource"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+
+<library android:name="@string/res_name"/>
+
+</manifest>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/include_empty_toolbar"/>
+
+    <LinearLayout
+        android:background="@color/bg_tasks_fragment"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="16dp"
+        style="?attr/buttonBarStyle">
+
+        <Button
+            android:id="@+id/bn_manual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bnbg_create_manual"
+            android:text="@string/create_manual"
+            android:textColor="@color/Primary_Manual"
+            android:textSize="@dimen/create_task_text_size"
+            style="?attr/buttonBarButtonStyle"/>
+
+        <Button
+            android:id="@+id/bn_timing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bnbg_create_timing"
+            android:text="@string/create_timing"
+            android:textColor="@color/Primary_Timing"
+            android:textSize="@dimen/create_task_text_size"
+            style="?attr/buttonBarButtonStyle"/>
+
+        <Button
+            android:id="@+id/bn_short"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bnbg_create_short"
+            android:text="@string/create_short"
+            android:textColor="@color/Primary_Short"
+            android:textSize="@dimen/create_task_text_size"
+            style="?attr/buttonBarButtonStyle"/>
+
+        <Button
+            android:id="@+id/bn_limited"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bnbg_create_limited"
+            android:text="@string/create_limited"
+            android:textColor="@color/Primary_Limited"
+            android:textSize="@dimen/create_task_text_size"
+            style="?attr/buttonBarButtonStyle"/>
+
+    </LinearLayout>
+
+</LinearLayout>

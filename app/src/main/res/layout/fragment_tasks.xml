@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wistcat.overtime.widget.ScrollChildSwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollview"
+    android:background="@color/bg_tasks_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/tasks_container"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:descendantFocusability="afterDescendants"
+            style="?attr/buttonBarStyle">
+
+            <wistcat.overtime.widget.OutCardView
+                android:id="@+id/tasks_manager"
+                style="@style/GuideCardStyle">
+                <TextView
+                    style="@style/GuideTextStyle"
+                    android:drawableLeft="@drawable/ic_sentiment_neutral_white_24dp"
+                    android:text="@string/tasks_manager"/>
+            </wistcat.overtime.widget.OutCardView>
+
+            <wistcat.overtime.widget.OutCardView
+                android:id="@+id/tasks_analy"
+                style="@style/GuideCardStyle">
+                <TextView
+                    style="@style/GuideTextStyle"
+                    android:drawableLeft="@drawable/ic_equalizer_white_24dp"
+                    android:text="@string/tasks_analysis"/>
+            </wistcat.overtime.widget.OutCardView>
+
+            <wistcat.overtime.widget.OutCardView
+                android:id="@+id/tasks_add"
+                style="@style/GuideCardStyle">
+                <TextView
+                    style="@style/GuideTextStyle"
+                    android:drawableLeft="@drawable/ic_add_white_24dp"
+                    android:text="@string/tasks_add"/>
+            </wistcat.overtime.widget.OutCardView>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/text_activate_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="@dimen/left_offset"
+                android:drawableLeft="@drawable/circle_1"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                android:text="@string/activate_tasks"
+                android:textSize="12sp"
+                android:textColor="@color/DarkGrey"
+                style="@style/TextAppearance.AppCompat.Small"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/text_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="4dp"
+                android:gravity="center_vertical"
+                android:text="@string/tasks_more"
+                android:textSize="12sp"
+                android:textColor="@color/DarkGrey"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"/>
+        </RelativeLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ListView
+                android:id="@+id/tasks_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@android:layout/simple_list_item_1"/>
+
+            <TextView
+                android:id="@+id/text_no_task"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/Grey"
+                android:text="@string/no_tasks"/>
+
+        </FrameLayout>
+    </LinearLayout>
+
+</wistcat.overtime.widget.ScrollChildSwipeRefreshLayout>

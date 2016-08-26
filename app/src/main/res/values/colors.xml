@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--<color name="colorPrimary">#3F51B5</color>-->
+    <!--<color name="colorPrimaryDark">#303F9F</color>-->
+    <!--<color name="colorAccent">#FF4081</color>-->
+
+    <color name="colorPrimary">@color/Orange</color>
+    <color name="colorPrimaryDark">@color/Orange800</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <!-- MainActivity -->
+    <color name="bg_tasks_fragment">#EEE8E8E8</color>
+    <color name="fg_dim_grey">#11000000</color>
+
+    <color name="toast_background">#88000000</color>
+
+    <!-- AddTaskActivity -->
+    <color name="Primary_Manual">@color/Purple200</color>
+    <color name="Primary_Manual_Dark">@color/Purple600</color>
+    <color name="Primary_Timing">@color/Cyan200</color>
+    <color name="Primary_Timing_Dark">@color/Cyan600</color>
+    <color name="Primary_Short">@color/Pink200</color>
+    <color name="Primary_Short_Dark">@color/Pink600</color>
+    <color name="Primary_Limited">@color/Green200</color>
+    <color name="Primary_Limited_Dark">@color/Green600</color>
+
+    <color name="Semi_">#80000000</color>
+    <color name="Semi_White">#80FFFFFF</color>
+    <color name="Semi_Black">#80000000</color>
+
+</resources>

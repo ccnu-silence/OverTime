@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="PrefaceTextStyle">
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:textAppearance">?android:textAppearanceLarge</item>
+        <item name="android:textColor">@color/White</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <!-- AddTaskActivity -->
+    <declare-styleable name="tintTaskBackgroundColor">
+        <attr name="tintBackground" format="color"/>
+    </declare-styleable>
+
+    <style name="ManualTaskStyle" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/Primary_Manual</item>
+        <item name="colorPrimaryDark">@color/Primary_Manual_Dark</item>
+        <item name="colorControlNormal">@color/Primary_Manual</item>
+        <item name="colorControlActivated">@color/Primary_Manual</item>
+        <item name="tintBackground">@color/Primary_Manual</item>
+    </style>
+
+    <style name="TimingTaskStyle" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/Primary_Timing</item>
+        <item name="colorPrimaryDark">@color/Primary_Timing_Dark</item>
+        <item name="colorControlNormal">@color/Primary_Timing</item>
+        <item name="colorControlActivated">@color/Primary_Timing</item>
+        <item name="tintBackground">@color/Primary_Timing</item>
+    </style>
+
+    <style name="ShortTaskStyle" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/Primary_Short</item>
+        <item name="colorPrimaryDark">@color/Primary_Short_Dark</item>
+        <item name="colorControlNormal">@color/Primary_Short</item>
+        <item name="colorControlActivated">@color/Primary_Short</item>
+        <item name="tintBackground">@color/Primary_Short</item>
+    </style>
+
+    <style name="LimitedTaskStyle" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/Primary_Limited</item>
+        <item name="colorPrimaryDark">@color/Primary_Limited_Dark</item>
+        <item name="colorControlNormal">@color/Primary_Limited</item>
+        <item name="colorControlActivated">@color/Primary_Limited</item>
+        <item name="tintBackground">@color/Primary_Limited</item>
+    </style>
+</resources>

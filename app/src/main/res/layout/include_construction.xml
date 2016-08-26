@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/construction"
+    android:layout_centerInParent="true"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingBottom="?android:actionBarSize"
+    android:drawableLeft="@drawable/ic_remove_circle_outline_white_24dp"
+    android:drawablePadding="8dp"
+    android:gravity="center"
+    android:textColor="@color/White"
+    android:textSize="18sp"
+    android:text="@string/under_construction"/>
