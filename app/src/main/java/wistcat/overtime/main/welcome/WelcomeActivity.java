@@ -9,7 +9,6 @@ import wistcat.overtime.main.main.MainActivity;
 
 public class WelcomeActivity extends AbsBaseActivity {
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

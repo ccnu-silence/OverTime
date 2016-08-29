@@ -11,6 +11,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".main.welcome.WelcomeActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -20,20 +21,31 @@
         </activity>
         <activity
             android:name=".main.main.MainActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
             android:name=".main.tasksmanage.TasksManageActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
             android:name=".main.taskstatistics.TasksStatisticsActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
             android:name=".main.addtask.AddTaskActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+
+        <provider
+            android:name=".contentprovider.TaskProvider"
+            android:authorities="wistcat.overtime.TaskProvider"
+            android:enabled="true"
+            android:exported="false">
+        </provider>
     </application>
 
 </manifest>

@@ -65,7 +65,6 @@ public class FireworkFragment extends Fragment {
         animPreface();
         //
         initAccount();
-
     }
 
     /* 欢迎页面的文字动画效果 */

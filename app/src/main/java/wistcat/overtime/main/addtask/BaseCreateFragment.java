@@ -47,8 +47,7 @@ public abstract class BaseCreateFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         setHasOptionsMenu(true);
 
@@ -105,7 +104,6 @@ public abstract class BaseCreateFragment extends Fragment {
         super.onDetach();
         mCreateListener = null;
     }
-
 
     private Animator createAnimator(final RippleFrameLayout layout,
                                     int cx, int cy, float startRadius, float endRadius) {
