@@ -1,6 +1,8 @@
 package wistcat.overtime.model;
 
 /**
+ * 一次任务记录
+ *
  * @author wistcat 2016/8/28
  */
 public abstract class Record extends Entity {
@@ -18,6 +20,26 @@ public abstract class Record extends Entity {
         mStartTime = startTime;
         mEndTime = endTime;
         mRemark = remark;
+    }
+
+    public String getRemark() {
+        return mRemark;
+    }
+
+    public String getEndTime() {
+        return mEndTime;
+    }
+
+    public String getStartTime() {
+        return mStartTime;
+    }
+
+    public long getUsedTime() {
+        return mUsedTime;
+    }
+
+    public int getTaskId() {
+        return mTaskId;
     }
 
 }

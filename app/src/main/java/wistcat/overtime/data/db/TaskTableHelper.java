@@ -2,10 +2,13 @@ package wistcat.overtime.data.db;
 
 import android.database.sqlite.SQLiteDatabase;
 
-import static wistcat.overtime.data.db.TaskContract.TaskEntry;
+import static wistcat.overtime.data.db.TaskContract.EpisodeEntry;
 import static wistcat.overtime.data.db.TaskContract.RecordEntry;
+import static wistcat.overtime.data.db.TaskContract.TaskEntry;
 
 /**
+ * 表操作语句
+ *
  * @author wistcat 2016/8/30
  */
 public final class TaskTableHelper {
@@ -48,31 +51,45 @@ public final class TaskTableHelper {
                     RecordEntry.COLUMN_NAME_EXTRA_3 + TYPE_TEXT + COMMA_SEP +
                     RecordEntry.COLUMN_NAME_EXTRA_4 + TYPE_TEXT + COMMA_SEP + ")";
 
-    // TODO: Episode table...
-
+    /** 创建Episode表语句 */
+    private static final String CREATE_EPISODE_TABLE =
+            "CREATE TABLE IF NOT EXISTS %s" + EpisodeEntry.TABLE_NAME + " (" +
+                    EpisodeEntry._ID + " INTEGER PRIMARY KEY," +
+                    EpisodeEntry.COLUMN_NAME_RECORD_ID + TYPE_INTEGER + COMMA_SEP +
+                    EpisodeEntry.COLUMN_NAME_EPISODE_ID + TYPE_INTEGER + COMMA_SEP +
+                    EpisodeEntry.COLUMN_NAME_EPISODE_NAME + TYPE_TEXT + COMMA_SEP +
+                    EpisodeEntry.COLUMN_NAME_EPISODE_TYPE + TYPE_INTEGER + COMMA_SEP +
+                    EpisodeEntry.COLUMN_NAME_EPISODE_REMARK + TYPE_TEXT + COMMA_SEP +
+                    EpisodeEntry.COLUMN_NAME_EPISODE_START_TIME + TYPE_INTEGER + COMMA_SEP +
+                    EpisodeEntry.COLUMN_NAME_EPISODE_SEQ + TYPE_INTEGER + COMMA_SEP +
+                    EpisodeEntry.COLUMN_NAME_EXTRA_1 + TYPE_TEXT + COMMA_SEP +
+                    EpisodeEntry.COLUMN_NAME_EXTRA_2 + TYPE_TEXT + COMMA_SEP +
+                    EpisodeEntry.COLUMN_NAME_EXTRA_3 + TYPE_TEXT + COMMA_SEP +
+                    EpisodeEntry.COLUMN_NAME_EXTRA_4 + TYPE_TEXT + COMMA_SEP + ")";
 
     /** 删除任务表语句 */
-    private static final String DELETE_TASK_TABLE = "DROP IF EXISTS %s" + TaskContract.TaskEntry.TABLE_NAME;
+    private static final String DELETE_TASK_TABLE = "DROP IF EXISTS %s" + TaskEntry.TABLE_NAME;
     /** 删除记录表语句 */
-    private static final String DELETE_RECORD_TABLE = "DROP IF EXISTS %s" + TaskContract.RecordEntry.TABLE_NAME;
+    private static final String DELETE_RECORD_TABLE = "DROP IF EXISTS %s" + RecordEntry.TABLE_NAME;
+    /** 删除Episode表语句 */
+    private static final String DELETE_EPISODE_TABLE = "DROP IF EXISTS %s" + EpisodeEntry.TABLE_NAME;
 
     /** 根据账户名创建表 */
-    public static void createTables(SQLiteDatabase db, String accountName) {
-        db.execSQL(String.format(CREATE_TASK_TABLE, accountName));
-        db.execSQL(String.format(CREATE_RECORD_TABLE, accountName));
-        // TODO: Episode table
+    public static void createTables(SQLiteDatabase db, String account) {
+        db.execSQL(String.format(CREATE_TASK_TABLE, account));
+        db.execSQL(String.format(CREATE_RECORD_TABLE, account));
+        db.execSQL(String.format(CREATE_EPISODE_TABLE, account));
     }
 
     /** 根据账户名删除表 */
-    public static void deleteTables(SQLiteDatabase db, String accountName) {
-        db.execSQL(String.format(DELETE_TASK_TABLE, accountName));
-        db.execSQL(String.format(DELETE_RECORD_TABLE, accountName));
+    public static void deleteTables(SQLiteDatabase db, String account) {
+        db.execSQL(String.format(DELETE_TASK_TABLE, account));
+        db.execSQL(String.format(DELETE_RECORD_TABLE, account));
+        db.execSQL(String.format(DELETE_EPISODE_TABLE, account));
     }
 
     public static String[] createSearchSelection(String search) {
         return new String[]{"%" + search + "%"};
     }
-
-
 
 }

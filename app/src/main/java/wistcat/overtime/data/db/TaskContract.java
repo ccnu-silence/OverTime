@@ -114,6 +114,9 @@ public final class TaskContract {
         /** 扩展列 */
         public static final String COLUMN_NAME_EXTRA_4 = "extra4";
 
+        public static String getTableName(String account) {
+            return account + TABLE_NAME;
+        }
     }
 
     /**
@@ -156,6 +159,9 @@ public final class TaskContract {
         /** 扩展列 */
         public static final String COLUMN_NAME_EXTRA_4 = "extra4";
 
+        public static String getTableName(String account) {
+            return account + TABLE_NAME;
+        }
     }
 
     /**
@@ -175,8 +181,32 @@ public final class TaskContract {
         /** 资源URI */
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
+        /** 所属记录的id */
+        public static final String COLUMN_NAME_RECORD_ID = "record_id";
+        /** Episode的id，EventStart和EventEnd有相同的ID */
+        public static final String COLUMN_NAME_EPISODE_ID = "episode_id";
+        /** Episode名 */
+        public static final String COLUMN_NAME_EPISODE_NAME = "episode_name";
+        /** Episode类型 */
+        public static final String COLUMN_NAME_EPISODE_TYPE = "episode_type";
+        /** Episode备注 */
+        public static final String COLUMN_NAME_EPISODE_REMARK = "episode_remark";
+        /** Episode发生时间 */
+        public static final String COLUMN_NAME_EPISODE_START_TIME = "episode_start_time";
+        /** Episode序号 */
+        public static final String COLUMN_NAME_EPISODE_SEQ = "episode_seq";
+        /** 扩展列 */
+        public static final String COLUMN_NAME_EXTRA_1 = "extra1";
+        /** 扩展列 */
+        public static final String COLUMN_NAME_EXTRA_2 = "extra2";
+        /** 扩展列 */
+        public static final String COLUMN_NAME_EXTRA_3 = "extra3";
+        /** 扩展列 */
+        public static final String COLUMN_NAME_EXTRA_4 = "extra4";
 
-        // TODO: 定义columns
+        public static String getTableName(String account) {
+            return account + TABLE_NAME;
+        }
     }
 
 }
