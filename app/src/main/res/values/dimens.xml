@@ -6,6 +6,7 @@
     <dimen name="left_offset">4dp</dimen>
     <dimen name="default_radius">4dp</dimen>
     <dimen name="default_circle_width">3dp</dimen>
+    <dimen name="default_item_header_width">32dp</dimen>
 
     <dimen name="default_bnbg_radius">16dp</dimen>
     <dimen name="default_stroke_width">1dp</dimen>

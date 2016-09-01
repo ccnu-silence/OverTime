@@ -1,8 +1,11 @@
 package wistcat.overtime.data.datasource;
 
-import java.util.List;
+import android.support.annotation.NonNull;
 
-import wistcat.overtime.model.Entity;
+import wistcat.overtime.model.Episode;
+import wistcat.overtime.model.Record;
+import wistcat.overtime.model.Task;
+import wistcat.overtime.model.TaskGroup;
 
 /**
  * 数据源
@@ -11,31 +14,77 @@ import wistcat.overtime.model.Entity;
  */
 public interface TaskDataSource {
 
-    interface GetDataListCallback<T extends Entity> {
+    // ----taskgroup---
+    void saveTaskGroup(@NonNull TaskGroup taskGroup);
 
-        void onDataLoaded(List<T> dataSet);
+    void deleteTaskGroup(@NonNull TaskGroup taskGroup);
 
-        void onError();
-    }
+    void deleteTaskGroup(int taskGroupId);
 
-    interface GetDataCallback<T extends Entity> {
+    // ----task-----
 
-        void onDataLoaded(T data);
+    // NOTE: Query功能由Loader框架完成
+//    void getTasks(GetDataListCallback<Task> callback);
+//    void getTask(int taskId, GetDataCallback<Task> callback);
 
-        void onError();
-    }
+    /* 0/Activate->Activate,  Completed->Completed */
+    void saveTask(@NonNull Task task);
 
-    void getTasks();
+    /* Activate -> Running */
+    void startRunningTask(@NonNull Task task);
 
-    void getTask();
+    void startRunningTask(int taskId);
 
-    void deleteTask(String taskId);
+    /* Running -> Activate/Completed */
+    void stopRunningTask(@NonNull Task task, String toState);
 
-    void deleteAllTasks();
+    void stopRunningTask(int taskId, String toState);
 
-    void deleteRecord(String recordId);
+    /* Activiate/Recycled/Running -> Completed */
+    void completeTask(@NonNull Task task);
 
-    void deleteAllRecords(String taskId);
+    void completeTask(int taskId);
+
+    /* completed/Recycled -> Activate */
+    void activateTask(@NonNull Task task);
+
+    void activateTask(int taskId);
+
+    void deleteTask(@NonNull Task task);
+
+    void deleteTask(int taskId);
+
+    void deleteAllTasks(int groupId);
+
+    // ----Record----
+
+    // NOTE: Query功能由Loader框架完成
+//    void getRecord(@NonNull Task task, @NonNull Record record, GetDataCallback<Record> callback);
+//    void getRecords(@NonNull Task task, GetDataListCallback<Record> callback);
+
+    void saveRecord(@NonNull Record record);
+
+    void deleteRecord(@NonNull Record record);
+
+    void deleteRecord(int recordId);
+
+    void deleteAllRecords(@NonNull Task task);
+
+    void deleteAllRecords(int taskId);
+
+    // ----Episode----
+
+    // NOTE: Query功能由Loader框架完成
+//    void getEpisode(@NonNull Record record, GetDataCallback<Episode> callback);
+//    void getEpisodes(@NonNull Record record, GetDataListCallback<Episode> callback);
+
+    void saveEpisode(@NonNull Episode episode);
+
+    void deleteEpisode(@NonNull Episode episode);
+
+    void deleteEpisode(int episodeId);
+
+    //  ----other----
 
     void deleteTables();
 

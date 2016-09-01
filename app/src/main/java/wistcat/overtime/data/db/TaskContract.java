@@ -69,11 +69,25 @@ public final class TaskContract {
         return EpisodeEntry.CONTENT_URI.buildUpon().appendPath(account).appendPath(id).build();
     }
 
+    /** 创建TaskGroup的Uri的路径，匹配多个条目 */
+    public static Uri buildTaskGroupUri() {
+        return TaskGroupEntry.CONTENT_URI.buildUpon().build();
+    }
+
+    /** 创建TaskGroup的Uri的路径，匹配单个条目 */
+    public static Uri buildTaskGroupUriWith(long id) {
+        return ContentUris.withAppendedId(TaskGroupEntry.CONTENT_URI, id);
+    }
+
+    /** 创建TaskGroup的Uri的路径，匹配单个条目 */
+    public static Uri buildTaskGroupUriWith(String id) {
+        return TaskGroupEntry.CONTENT_URI.buildUpon().appendPath(id).build();
+    }
 
     /**
      * Task表数据操作相关常量
      */
-    public static abstract class TaskEntry implements BaseColumns {
+    public static class TaskEntry implements BaseColumns {
         /** Task表名后缀：（Account名）+ TABLE_NAME */
         public static final String TABLE_NAME = "_tasktable";
         /** 资源路径 */
@@ -122,7 +136,7 @@ public final class TaskContract {
     /**
      * Record表数据操作相关常量
      */
-    public static abstract class RecordEntry implements BaseColumns {
+    public static class RecordEntry implements BaseColumns {
         /** Record表名后缀：（Account名）+ TABLE_NAME */
         public static final String TABLE_NAME = "_recordtable";
         /** 资源路径 */
@@ -167,7 +181,7 @@ public final class TaskContract {
     /**
      * Episode表数据操作相关常量
      */
-    public static abstract class EpisodeEntry implements BaseColumns {
+    public static class EpisodeEntry implements BaseColumns {
         /** Episode表名后缀：（Account名）+ TABLE_NAME */
         public static final String TABLE_NAME = "_episodetable";
         /** 资源路径 */
@@ -207,6 +221,37 @@ public final class TaskContract {
         public static String getTableName(String account) {
             return account + TABLE_NAME;
         }
+    }
+
+    public static class TaskGroupEntry implements BaseColumns {
+        /** TaskGroup表名 */
+        public static final String TABLE_NAME = "task_group_table";
+        /** 资源路径 */
+        public static final String PATH = "taskgroups";
+        /** MIME类型：多个TaskGroup */
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.wistcat.taskgroups";
+        /** MIME类型：单个TaskGroup */
+        public static final String CONTENT_TYPE_ITEM =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.wistcat.taskgroup";
+        /** 资源URI */
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
+
+        /** TaskGroup的ID */
+        public static final String COLUMN_NAME_GROUP_ID = "group_id";
+        /** TaskGroup的名称 */
+        public static final String COLUMN_NAME_GROUP_NAME = "group_name";
+        /** TaskGroup所属的帐户名 */
+        public static final String COLUMN_NAME_GROUP_ACCOUNT = "account";
+        /** 包含的Activate Task的统计 */
+        public static final String COLUMN_NAME_COUNT_ACTIVATE = "count_activate";
+        /** 包含的Running Task的统计 */
+        public static final String COLUMN_NAME_COUNT_RUNNING = "count_running";
+        /** 包含的Completed Task的统计 */
+        public static final String COLUMN_NAME_COUNT_COMPLETED = "count_completed";
+        /** 包含的Recycled Task的统计 */
+        public static final String COLUMN_NAME_COUNT_RECYCLED = "count_recycled";
     }
 
 }

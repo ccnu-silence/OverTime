@@ -46,6 +46,17 @@
             android:enabled="true"
             android:exported="false">
         </provider>
+
+        <activity
+            android:name=".main.tasksmore.TasksMoreActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".main.taskdetail.TaskDetailsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

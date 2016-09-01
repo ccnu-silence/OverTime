@@ -9,8 +9,8 @@
     <string name="tasks_manager">任务管理</string>
     <string name="tasks_analysis">任务统计</string>
     <string name="tasks_add">添加任务</string>
-    
-    <string name="tasks_more">更多>></string>
+
+    <string name="tasks_more">更多></string>
 
     <!-- AddTaskActivity -->
     <string name="create_task">创建新任务</string>

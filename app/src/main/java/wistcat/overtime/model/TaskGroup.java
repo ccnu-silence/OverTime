@@ -1,9 +1,5 @@
 package wistcat.overtime.model;
 
-import android.support.annotation.NonNull;
-
-import java.util.List;
-
 /**
  * 任务组
  *
@@ -11,10 +7,17 @@ import java.util.List;
  */
 public class TaskGroup extends Entity {
 
-    private List<Task> mTaskList;
+    private final String mName;
+    private final String mAccount;
+    private int mActive;
+    private int mRunning;
+    private int mCompleted;
+    private int mRecycled;
 
-    public TaskGroup(int id) {
+    public TaskGroup(int id, String name, String account) {
         super(id);
+        mName = name;
+        mAccount = account;
     }
 
     @Override
@@ -22,18 +25,50 @@ public class TaskGroup extends Entity {
         return 0;
     }
 
-    public void setTaskList(@NonNull List<Task> list) {
-        mTaskList = list;
+    public String getName() {
+        return mName;
     }
 
-    public List<Task> getTaskList() {
-        return mTaskList;
+    public String getAccount() {
+        return mAccount;
     }
 
-    public int getTaskSize() {
-        if (mTaskList != null) {
-            return mTaskList.size();
-        }
-        return 0;
+    public void init(int active, int running, int completed, int recycled) {
+        mActive = active;
+        mRunning = completed;
+        mCompleted = completed;
+        mRecycled = recycled;
+    }
+
+    public int getRecycled() {
+        return mRecycled;
+    }
+
+    public void setRecycled(int mRecycled) {
+        this.mRecycled = mRecycled;
+    }
+
+    public int getCompleted() {
+        return mCompleted;
+    }
+
+    public void setCompleted(int mCompleted) {
+        this.mCompleted = mCompleted;
+    }
+
+    public int getRunning() {
+        return mRunning;
+    }
+
+    public void setRunning(int mRunning) {
+        this.mRunning = mRunning;
+    }
+
+    public int getActive() {
+        return mActive;
+    }
+
+    public void setActive(int mActive) {
+        this.mActive = mActive;
     }
 }

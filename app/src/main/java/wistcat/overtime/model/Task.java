@@ -7,25 +7,34 @@ import android.support.annotation.NonNull;
  *
  * @author wistcat 2016/8/28
  */
-public abstract class Task extends Entity implements Comparable<Task> {
+public class Task extends Entity implements Comparable<Task> {
+    public static final int TYPE_MANUAL = 0x01;
+    public static final int TYPE_TIMING = 0x02;
+    public static final int TYPE_SHORT = 0x03;
+    public static final int TYPE_LIMITED = 0x04;
 
     private final int mGroupId;
+    private final int mType;
     private final TaskState mState;
     private final String mName;
     private final String mDescription;
     private final String mRemark;
     private final int mCompletedDegree;
     private final long mSumTime;
+    private String extra_1;
+    private String extra_2;
+    private String extra_3;
+    private String extra_4;
 
-    public Task(int groupId, int id, TaskState taskState, String name, String description, long sumTime) {
-        this(groupId, id, taskState, name, description, sumTime, null, -1);
+    public Task(int groupId, int id, int type, TaskState taskState, String name, String description, long sumTime) {
+        this(groupId, id, type, taskState, name, description, sumTime, null, -1);
     }
 
-    public Task(int groupId, int id, TaskState taskState, String name,
+    public Task(int groupId, int id, int type, TaskState taskState, String name,
                 String description, long sumTime, String remark, int completedDegree) {
-
         super(id);
         mGroupId = groupId;
+        mType = type;
         mState = taskState;
         mName = name;
         mDescription = description;
@@ -58,8 +67,49 @@ public abstract class Task extends Entity implements Comparable<Task> {
         return mCompletedDegree;
     }
 
-    public long getCalcTime() {
+    public long getSumTime() {
         return mSumTime;
+    }
+
+    @Override
+    public int getType() {
+        return mType;
+    }
+
+    public Task setExtra1(String extra) {
+        extra_1 = extra;
+        return this;
+    }
+
+    public String getExtra_1() {
+        return extra_1;
+    }
+
+    public String getExtra_2() {
+        return extra_2;
+    }
+
+    public Task setExtra2(String extra) {
+        extra_2 = extra;
+        return this;
+    }
+
+    public String getExtra_3() {
+        return extra_3;
+    }
+
+    public Task setExtra3(String extra) {
+        extra_3 = extra;
+        return this;
+    }
+
+    public String getExtra_4() {
+        return extra_4;
+    }
+
+    public Task setExtra4(String extra) {
+        extra_4 = extra;
+        return this;
     }
 
     @Override
@@ -67,4 +117,5 @@ public abstract class Task extends Entity implements Comparable<Task> {
         // FIXME
         return 0;
     }
+
 }

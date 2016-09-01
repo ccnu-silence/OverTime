@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 
 import java.util.HashMap;
 
+import wistcat.overtime.App;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskDatabase;
 import wistcat.overtime.data.db.TaskTableHelper;
@@ -17,6 +18,7 @@ import wistcat.overtime.data.db.TaskTableHelper;
 import static wistcat.overtime.data.db.TaskContract.EpisodeEntry;
 import static wistcat.overtime.data.db.TaskContract.RecordEntry;
 import static wistcat.overtime.data.db.TaskContract.TaskEntry;
+import static wistcat.overtime.data.db.TaskContract.TaskGroupEntry;
 
 /**
  * @author wistcat
@@ -31,6 +33,8 @@ public class TaskProvider extends ContentProvider {
     public static final int ROUTE_RECORDS_ID    = 4;
     public static final int ROUTE_EPISODES      = 5;
     public static final int ROUTE_EPISODES_ID   = 6;
+    public static final int ROUTE_TASK_GROUPS   = 7;
+    public static final int ROUTE_TASK_GROUPS_ID = 8;
 
     /* 提供列别名到真实列名的映射 TODO ... */
     private static HashMap<String, String> mProjectionMap = new HashMap<>();
@@ -44,13 +48,14 @@ public class TaskProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, "records/*/#", ROUTE_TASKS_ID);
         mUriMatcher.addURI(AUTHORITY, "episodes/*", ROUTE_TASKS);
         mUriMatcher.addURI(AUTHORITY, "episodes/*/#", ROUTE_TASKS_ID);
+        mUriMatcher.addURI(AUTHORITY, "taskgroups", ROUTE_TASK_GROUPS);
+        mUriMatcher.addURI(AUTHORITY, "taskgroups/#", ROUTE_TASK_GROUPS_ID);
         mUriMatcher.addURI(AUTHORITY, "delete", ROUTE_DELETE);
     }
 
     private TaskDatabase mDatabase;
 
     public TaskProvider() {
-
     }
 
     @Override
@@ -60,7 +65,7 @@ public class TaskProvider extends ContentProvider {
     }
 
     /*
-     * 单独的条目不需要提供selection和selectionArgs参数，
+     * 单独的条目以及TaskGroup不需要提供selection和selectionArgs参数，
      * 其他更多匹配方式则在.../* 路径下进行，注意使用
      */
     @Override
@@ -79,7 +84,7 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_TASKS_ID:
                 account = getSecondLastSeg(uri);
                 table = TaskEntry.getTableName(account);
-                where = TaskTableHelper.WHERE_TASK;
+                where = TaskTableHelper.WHERE_TASK_ID;
                 whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_RECORDS:
@@ -89,7 +94,7 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_RECORDS_ID:
                 account = getSecondLastSeg(uri);
                 table = RecordEntry.getTableName(account);
-                where = TaskTableHelper.WHERE_RECORD;
+                where = TaskTableHelper.WHERE_RECORD_ID;
                 whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_EPISODES:
@@ -99,7 +104,19 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_EPISODES_ID:
                 account = getSecondLastSeg(uri);
                 table = EpisodeEntry.getTableName(account);
-                where = TaskTableHelper.WHERE_EPISODE;
+                where = TaskTableHelper.WHERE_EPISODE_ID;
+                whereArgs = new String[]{getLastSeg(uri)};
+                break;
+            case ROUTE_TASK_GROUPS:
+                account = null;
+                table = TaskGroupEntry.TABLE_NAME;
+                where = TaskTableHelper.WHERE_TASK_GOUP_ACCOUNT;
+                whereArgs = new String[]{App.getInstance().getAccountName()};
+                break;
+            case ROUTE_TASK_GROUPS_ID:
+                account = null;
+                table = TaskGroupEntry.TABLE_NAME;
+                where = TaskTableHelper.WHERE_TASK_GOUP_ID;
                 whereArgs = new String[]{getLastSeg(uri)};
                 break;
             default:
@@ -142,6 +159,11 @@ public class TaskProvider extends ContentProvider {
                 break;
             case ROUTE_EPISODES_ID:
                 throw new UnsupportedOperationException("Insert not supported on uri: " + uri);
+            case ROUTE_TASK_GROUPS:
+                retUri = mDatabase.insertTaskGroup(values);
+                break;
+            case ROUTE_TASK_GROUPS_ID:
+                throw new UnsupportedOperationException("Insert not supported on uri: " + uri);
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -172,7 +194,7 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_TASKS_ID:
                 account = getSecondLastSeg(uri);
                 table = TaskEntry.getTableName(account);
-                where = TaskTableHelper.WHERE_TASK;
+                where = TaskTableHelper.WHERE_TASK_ID;
                 whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_RECORDS:
@@ -182,7 +204,7 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_RECORDS_ID:
                 account = getSecondLastSeg(uri);
                 table = RecordEntry.getTableName(account);
-                where = TaskTableHelper.WHERE_RECORD;
+                where = TaskTableHelper.WHERE_RECORD_ID;
                 whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_EPISODES:
@@ -192,7 +214,15 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_EPISODES_ID:
                 account = getSecondLastSeg(uri);
                 table = EpisodeEntry.getTableName(account);
-                where = TaskTableHelper.WHERE_EPISODE;
+                where = TaskTableHelper.WHERE_EPISODE_ID;
+                whereArgs = new String[]{getLastSeg(uri)};
+                break;
+            case ROUTE_TASK_GROUPS:
+                table = TaskGroupEntry.TABLE_NAME;
+                break;
+            case ROUTE_TASK_GROUPS_ID:
+                table = TaskGroupEntry.TABLE_NAME;
+                where = TaskTableHelper.WHERE_TASK_GOUP_ID;
                 whereArgs = new String[]{getLastSeg(uri)};
                 break;
             default:
@@ -226,7 +256,7 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_TASKS_ID:
                 account = getSecondLastSeg(uri);
                 table = TaskEntry.getTableName(account);
-                where = TaskTableHelper.WHERE_TASK;
+                where = TaskTableHelper.WHERE_TASK_ID;
                 whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_RECORDS:
@@ -236,7 +266,7 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_RECORDS_ID:
                 account = getSecondLastSeg(uri);
                 table = RecordEntry.getTableName(account);
-                where = TaskTableHelper.WHERE_RECORD;
+                where = TaskTableHelper.WHERE_RECORD_ID;
                 whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_EPISODES:
@@ -246,7 +276,15 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_EPISODES_ID:
                 account = getSecondLastSeg(uri);
                 table = EpisodeEntry.getTableName(account);
-                where = TaskTableHelper.WHERE_EPISODE;
+                where = TaskTableHelper.WHERE_EPISODE_ID;
+                whereArgs = new String[]{getLastSeg(uri)};
+                break;
+            case ROUTE_TASK_GROUPS:
+                table = TaskGroupEntry.TABLE_NAME;
+                break;
+            case ROUTE_TASK_GROUPS_ID:
+                table = TaskGroupEntry.TABLE_NAME;
+                where = TaskTableHelper.WHERE_TASK_GOUP_ID;
                 whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_DELETE:

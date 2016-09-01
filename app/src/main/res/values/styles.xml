@@ -33,4 +33,13 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
+    <style name="ItemTaskCardStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_margin">@dimen/left_offset</item>
+        <item name="android:descendantFocusability">beforeDescendants</item>
+        <item name="cardCornerRadius">@dimen/default_radius</item>
+        <item name="cardBackgroundColor">@color/White</item>
+    </style>
+
 </resources>

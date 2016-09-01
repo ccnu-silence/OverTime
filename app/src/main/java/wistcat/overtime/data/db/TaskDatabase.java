@@ -11,6 +11,7 @@ import wistcat.overtime.util.Const;
 
 import static wistcat.overtime.data.db.TaskContract.RecordEntry;
 import static wistcat.overtime.data.db.TaskContract.TaskEntry;
+import static wistcat.overtime.data.db.TaskContract.TaskGroupEntry;
 import static wistcat.overtime.data.db.TaskContract.EpisodeEntry;
 
 /**
@@ -38,7 +39,9 @@ public class TaskDatabase {
     public Cursor query(String account, String table, String[] columns, String selection,
                         String[] SelectionArgs, String groupBy, String having, String orderBy) {
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        TaskTableHelper.createTables(db, account);
+        if (account != null) {
+            TaskTableHelper.createTables(db, account);
+        }
         return db.query(table, columns, selection, SelectionArgs, groupBy, having, orderBy);
     }
 
@@ -60,7 +63,7 @@ public class TaskDatabase {
         Cursor cursor = db.query(
                 table,
                 new String[]{TaskEntry.COLUMN_NAME_TASK_ID},
-                TaskTableHelper.WHERE_TASK,
+                TaskTableHelper.WHERE_TASK_ID,
                 new String[]{values.getAsString(TaskEntry.COLUMN_NAME_TASK_ID)},
                 null,
                 null,
@@ -69,7 +72,7 @@ public class TaskDatabase {
 
         long _id;
         if (cursor.moveToLast()) { // return false if empty
-            _id = db.update(table, values, TaskTableHelper.WHERE_TASK,
+            _id = db.update(table, values, TaskTableHelper.WHERE_TASK_ID,
                     new String[]{values.getAsString(TaskEntry.COLUMN_NAME_TASK_ID)});
         } else {
             _id = db.insert(table, nullColumnHack, values);
@@ -100,7 +103,7 @@ public class TaskDatabase {
         Cursor cursor = db.query(
                 table,
                 new String[]{RecordEntry.COLUMN_NAME_RECORD_ID},
-                TaskTableHelper.WHERE_RECORD,
+                TaskTableHelper.WHERE_RECORD_ID,
                 new String[]{values.getAsString(RecordEntry.COLUMN_NAME_RECORD_ID)},
                 null,
                 null,
@@ -109,7 +112,7 @@ public class TaskDatabase {
 
         long _id;
         if (cursor.moveToLast()) { // return false if empty
-            _id = db.update(table, values, TaskTableHelper.WHERE_RECORD,
+            _id = db.update(table, values, TaskTableHelper.WHERE_RECORD_ID,
                     new String[]{values.getAsString(RecordEntry.COLUMN_NAME_RECORD_ID)});
         } else {
             _id = db.insert(table, nullColumnHack, values);
@@ -140,7 +143,7 @@ public class TaskDatabase {
         Cursor cursor = db.query(
                 table,
                 new String[]{EpisodeEntry.COLUMN_NAME_EPISODE_ID},
-                TaskTableHelper.WHERE_EPISODE,
+                TaskTableHelper.WHERE_EPISODE_ID,
                 new String[]{values.getAsString(EpisodeEntry.COLUMN_NAME_EPISODE_ID)},
                 null,
                 null,
@@ -149,7 +152,7 @@ public class TaskDatabase {
 
         long _id;
         if (cursor.moveToLast()) { // return false if empty
-            _id = db.update(table, values, TaskTableHelper.WHERE_EPISODE,
+            _id = db.update(table, values, TaskTableHelper.WHERE_EPISODE_ID,
                     new String[]{values.getAsString(EpisodeEntry.COLUMN_NAME_EPISODE_ID)}
             );
         } else {
@@ -158,6 +161,49 @@ public class TaskDatabase {
         // build uri
         if (_id > 0) {
             ret = TaskContract.buildEpisodesUriWith(account, _id);
+        } else {
+            throw new android.database.SQLException("Failed to insert row");
+        }
+        cursor.close();
+        return ret;
+    }
+
+    /**
+     * 插入一条TaskGroup
+     */
+    public Uri insertTaskGroup(ContentValues values) {
+        return insertTaskGroup(null, values);
+    }
+
+    /**
+     * 插入一条TaskGroup
+     * <br/> 先检查条目是否存在，再选择更新或者插入
+     */
+    public Uri insertTaskGroup(String nullColumnHack, ContentValues values) {
+        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        Uri ret;
+        String table = TaskGroupEntry.TABLE_NAME;
+        Cursor cursor = db.query(
+                table,
+                new String[]{TaskGroupEntry.COLUMN_NAME_GROUP_ID},
+                TaskTableHelper.WHERE_TASK_GOUP_ID,
+                new String[]{values.getAsString(TaskGroupEntry.COLUMN_NAME_GROUP_ID)},
+                null,
+                null,
+                null
+        );
+
+        long _id;
+        if (cursor.moveToLast()) { // return false if empty
+            _id = db.update(table, values, TaskTableHelper.WHERE_TASK_GOUP_ID,
+                    new String[]{values.getAsString(TaskGroupEntry.COLUMN_NAME_GROUP_ID)}
+            );
+        } else {
+            _id = db.insert(table, nullColumnHack, values);
+        }
+        // build uri
+        if (_id > 0) {
+            ret = TaskContract.buildTaskGroupUriWith(_id);
         } else {
             throw new android.database.SQLException("Failed to insert row");
         }
@@ -194,11 +240,13 @@ public class TaskDatabase {
         @Override
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
             TaskTableHelper.createTables(sqLiteDatabase, Const.ACCOUNT_GUEST);
+            sqLiteDatabase.execSQL(TaskTableHelper.CREATE_TASK_GROUP_TABLE);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
             TaskTableHelper.deleteTables(sqLiteDatabase, Const.ACCOUNT_GUEST);
+            sqLiteDatabase.execSQL(TaskTableHelper.DELETE_TASK_GROUP_TABLE);
             onCreate(sqLiteDatabase);
         }
     }
