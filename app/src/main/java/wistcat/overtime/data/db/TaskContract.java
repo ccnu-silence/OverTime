@@ -183,7 +183,7 @@ public final class TaskContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
         /** 所属记录的id */
         public static final String COLUMN_NAME_RECORD_ID = "record_id";
-        /** Episode的id，EventStart和EventEnd有相同的ID */
+        /** Episode的id */
         public static final String COLUMN_NAME_EPISODE_ID = "episode_id";
         /** Episode名 */
         public static final String COLUMN_NAME_EPISODE_NAME = "episode_name";
@@ -193,7 +193,7 @@ public final class TaskContract {
         public static final String COLUMN_NAME_EPISODE_REMARK = "episode_remark";
         /** Episode发生时间 */
         public static final String COLUMN_NAME_EPISODE_START_TIME = "episode_start_time";
-        /** Episode序号 */
+        /** Episode序号，EventStart和EventEnd有相同的seq */
         public static final String COLUMN_NAME_EPISODE_SEQ = "episode_seq";
         /** 扩展列 */
         public static final String COLUMN_NAME_EXTRA_1 = "extra1";

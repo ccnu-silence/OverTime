@@ -74,6 +74,13 @@ public final class TaskTableHelper {
     /** 删除Episode表语句 */
     private static final String DELETE_EPISODE_TABLE = "DROP IF EXISTS %s" + EpisodeEntry.TABLE_NAME;
 
+    /** 匹配task_id的where语句 */
+    public static final String WHERE_TASK = TaskEntry.COLUMN_NAME_TASK_ID + " = ?";
+    /** 匹配record_id的where语句 */
+    public static final String WHERE_RECORD = RecordEntry.COLUMN_NAME_RECORD_ID + " = ?";
+    /** 匹配episode_id的where语句 */
+    public static final String WHERE_EPISODE = EpisodeEntry.COLUMN_NAME_EPISODE_ID + " = ?";
+
     /** 根据账户名创建表 */
     public static void createTables(SQLiteDatabase db, String account) {
         db.execSQL(String.format(CREATE_TASK_TABLE, account));

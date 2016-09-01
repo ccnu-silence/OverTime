@@ -46,7 +46,11 @@ public abstract class Episode extends Entity implements Comparable<Episode> {
 
     @Override
     public int compareTo(@NonNull Episode other) {
-        return mSeq - other.getSeq(); // 升序
+        int diff = mSeq - other.getSeq(); // 升序
+        if (diff == 0) {
+            return mId - other.getId();
+        }
+        return diff;
     }
 
 }

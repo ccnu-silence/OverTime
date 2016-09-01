@@ -21,4 +21,5 @@ public class TaskManual extends Task {
     public int getType() {
         return TYPE;
     }
+
 }

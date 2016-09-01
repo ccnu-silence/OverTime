@@ -12,6 +12,7 @@ import java.util.HashMap;
 
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskDatabase;
+import wistcat.overtime.data.db.TaskTableHelper;
 
 import static wistcat.overtime.data.db.TaskContract.EpisodeEntry;
 import static wistcat.overtime.data.db.TaskContract.RecordEntry;
@@ -23,7 +24,7 @@ import static wistcat.overtime.data.db.TaskContract.TaskEntry;
 public class TaskProvider extends ContentProvider {
 
     private static final String AUTHORITY = TaskContract.AUTHORITY;
-    public static final int ROUTE_DELETE        = -1;
+    public static final int ROUTE_DELETE        = 100;
     public static final int ROUTE_TASKS         = 1;
     public static final int ROUTE_TASKS_ID      = 2;
     public static final int ROUTE_RECORDS       = 3;
@@ -37,15 +38,14 @@ public class TaskProvider extends ContentProvider {
     private static final UriMatcher mUriMatcher;
     static {
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        mUriMatcher.addURI(AUTHORITY, "delete", ROUTE_DELETE);
         mUriMatcher.addURI(AUTHORITY, "tasks/*", ROUTE_TASKS);
         mUriMatcher.addURI(AUTHORITY, "tasks/*/#", ROUTE_TASKS_ID);
         mUriMatcher.addURI(AUTHORITY, "records/*", ROUTE_TASKS);
         mUriMatcher.addURI(AUTHORITY, "records/*/#", ROUTE_TASKS_ID);
         mUriMatcher.addURI(AUTHORITY, "episodes/*", ROUTE_TASKS);
         mUriMatcher.addURI(AUTHORITY, "episodes/*/#", ROUTE_TASKS_ID);
+        mUriMatcher.addURI(AUTHORITY, "delete", ROUTE_DELETE);
     }
-
 
     private TaskDatabase mDatabase;
 
@@ -59,14 +59,17 @@ public class TaskProvider extends ContentProvider {
         return true;
     }
 
+    /*
+     * 单独的条目不需要提供selection和selectionArgs参数，
+     * 其他更多匹配方式则在.../* 路径下进行，注意使用
+     */
     @Override
     public Cursor query(@NonNull Uri uri, String[] columns, String selection,
                         String[] selectionArgs, String sortOrder) {
-
         String account;
         String table;
-        String select = selection;
-        String[] where = selectionArgs;
+        String where = selection;
+        String[] whereArgs = selectionArgs;
 
         switch (mUriMatcher.match(uri)) {
             case ROUTE_TASKS:
@@ -76,8 +79,8 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_TASKS_ID:
                 account = getSecondLastSeg(uri);
                 table = TaskEntry.getTableName(account);
-                select = TaskEntry.COLUMN_NAME_TASK_ID + " = ?";
-                where = new String[]{getLastSeg(uri)};
+                where = TaskTableHelper.WHERE_TASK;
+                whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_RECORDS:
                 account = getLastSeg(uri);
@@ -86,8 +89,8 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_RECORDS_ID:
                 account = getSecondLastSeg(uri);
                 table = RecordEntry.getTableName(account);
-                select = RecordEntry.COLUMN_NAME_RECORD_ID + " = ?";
-                where = new String[]{getLastSeg(uri)};
+                where = TaskTableHelper.WHERE_RECORD;
+                whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_EPISODES:
                 account = getLastSeg(uri);
@@ -96,8 +99,8 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_EPISODES_ID:
                 account = getSecondLastSeg(uri);
                 table = EpisodeEntry.getTableName(account);
-                select = EpisodeEntry.COLUMN_NAME_EPISODE_ID + " = ?";
-                where = new String[]{getLastSeg(uri)};
+                where = TaskTableHelper.WHERE_EPISODE;
+                whereArgs = new String[]{getLastSeg(uri)};
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -107,68 +110,96 @@ public class TaskProvider extends ContentProvider {
                 account,
                 table,
                 columns,
-                select,
                 where,
+                whereArgs,
                 sortOrder
         );
-
+        //
         Context ctx = getContext();
         assert ctx != null;
         retCursor.setNotificationUri(ctx.getContentResolver(), uri);
         return retCursor;
     }
 
+    /* insert or update */
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
-
-        Uri retUri = null;
-
+        Uri retUri;
+        // 注意，values中必须包含各自的如task_id，record_id，episode_id的列
         switch (mUriMatcher.match(uri)) {
             case ROUTE_TASKS:
+                retUri = mDatabase.insertTask(getLastSeg(uri), values);
                 break;
             case ROUTE_TASKS_ID:
                 throw new UnsupportedOperationException("Insert not supported on uri: " + uri);
             case ROUTE_RECORDS:
+                retUri = mDatabase.insertRecord(getLastSeg(uri), values);
                 break;
             case ROUTE_RECORDS_ID:
                 throw new UnsupportedOperationException("Insert not supported on uri: " + uri);
             case ROUTE_EPISODES:
+                retUri = mDatabase.insertEpisode(getLastSeg(uri), values);
                 break;
             case ROUTE_EPISODES_ID:
                 throw new UnsupportedOperationException("Insert not supported on uri: " + uri);
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-
         // notify
         Context ctx = getContext();
         assert ctx != null;
         ctx.getContentResolver().notifyChange(uri, null, false);
+        // 返回的uri的结尾id为_ID，但是query的解析并不依赖于_ID而是自定义id，因此无法使用
         return retUri;
     }
 
+    /*
+     * 单独的条目不需要提供selection和selectionArgs参数，
+     * 其他更多匹配方式则在.../* 路径下进行，注意使用
+     */
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-
-        int rowsUpdated = -1;
-
+        int rowsUpdated;
+        String account;
+        String table;
+        String where = selection;
+        String[] whereArgs = selectionArgs;
         switch (mUriMatcher.match(uri)) {
             case ROUTE_TASKS:
+                account = getLastSeg(uri);
+                table = TaskEntry.getTableName(account);
                 break;
             case ROUTE_TASKS_ID:
+                account = getSecondLastSeg(uri);
+                table = TaskEntry.getTableName(account);
+                where = TaskTableHelper.WHERE_TASK;
+                whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_RECORDS:
+                account = getLastSeg(uri);
+                table = RecordEntry.getTableName(account);
                 break;
             case ROUTE_RECORDS_ID:
+                account = getSecondLastSeg(uri);
+                table = RecordEntry.getTableName(account);
+                where = TaskTableHelper.WHERE_RECORD;
+                whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_EPISODES:
+                account = getLastSeg(uri);
+                table = EpisodeEntry.getTableName(account);
                 break;
             case ROUTE_EPISODES_ID:
+                account = getSecondLastSeg(uri);
+                table = EpisodeEntry.getTableName(account);
+                where = TaskTableHelper.WHERE_EPISODE;
+                whereArgs = new String[]{getLastSeg(uri)};
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
+        rowsUpdated = mDatabase.update(table, values, where, whereArgs);
         // notify
         Context ctx = getContext();
         assert ctx != null;
@@ -176,38 +207,62 @@ public class TaskProvider extends ContentProvider {
         return rowsUpdated;
     }
 
+    /*
+     * 单独的条目不需要提供selection和selectionArgs参数，
+     * 其他更多匹配方式则在.../* 路径下进行，注意使用
+     */
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
-
-        int rowsDeleted = -1;
-
+        int rowsDeleted;
+        String account;
+        String table;
+        String where = selection;
+        String[] whereArgs = selectionArgs;
         switch (mUriMatcher.match(uri)) {
+            case ROUTE_TASKS:
+                account = getLastSeg(uri);
+                table = TaskEntry.getTableName(account);
+                break;
+            case ROUTE_TASKS_ID:
+                account = getSecondLastSeg(uri);
+                table = TaskEntry.getTableName(account);
+                where = TaskTableHelper.WHERE_TASK;
+                whereArgs = new String[]{getLastSeg(uri)};
+                break;
+            case ROUTE_RECORDS:
+                account = getLastSeg(uri);
+                table = RecordEntry.getTableName(account);
+                break;
+            case ROUTE_RECORDS_ID:
+                account = getSecondLastSeg(uri);
+                table = RecordEntry.getTableName(account);
+                where = TaskTableHelper.WHERE_RECORD;
+                whereArgs = new String[]{getLastSeg(uri)};
+                break;
+            case ROUTE_EPISODES:
+                account = getLastSeg(uri);
+                table = EpisodeEntry.getTableName(account);
+                break;
+            case ROUTE_EPISODES_ID:
+                account = getSecondLastSeg(uri);
+                table = EpisodeEntry.getTableName(account);
+                where = TaskTableHelper.WHERE_EPISODE;
+                whereArgs = new String[]{getLastSeg(uri)};
+                break;
             case ROUTE_DELETE:
                 /* 删除与账户相关的表 Caution！！ */
                 mDatabase.deleteTables(getLastSeg(uri));
-                break;
-            case ROUTE_TASKS:
-                break;
-            case ROUTE_TASKS_ID:
-                break;
-            case ROUTE_RECORDS:
-                break;
-            case ROUTE_RECORDS_ID:
-                break;
-            case ROUTE_EPISODES:
-                break;
-            case ROUTE_EPISODES_ID:
-                break;
+                return 0;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
+        rowsDeleted = mDatabase.delete(table, where, whereArgs);
         // notify
         Context ctx = getContext();
         assert ctx != null;
         ctx.getContentResolver().notifyChange(uri, null, false);
         return rowsDeleted;
-
     }
 
     @Override
