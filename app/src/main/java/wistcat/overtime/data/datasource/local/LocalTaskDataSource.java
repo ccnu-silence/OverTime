@@ -2,12 +2,22 @@ package wistcat.overtime.data.datasource.local;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import wistcat.overtime.App;
 import wistcat.overtime.data.TaskEngine;
 import wistcat.overtime.data.datasource.TaskDataSource;
+import wistcat.overtime.data.datasource.TaskRepository;
 import wistcat.overtime.data.db.TaskContract;
+import wistcat.overtime.data.db.TaskTableHelper;
+import wistcat.overtime.interfaces.GetDataListCallback;
 import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
 import wistcat.overtime.model.Task;
@@ -15,11 +25,14 @@ import wistcat.overtime.model.TaskGroup;
 import wistcat.overtime.model.TaskState;
 
 /**
+ * 本地数据源，用于对数据库的直接操作，以及部分缓存处理
+ *
  * @author wistcat 2016/9/1
  */
 public class LocalTaskDataSource implements TaskDataSource {
 
     private final ContentResolver mContentResolver;
+    private volatile List<TaskGroup> mCachedTaskGroup;
 
     public LocalTaskDataSource(@NonNull Context context) {
         mContentResolver = context.getContentResolver();
@@ -28,23 +41,101 @@ public class LocalTaskDataSource implements TaskDataSource {
     @Override
     public void saveTaskGroup(@NonNull TaskGroup taskGroup) {
         mContentResolver.insert(
-                TaskContract.buildTaskGroupUri(),
+                TaskContract.buildTaskGroupUri(getAccount()),
                 TaskEngine.taskGroupTo(taskGroup)
         );
     }
 
     @Override
     public void deleteTaskGroup(@NonNull TaskGroup taskGroup) {
-        deleteTaskGroup(taskGroup.getId());
+        // 不需要在这一层实现，由{@link TaskRepository}完成转换
     }
 
     @Override
     public void deleteTaskGroup(int taskGroupId) {
         mContentResolver.delete(
-                TaskContract.buildTaskGroupUriWith(taskGroupId),
+                TaskContract.buildTaskGroupUriWith(getAccount(), taskGroupId),
                 null,
                 null
         );
+    }
+
+    @Override
+    public void getCachedTaskGroup(@NonNull final GetDataListCallback<TaskGroup> callback) {
+        // 不需要在这一层实现，由{@link TaskRepository}完成转换
+    }
+
+    @Override
+    public void getCachedTaskGroup(@NonNull final GetDataListCallback<TaskGroup> callback, boolean forceRefresh) {
+        // 本方法的调用场景在主线程中进行，不会是异步的
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Log.e("DataSource_TAG", "+++++Not in the UI thread!!!! FIXME!!!!+++++++");
+        }
+
+        if (mCachedTaskGroup == null || forceRefresh) {
+            TaskRepository.mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    // 单独查询TaskGroup
+                    Cursor c = mContentResolver.query(
+                            TaskContract.buildTaskGroupUri(getAccount()),
+                            TaskTableHelper.TASK_GROUP_PROJECTION,
+                            null,
+                            null,
+                            null
+                    );
+                    List<TaskGroup> list = new ArrayList<>();
+                    if (c != null) {
+                        try {
+                            if (c.moveToFirst()) {
+                                while (c.moveToNext()) {
+                                    list.add(TaskEngine.taskGroupFrom(c));
+                                }
+                            }
+                        } finally {
+                            c.close();
+                        }
+                    }
+                    mCachedTaskGroup = list;
+                    // 在主线程中更新
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onDataLoaded(mCachedTaskGroup);
+                        }
+                    });
+                }
+            });
+        } else {
+            callback.onDataLoaded(mCachedTaskGroup);
+        }
+    }
+
+    @Override
+    public void setTaskGroupCache(@NonNull List<TaskGroup> data) {
+        mCachedTaskGroup = data;
+    }
+
+    @Override
+    public void setTaskGroupCache(Cursor cursor) {
+        List<TaskGroup> list = new ArrayList<>();
+        if (cursor != null) {
+            try {
+                if (cursor.moveToFirst()) {
+                    while (cursor.moveToNext()) {
+                        list.add(TaskEngine.taskGroupFrom(cursor));
+                    }
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        mCachedTaskGroup = list;
+    }
+
+    @Override
+    public boolean isGroupCacheAvailable() {
+        return mCachedTaskGroup == null;
     }
 
     @Override
@@ -56,7 +147,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void startRunningTask(@NonNull Task task) {
-        startRunningTask(task.getId());
+        // 不需要在这一层实现，由{@link TaskRepository}完成转换
     }
 
     @Override
@@ -71,7 +162,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void stopRunningTask(@NonNull Task task, String toState) {
-        stopRunningTask(task.getId(), toState);
+        // 不需要在这一层实现，由{@link TaskRepository}完成转换
     }
 
     @Override
@@ -86,7 +177,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void completeTask(@NonNull Task task) {
-        completeTask(task.getId());
+        // 不需要在这一层实现，由{@link TaskRepository}完成转换
     }
 
     @Override
@@ -101,7 +192,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void activateTask(@NonNull Task task) {
-        activateTask(task.getId());
+        // 不需要在这一层实现，由{@link TaskRepository}完成转换
     }
 
     @Override
@@ -116,7 +207,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteTask(@NonNull Task task) {
-        deleteTask(task.getId());
+        // 不需要在这一层实现，由{@link TaskRepository}完成转换
     }
 
     @Override
@@ -147,7 +238,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteRecord(@NonNull Record record) {
-        deleteRecord(record.getId());
+        // 不需要在这一层实现，由{@link TaskRepository}完成转换
     }
 
     @Override
@@ -161,7 +252,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteAllRecords(@NonNull Task task) {
-        deleteAllRecords(task.getId());
+        // 不需要在这一层实现，由{@link TaskRepository}完成转换
     }
 
     @Override
@@ -183,7 +274,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteEpisode(@NonNull Episode episode) {
-        deleteEpisode(episode.getId());
+        // 不需要在这一层实现，由{@link TaskRepository}完成转换
     }
 
     @Override

@@ -12,7 +12,7 @@ import android.widget.TextView;
 import wistcat.overtime.R;
 import wistcat.overtime.data.TaskEngine;
 import wistcat.overtime.data.db.TaskTableHelper;
-import wistcat.overtime.interfaces.TaskItemSelectListener;
+import wistcat.overtime.interfaces.ItemSelectListener;
 import wistcat.overtime.model.Task;
 
 /**
@@ -23,13 +23,13 @@ import wistcat.overtime.model.Task;
 public class MainTasksAdapter extends CursorAdapter {
     // FIXME: 要改成LRU排序的活动任务...现在先演示用...
 
-    private TaskItemSelectListener mItemListener;
+    private ItemSelectListener<Task> mItemListener;
 
     public MainTasksAdapter(Context context) {
         super(context, null, 0);
     }
 
-    public void setTaskItemListener(TaskItemSelectListener listener) {
+    public void setTaskItemListener(ItemSelectListener<Task> listener) {
         mItemListener = listener;
     }
 

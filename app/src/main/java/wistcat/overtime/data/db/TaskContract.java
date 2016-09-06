@@ -70,18 +70,19 @@ public final class TaskContract {
     }
 
     /** 创建TaskGroup的Uri的路径，匹配多个条目 */
-    public static Uri buildTaskGroupUri() {
-        return TaskGroupEntry.CONTENT_URI.buildUpon().build();
+    public static Uri buildTaskGroupUri(@NonNull String account) {
+        return TaskGroupEntry.CONTENT_URI.buildUpon().appendPath(account).build();
     }
 
     /** 创建TaskGroup的Uri的路径，匹配单个条目 */
-    public static Uri buildTaskGroupUriWith(long id) {
-        return ContentUris.withAppendedId(TaskGroupEntry.CONTENT_URI, id);
+    public static Uri buildTaskGroupUriWith(@NonNull String account, long id) {
+        Uri base = TaskGroupEntry.CONTENT_URI.buildUpon().appendPath(account).build();
+        return ContentUris.withAppendedId(base, id);
     }
 
     /** 创建TaskGroup的Uri的路径，匹配单个条目 */
-    public static Uri buildTaskGroupUriWith(String id) {
-        return TaskGroupEntry.CONTENT_URI.buildUpon().appendPath(id).build();
+    public static Uri buildTaskGroupUriWith(@NonNull String account, String id) {
+        return TaskGroupEntry.CONTENT_URI.buildUpon().appendPath(account).appendPath(id).build();
     }
 
     /**

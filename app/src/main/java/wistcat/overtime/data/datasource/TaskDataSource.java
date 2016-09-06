@@ -1,7 +1,11 @@
 package wistcat.overtime.data.datasource;
 
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import java.util.List;
+
+import wistcat.overtime.interfaces.GetDataListCallback;
 import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
 import wistcat.overtime.model.Task;
@@ -20,6 +24,16 @@ public interface TaskDataSource {
     void deleteTaskGroup(@NonNull TaskGroup taskGroup);
 
     void deleteTaskGroup(int taskGroupId);
+
+    void getCachedTaskGroup(@NonNull GetDataListCallback<TaskGroup> callback);
+
+    void getCachedTaskGroup(@NonNull GetDataListCallback<TaskGroup> callback, boolean forceRefresh);
+
+    void setTaskGroupCache(@NonNull List<TaskGroup> data);
+
+    void setTaskGroupCache(Cursor cursor);
+
+    boolean isGroupCacheAvailable();
 
     // ----task-----
 

@@ -11,6 +11,9 @@
     <string name="tasks_add">添加任务</string>
 
     <string name="tasks_more">更多></string>
+    <string name="More">更多</string>
+    <string name="Manage">管理</string>
+    <string name="Create">创建</string>
 
     <!-- AddTaskActivity -->
     <string name="create_task">创建新任务</string>
@@ -19,4 +22,10 @@
     <string name="create_short">创建单次任务</string>
     <string name="create_limited">创建定期任务</string>
 
+    <!--menu-->
+    <string name="action_completed">归档</string>
+    <string name="action_recycled">回收</string>
+
+    <!--page titles-->
+    <string name="title_tasks_manage">任务管理</string>
 </resources>

@@ -1,6 +1,5 @@
 package wistcat.overtime.main.main;
 
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
@@ -22,7 +21,7 @@ import javax.inject.Inject;
 import wistcat.overtime.App;
 import wistcat.overtime.R;
 import wistcat.overtime.adapter.MainTasksAdapter;
-import wistcat.overtime.interfaces.TaskItemSelectListener;
+import wistcat.overtime.interfaces.ItemSelectListener;
 import wistcat.overtime.main.addtask.AddTaskActivity;
 import wistcat.overtime.main.main.tasks.DaggerMainTasksComponent;
 import wistcat.overtime.main.main.tasks.MainTasksComponent;
@@ -42,7 +41,7 @@ import wistcat.overtime.widget.ScrollChildSwipeRefreshLayout;
  *
  * @author wistcat
  */
-public class TasksFragment extends Fragment implements MainTasksContract.View, TaskItemSelectListener {
+public class TasksFragment extends Fragment implements MainTasksContract.View, ItemSelectListener<Task> {
 
     private CardView mManagerCard, mAnalysisCard, mAddCard;
     private ListView mActivateList;
@@ -50,6 +49,7 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, T
     private TextView mMoreText;
     private MainTasksAdapter mAdapter;
     private View currentView;
+    private Handler mHandler = new Handler();
 
     @Inject
     public MainTasksPresenter mPresenter;
@@ -141,35 +141,34 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, T
         View root = getView();
         if (root != null) { //...
             final ScrollChildSwipeRefreshLayout refreshLayout = (ScrollChildSwipeRefreshLayout) root.findViewById(R.id.scrollview);
-            int duration = active ? 0 : Const.DEFAULT_REFRESH_DURATION;
-            refreshLayout.postDelayed(new Runnable() {
+            refreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
                     refreshLayout.setRefreshing(active);
                 }
-            }, duration);
+            });
         }
     }
 
     @Override
     public void showTasks(final Cursor tasks) {
-        new Handler().postDelayed(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 mAdapter.swapCursor(tasks);
                 crossAnim(true);
             }
-        }, Const.DEFAULT_REFRESH_DURATION);
+        });
     }
 
     @Override
     public void showNoTasks() {
-        new Handler().postDelayed(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 crossAnim(false);
             }
-        }, Const.DEFAULT_REFRESH_DURATION);
+        });
 
     }
 

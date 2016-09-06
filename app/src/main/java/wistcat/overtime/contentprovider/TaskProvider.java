@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 
 import java.util.HashMap;
 
-import wistcat.overtime.App;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskDatabase;
 import wistcat.overtime.data.db.TaskTableHelper;
@@ -48,8 +47,8 @@ public class TaskProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, "records/*/#", ROUTE_TASKS_ID);
         mUriMatcher.addURI(AUTHORITY, "episodes/*", ROUTE_TASKS);
         mUriMatcher.addURI(AUTHORITY, "episodes/*/#", ROUTE_TASKS_ID);
-        mUriMatcher.addURI(AUTHORITY, "taskgroups", ROUTE_TASK_GROUPS);
-        mUriMatcher.addURI(AUTHORITY, "taskgroups/#", ROUTE_TASK_GROUPS_ID);
+        mUriMatcher.addURI(AUTHORITY, "taskgroups/*", ROUTE_TASK_GROUPS);
+        mUriMatcher.addURI(AUTHORITY, "taskgroups/*/#", ROUTE_TASK_GROUPS_ID);
         mUriMatcher.addURI(AUTHORITY, "delete", ROUTE_DELETE);
     }
 
@@ -111,7 +110,7 @@ public class TaskProvider extends ContentProvider {
                 account = null;
                 table = TaskGroupEntry.TABLE_NAME;
                 where = TaskTableHelper.WHERE_TASK_GOUP_ACCOUNT;
-                whereArgs = new String[]{App.getInstance().getAccountName()};
+                whereArgs = new String[]{getLastSeg(uri)};
                 break;
             case ROUTE_TASK_GROUPS_ID:
                 account = null;
@@ -160,7 +159,7 @@ public class TaskProvider extends ContentProvider {
             case ROUTE_EPISODES_ID:
                 throw new UnsupportedOperationException("Insert not supported on uri: " + uri);
             case ROUTE_TASK_GROUPS:
-                retUri = mDatabase.insertTaskGroup(values);
+                retUri = mDatabase.insertTaskGroup(getLastSeg(uri), values);
                 break;
             case ROUTE_TASK_GROUPS_ID:
                 throw new UnsupportedOperationException("Insert not supported on uri: " + uri);
@@ -319,6 +318,10 @@ public class TaskProvider extends ContentProvider {
                 return EpisodeEntry.CONTENT_TYPE;
             case ROUTE_EPISODES_ID:
                 return EpisodeEntry.CONTENT_TYPE_ITEM;
+            case ROUTE_TASK_GROUPS:
+                return TaskGroupEntry.CONTENT_TYPE;
+            case ROUTE_TASK_GROUPS_ID:
+                return TaskGroupEntry.CONTENT_TYPE_ITEM;
             default:
                 throw new UnsupportedOperationException("Unkown uri: " + uri);
         }

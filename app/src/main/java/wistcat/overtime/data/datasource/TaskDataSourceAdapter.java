@@ -1,10 +1,15 @@
 package wistcat.overtime.data.datasource;
 
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import java.util.List;
+
+import wistcat.overtime.interfaces.GetDataListCallback;
 import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
 import wistcat.overtime.model.Task;
+import wistcat.overtime.model.TaskGroup;
 
 /**
  * {@link TaskDataSource}的空实现，用于重写部分方法
@@ -12,6 +17,46 @@ import wistcat.overtime.model.Task;
  * @author wistcat 2016/9/2
  */
 public abstract class TaskDataSourceAdapter implements TaskDataSource {
+
+    @Override
+    public void saveTaskGroup(@NonNull TaskGroup taskGroup) {
+
+    }
+
+    @Override
+    public void deleteTaskGroup(@NonNull TaskGroup taskGroup) {
+
+    }
+
+    @Override
+    public void deleteTaskGroup(int taskGroupId) {
+
+    }
+
+    @Override
+    public void getCachedTaskGroup(@NonNull GetDataListCallback<TaskGroup> callback) {
+
+    }
+
+    @Override
+    public void getCachedTaskGroup(@NonNull GetDataListCallback<TaskGroup> callback, boolean forceRefresh) {
+
+    }
+
+    @Override
+    public void setTaskGroupCache(@NonNull List<TaskGroup> data) {
+
+    }
+
+    @Override
+    public void setTaskGroupCache(Cursor cursor) {
+
+    }
+
+    @Override
+    public boolean isGroupCacheAvailable() {
+        return false;
+    }
 
     @Override
     public void saveTask(@NonNull Task task) {

@@ -2,6 +2,8 @@ package wistcat.overtime.main.main.tasks;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -14,17 +16,22 @@ import wistcat.overtime.data.datasource.TaskRepository;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
 import wistcat.overtime.model.Task;
+import wistcat.overtime.model.TaskGroup;
+import wistcat.overtime.util.Const;
+import wistcat.overtime.util.GetDataListCallbackAdapter;
 
 /**
  * @author wistcat 2016/9/2
  */
 public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderManager.LoaderCallbacks<Cursor>{
 
-    private final static int TASKS_QUERY = 1;
+    private static final int TASKS_QUERY = 0x01;
     private final MainTasksContract.View mView;
     private final LoaderManager mLoaderManager;
     private final TaskRepository mRepository;
     private boolean isFirst = true;
+    private Handler mHandler = new Handler();
+    private long mLastRefreshTime;
 
     @Inject
     public MainTasksPresenter(MainTasksContract.View view, LoaderManager loaderManager, TaskRepository repository) {
@@ -36,6 +43,7 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == TASKS_QUERY) {
+            mLastRefreshTime = SystemClock.uptimeMillis();
             mView.setLoadingIndicator(true);
             return new CursorLoader(
                     App.getInstance(),
@@ -50,15 +58,29 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(final Loader<Cursor> loader, final  Cursor data) {
         if (loader.getId() == TASKS_QUERY) {
-            mRepository.clearDirty();
-            mView.setLoadingIndicator(false);
-            if (data != null) {
-                mView.showTasks(data);
-            } else {
-                mView.showNoTasks();
+            long now = SystemClock.uptimeMillis();
+            if (now < mLastRefreshTime + Const.DEFAULT_REFRESH_DURATION) {
+                mHandler.postAtTime(new Runnable() {
+                    @Override
+                    public void run() {
+                        doLoadFinished(data);
+                    }
+                }, mLastRefreshTime + Const.DEFAULT_REFRESH_DURATION);
+                return;
             }
+            doLoadFinished(data);
+        }
+    }
+
+    private void doLoadFinished(Cursor data) {
+        mRepository.clearDirty();
+        mView.setLoadingIndicator(false);
+        if (data != null) {
+            mView.showTasks(data);
+        } else {
+            mView.showNoTasks();
         }
     }
 
@@ -108,6 +130,7 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
         if (isFirst || mRepository.isDirty()) {
             isFirst = false;
             loadTasks();
+            mRepository.getCachedTaskGroup(new GetDataListCallbackAdapter<TaskGroup>());
         }
     }
 }

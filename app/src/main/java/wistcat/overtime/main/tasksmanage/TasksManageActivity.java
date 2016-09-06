@@ -7,9 +7,25 @@ import wistcat.overtime.R;
 
 public class TasksManageActivity extends AppCompatActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tasks_manage);
+
+        // fragment
+        TasksManageFragment fragment =
+                (TasksManageFragment) getSupportFragmentManager().findFragmentById(R.id.container);
+        if (fragment == null) {
+            fragment = new TasksManageFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.container, fragment)
+                    .commit();
+        }
+
+        // dagger
+
     }
+
 }

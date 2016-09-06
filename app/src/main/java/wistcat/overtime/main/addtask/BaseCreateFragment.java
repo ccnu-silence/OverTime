@@ -48,11 +48,10 @@ public abstract class BaseCreateFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         setHasOptionsMenu(true);
 
-        final View root = inflater.cloneInContext(
-                new ContextThemeWrapper(getContext(), getTheme()))
+        final View root = inflater
+                .cloneInContext(new ContextThemeWrapper(getContext(), getTheme()))
                 .inflate(getLayout(), container, false);
 
         // args
@@ -61,9 +60,7 @@ public abstract class BaseCreateFragment extends Fragment {
             // 为 Fragment 在 add 时添加动画效果
             root.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                 @Override
-                public void onLayoutChange(View view, int l, int t, int r, int b,
-                                           int oldl, int oldt, int oldr, int oldb) {
-
+                public void onLayoutChange(View view, int l, int t, int r, int b, int oldl, int oldt, int oldr, int oldb) {
                     root.removeOnLayoutChangeListener(this);
                     int cx = args.getInt(AddTaskActivity.ARG_CX);
                     int cy = args.getInt(AddTaskActivity.ARG_CY);
@@ -105,9 +102,8 @@ public abstract class BaseCreateFragment extends Fragment {
         mCreateListener = null;
     }
 
-    private Animator createAnimator(final RippleFrameLayout layout,
-                                    int cx, int cy, float startRadius, float endRadius) {
-
+    /** 创建水波动画 */
+    private Animator createAnimator(final RippleFrameLayout layout, int cx, int cy, float startRadius, float endRadius) {
         Animator animator;
 
         if (PlatformVersion.isLollipop()) {

@@ -21,13 +21,13 @@ import static wistcat.overtime.data.db.TaskTableHelper.QUERY_TASK_GROUP_PROJECTI
 import static wistcat.overtime.data.db.TaskTableHelper.QUERY_TASK_PROJECTION;
 
 /**
+ * ContentValues/Cursor等数据 与 TaskGroup/Task/Record/Episode的转换，以及其他的一些相关数据的转换
+ *
  * @author wistcat 2016/9/1
  */
 public class TaskEngine {
-    // NOTE: contentValues->Task/Record/Episode    cursor->Task/Record/Episode ...
 
     private TaskEngine(){}
-
 
     /** 为一个TaskGroup生成一个ContentValues，用于插入数据库 */
     public static ContentValues taskGroupTo(@NonNull TaskGroup group) {
@@ -77,7 +77,6 @@ public class TaskEngine {
         values.put(RecordEntry.COLUMN_NAME_EXTRA_4, record.getExtra_4());
         return values;
     }
-
 
     /** 为一个Episode生成一个ContentValues，用于插入数据库 */
     public static ContentValues episodeTo(@NonNull Episode episode) {

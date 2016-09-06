@@ -171,15 +171,15 @@ public class TaskDatabase {
     /**
      * 插入一条TaskGroup
      */
-    public Uri insertTaskGroup(ContentValues values) {
-        return insertTaskGroup(null, values);
+    public Uri insertTaskGroup(String account, ContentValues values) {
+        return insertTaskGroup(account, null, values);
     }
 
     /**
      * 插入一条TaskGroup
      * <br/> 先检查条目是否存在，再选择更新或者插入
      */
-    public Uri insertTaskGroup(String nullColumnHack, ContentValues values) {
+    public Uri insertTaskGroup(String account, String nullColumnHack, ContentValues values) {
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         Uri ret;
         String table = TaskGroupEntry.TABLE_NAME;
@@ -203,7 +203,7 @@ public class TaskDatabase {
         }
         // build uri
         if (_id > 0) {
-            ret = TaskContract.buildTaskGroupUriWith(_id);
+            ret = TaskContract.buildTaskGroupUriWith(account, _id);
         } else {
             throw new android.database.SQLException("Failed to insert row");
         }
