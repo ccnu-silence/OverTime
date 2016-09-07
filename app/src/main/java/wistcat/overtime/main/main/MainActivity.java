@@ -109,6 +109,7 @@ public class MainActivity extends AbsBaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // event.getAction()区分按键状态，keyCode区分事件发生在哪个按钮
         if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_BACK:

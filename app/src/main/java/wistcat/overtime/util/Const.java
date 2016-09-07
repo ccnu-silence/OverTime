@@ -16,7 +16,7 @@ public class Const {
     public static final String ACCOUNT_GUEST = "Guest";
 
     /** 默认TaskGroup名 */
-    public static final String DEFAULT_GROUP = "Default";
+    public static final String DEFAULT_GROUP = "默认";
 
     public static final int DEFAULT_GROUP_ID = 0;
 
@@ -26,5 +26,7 @@ public class Const {
     public static final int DEFAULT_REFRESH_DURATION = 500;
 
     public static final String BUNDLE_KEY_TASK = "SEND_A_TASK";
+
+    public static final String BUNDLE_KEY_ITEM_ID = "item_id";
 
 }

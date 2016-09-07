@@ -1,45 +1,43 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/fg_dim_grey"
     android:orientation="vertical">
 
     <include layout="@layout/include_empty_toolbar"/>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         style="?attr/buttonBarStyle">
-        <Button
-            android:layout_weight="1"
-            android:layout_width="0dp"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="false"
-            style="?attr/buttonBarButtonStyle"/>
-        <Button
-            android:layout_weight="1"
-            android:layout_width="0dp"
+            android:text="@string/task_groups"
+            android:layout_centerVertical="true"
+            android:textColor="@color/DarkGrey"/>
+        <ImageButton
+            android:id="@+id/more_menu"
+            android:layout_width="32dp"
             android:layout_height="wrap_content"
-            android:text="@string/Create"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="14sp"
-            style="?attr/buttonBarButtonStyle"/>
-        <Button
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/Manage"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="14sp"
-            style="?attr/buttonBarButtonStyle"/>
+            android:gravity="center"
+            android:src="@drawable/vec_more_vert"
+            android:layout_alignParentRight="true"
+            style="?attr/buttonBarButtonStyle"
+            tools:ignore="contentDescription"/>
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"/>
 
 </LinearLayout>

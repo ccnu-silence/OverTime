@@ -4,7 +4,7 @@
     android:shape="oval">
 
     <stroke android:width="@dimen/default_circle_width"
-            android:color="@color/Red300"/>
+            android:color="@color/colorPrimary"/>
     <size android:width="12dp"
           android:height="12dp"/>
 

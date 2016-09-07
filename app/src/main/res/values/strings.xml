@@ -28,4 +28,9 @@
 
     <!--page titles-->
     <string name="title_tasks_manage">任务管理</string>
+
+    <!--TasksManageFragment-->
+    <string name="task_groups">任务组</string>
+    <string name="add_taskgroup">添加分组</string>
+    <string name="edit_taskgroup_list">编辑分组</string>
 </resources>

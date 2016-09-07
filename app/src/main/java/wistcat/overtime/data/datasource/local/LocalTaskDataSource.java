@@ -83,6 +83,7 @@ public class LocalTaskDataSource implements TaskDataSource {
             TaskRepository.mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
+                    // 只在Account第一次创建时有效
                     if (mDown != null) {
                         try {
                             mDown.await();
@@ -99,6 +100,7 @@ public class LocalTaskDataSource implements TaskDataSource {
                             null,
                             null
                     );
+                    // Cursor转换为List
                     List<TaskGroup> list = new ArrayList<>();
                     if (c != null) {
                         try {
@@ -135,15 +137,12 @@ public class LocalTaskDataSource implements TaskDataSource {
     public void setTaskGroupCache(Cursor cursor) {
         List<TaskGroup> list = new ArrayList<>();
         if (cursor != null) {
-            try {
-                if (cursor.moveToFirst()) {
-                    while (cursor.moveToNext()) {
-                        list.add(TaskEngine.taskGroupFrom(cursor));
-                    }
+            if (cursor.moveToFirst()) {
+                while (cursor.moveToNext()) {
+                    list.add(TaskEngine.taskGroupFrom(cursor));
                 }
-            } finally {
-                cursor.close();
             }
+            cursor.moveToFirst();
         }
         mCachedTaskGroup = list;
     }

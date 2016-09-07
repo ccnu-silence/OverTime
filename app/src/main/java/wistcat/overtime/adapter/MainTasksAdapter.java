@@ -40,26 +40,25 @@ public class MainTasksAdapter extends CursorAdapter {
         holder.root = root;
         holder.mHeader = (ImageView) root.findViewById(R.id.task_header);
         holder.mName = (TextView) root.findViewById(R.id.task_name);
+        root.setTag(holder);
         return root;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder holder = (ViewHolder) view.getTag();
-        View root = holder.root;
-        TextView taskName = holder.mName;
-        ImageView taskHeader = holder.mHeader;
+
         final Task task = TaskEngine.taskFrom(cursor);
         final int res = TaskEngine.taskToRes(task);
         final String name = cursor.getString(TaskTableHelper.QUERY_TASK_PROJECTION.TASK_NAME);
-        taskName.setText(name);
-        taskHeader.setImageResource(res);
-        root.setOnClickListener(new View.OnClickListener() {
+        holder.root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mItemListener.onSelected(task);
             }
         });
+        holder.mName.setText(name);
+        holder.mHeader.setImageResource(res);
     }
 
     @Override

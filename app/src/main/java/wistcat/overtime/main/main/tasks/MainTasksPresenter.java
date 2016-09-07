@@ -64,6 +64,7 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     public void onLoadFinished(final Loader<Cursor> loader, final  Cursor data) {
         if (loader.getId() == TASKS_QUERY) {
             long now = SystemClock.uptimeMillis();
+            // 每次刷新都至少要显示一段时间，比如500ms
             if (now < mLastRefreshTime + Const.DEFAULT_REFRESH_DURATION) {
                 mHandler.postAtTime(new Runnable() {
                     @Override

@@ -2,10 +2,10 @@ package wistcat.overtime.main.tasksmanage;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.View;
 
 import javax.inject.Inject;
 
@@ -13,7 +13,6 @@ import wistcat.overtime.App;
 import wistcat.overtime.data.datasource.TaskRepository;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
-import wistcat.overtime.model.TaskGroup;
 
 /**
  * @author wistcat 2016/9/5
@@ -24,7 +23,7 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
     private final TasksManageContract.View mView;
     private final LoaderManager mLoaderManager;
     private final TaskRepository mRepository;
-    private boolean isFirst;
+    private boolean isFirst = true;
 
     @Inject
     public TasksManagePresenter(TasksManageContract.View view, LoaderManager manager, TaskRepository repository) {
@@ -41,6 +40,7 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
     @Override
     public void start() {
         if (isFirst) {
+            isFirst = false;
             loadTaskGroups();
         }
     }
@@ -100,12 +100,22 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
     }
 
     @Override
-    public void saveNewTaskGroup(@NonNull TaskGroup group) {
-        mRepository.saveTaskGroup(group);
+    public void openTaskGroup(int groupId) {
+        mView.showTaskList(groupId);
     }
 
     @Override
-    public void openTaskGroup(int groupId) {
-        mView.showTaskList(groupId);
+    public void openMoreMenu(View view) {
+        mView.showMoreMenu(view);
+    }
+
+    @Override
+    public void openAddDialog() {
+        mView.showCreateDialog();
+    }
+
+    @Override
+    public void openEditList() {
+        mView.showGroupManage();
     }
 }
