@@ -10,6 +10,7 @@ import wistcat.overtime.model.Record;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
 import wistcat.overtime.model.TaskState;
+import wistcat.overtime.util.Const;
 
 import static wistcat.overtime.data.db.TaskContract.EpisodeEntry;
 import static wistcat.overtime.data.db.TaskContract.RecordEntry;
@@ -28,6 +29,19 @@ import static wistcat.overtime.data.db.TaskTableHelper.QUERY_TASK_PROJECTION;
 public class TaskEngine {
 
     private TaskEngine(){}
+
+    /** 用于账户的TaskGroup表的默认组的生成 */
+    public static ContentValues taskGroupToDefault(@NonNull String account) {
+        ContentValues values = new ContentValues();
+        values.put(TaskGroupEntry.COLUMN_NAME_GROUP_ID, Const.DEFAULT_GROUP_ID);
+        values.put(TaskGroupEntry.COLUMN_NAME_GROUP_NAME, Const.DEFAULT_GROUP);
+        values.put(TaskGroupEntry.COLUMN_NAME_GROUP_ACCOUNT, account);
+        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_ACTIVATE, 0);
+        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_RUNNING, 0);
+        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_COMPLETED, 0);
+        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_RECYCLED, 0);
+        return values;
+    }
 
     /** 为一个TaskGroup生成一个ContentValues，用于插入数据库 */
     public static ContentValues taskGroupTo(@NonNull TaskGroup group) {

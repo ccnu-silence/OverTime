@@ -159,6 +159,16 @@ public abstract class TaskDataSourceAdapter implements TaskDataSource {
     }
 
     @Override
+    public void initAccount(@NonNull String account) {
+
+    }
+
+    @Override
+    public void deleteAccount(@NonNull String account) {
+
+    }
+
+    @Override
     public void deleteTables() {
 
     }

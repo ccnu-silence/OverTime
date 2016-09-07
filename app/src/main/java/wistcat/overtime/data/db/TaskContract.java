@@ -17,7 +17,7 @@ public final class TaskContract {
     /** ContentProvider的Authority */
     public static final String AUTHORITY = "wistcat.overtime.TaskProvider";
     /** 基础URI */
-    public static final Uri BASE_CONTENT_URI = Uri.parse("Content://" + AUTHORITY);
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     private TaskContract(){}
 
@@ -226,7 +226,7 @@ public final class TaskContract {
 
     public static class TaskGroupEntry implements BaseColumns {
         /** TaskGroup表名 */
-        public static final String TABLE_NAME = "task_group_table";
+        public static final String TABLE_NAME = "_taskgroup";
         /** 资源路径 */
         public static final String PATH = "taskgroups";
         /** MIME类型：多个TaskGroup */
@@ -253,6 +253,10 @@ public final class TaskContract {
         public static final String COLUMN_NAME_COUNT_COMPLETED = "count_completed";
         /** 包含的Recycled Task的统计 */
         public static final String COLUMN_NAME_COUNT_RECYCLED = "count_recycled";
+
+        public static String getTableName(String account) {
+            return account + TABLE_NAME;
+        }
     }
 
 }

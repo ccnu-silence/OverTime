@@ -30,7 +30,7 @@ public final class TaskTableHelper {
                     TaskGroupEntry.COLUMN_NAME_COUNT_ACTIVATE + TYPE_INTEGER + COMMA_SEP +
                     TaskGroupEntry.COLUMN_NAME_COUNT_RUNNING + TYPE_INTEGER + COMMA_SEP +
                     TaskGroupEntry.COLUMN_NAME_COUNT_COMPLETED + TYPE_INTEGER + COMMA_SEP +
-                    TaskGroupEntry.COLUMN_NAME_COUNT_RECYCLED + TYPE_INTEGER + COMMA_SEP + ")";
+                    TaskGroupEntry.COLUMN_NAME_COUNT_RECYCLED + TYPE_INTEGER + ")";
 
     /** 创建任务表语句 */
     private static final String CREATE_TASK_TABLE =
@@ -48,7 +48,7 @@ public final class TaskTableHelper {
                     TaskEntry.COLUMN_NAME_EXTRA_1 + TYPE_TEXT + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_EXTRA_2 + TYPE_TEXT + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_EXTRA_3 + TYPE_TEXT + COMMA_SEP +
-                    TaskEntry.COLUMN_NAME_EXTRA_4 + TYPE_TEXT + COMMA_SEP + ")";
+                    TaskEntry.COLUMN_NAME_EXTRA_4 + TYPE_TEXT + ")";
 
     /** 创建记录表语句 */
     private static final String CREATE_RECORD_TABLE =
@@ -64,7 +64,7 @@ public final class TaskTableHelper {
                     RecordEntry.COLUMN_NAME_EXTRA_1 + TYPE_TEXT + COMMA_SEP +
                     RecordEntry.COLUMN_NAME_EXTRA_2 + TYPE_TEXT + COMMA_SEP +
                     RecordEntry.COLUMN_NAME_EXTRA_3 + TYPE_TEXT + COMMA_SEP +
-                    RecordEntry.COLUMN_NAME_EXTRA_4 + TYPE_TEXT + COMMA_SEP + ")";
+                    RecordEntry.COLUMN_NAME_EXTRA_4 + TYPE_TEXT + ")";
 
     /** 创建Episode表语句 */
     private static final String CREATE_EPISODE_TABLE =
@@ -80,10 +80,10 @@ public final class TaskTableHelper {
                     EpisodeEntry.COLUMN_NAME_EXTRA_1 + TYPE_TEXT + COMMA_SEP +
                     EpisodeEntry.COLUMN_NAME_EXTRA_2 + TYPE_TEXT + COMMA_SEP +
                     EpisodeEntry.COLUMN_NAME_EXTRA_3 + TYPE_TEXT + COMMA_SEP +
-                    EpisodeEntry.COLUMN_NAME_EXTRA_4 + TYPE_TEXT + COMMA_SEP + ")";
+                    EpisodeEntry.COLUMN_NAME_EXTRA_4 + TYPE_TEXT + ")";
 
     /** 删除TaskGroup表语句 */
-    public static final String DELETE_TASK_GROUP_TABLE = "DROP IF EXISTS " + TaskEntry.TABLE_NAME;
+    public static final String DELETE_TASK_GROUP_TABLE = "DROP IF EXISTS %s" + TaskGroupEntry.TABLE_NAME;
     /** 删除任务表语句 */
     private static final String DELETE_TASK_TABLE = "DROP IF EXISTS %s" + TaskEntry.TABLE_NAME;
     /** 删除记录表语句 */
@@ -91,8 +91,6 @@ public final class TaskTableHelper {
     /** 删除Episode表语句 */
     private static final String DELETE_EPISODE_TABLE = "DROP IF EXISTS %s" + EpisodeEntry.TABLE_NAME;
 
-    /** 匹配group_account的where语句 */
-    public static final String WHERE_TASK_GOUP_ACCOUNT = TaskGroupEntry.COLUMN_NAME_GROUP_ACCOUNT + " = ?";
     /** 匹配group_id的where语句 */
     public static final String WHERE_TASK_GOUP_ID = TaskGroupEntry.COLUMN_NAME_GROUP_ID + " = ?";
     /** 匹配task_id的where语句 */
@@ -109,11 +107,12 @@ public final class TaskTableHelper {
     public static final String[] WHERE_TASK_STATE_COMLETED = new String[] {
             TaskState.Completed.name()
     };
+
     /** whereArgs: TastState == Activate */
     public static final String[] WHERE_TASK_STATE_ACTIVATE = new String[] {
-            TaskState.Activate.name(),
-            TaskState.Running.name()
+            TaskState.Activate.name()
     };
+
     /** whereArgs: TastState == Running */
     public static final String[] WHERE_TASK_STATE_RUNNING = new String[] {
             TaskState.Running.name()
@@ -187,6 +186,7 @@ public final class TaskTableHelper {
 
     /** 根据账户名创建表 */
     public static void createTables(SQLiteDatabase db, String account) {
+        db.execSQL(String.format(CREATE_TASK_GROUP_TABLE, account));
         db.execSQL(String.format(CREATE_TASK_TABLE, account));
         db.execSQL(String.format(CREATE_RECORD_TABLE, account));
         db.execSQL(String.format(CREATE_EPISODE_TABLE, account));
@@ -194,6 +194,7 @@ public final class TaskTableHelper {
 
     /** 根据账户名删除表 */
     public static void deleteTables(SQLiteDatabase db, String account) {
+        db.execSQL(String.format(DELETE_TASK_GROUP_TABLE, account));
         db.execSQL(String.format(DELETE_TASK_TABLE, account));
         db.execSQL(String.format(DELETE_RECORD_TABLE, account));
         db.execSQL(String.format(DELETE_EPISODE_TABLE, account));

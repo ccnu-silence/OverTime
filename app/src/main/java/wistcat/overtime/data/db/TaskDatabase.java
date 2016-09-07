@@ -39,7 +39,7 @@ public class TaskDatabase {
     public Cursor query(String account, String table, String[] columns, String selection,
                         String[] SelectionArgs, String groupBy, String having, String orderBy) {
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-        if (account != null) {
+        if (!account.equals(Const.ACCOUNT_GUEST)) {
             TaskTableHelper.createTables(db, account);
         }
         return db.query(table, columns, selection, SelectionArgs, groupBy, having, orderBy);
@@ -182,7 +182,7 @@ public class TaskDatabase {
     public Uri insertTaskGroup(String account, String nullColumnHack, ContentValues values) {
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         Uri ret;
-        String table = TaskGroupEntry.TABLE_NAME;
+        String table = TaskGroupEntry.getTableName(account);
         Cursor cursor = db.query(
                 table,
                 new String[]{TaskGroupEntry.COLUMN_NAME_GROUP_ID},
@@ -240,13 +240,11 @@ public class TaskDatabase {
         @Override
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
             TaskTableHelper.createTables(sqLiteDatabase, Const.ACCOUNT_GUEST);
-            sqLiteDatabase.execSQL(TaskTableHelper.CREATE_TASK_GROUP_TABLE);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
             TaskTableHelper.deleteTables(sqLiteDatabase, Const.ACCOUNT_GUEST);
-            sqLiteDatabase.execSQL(TaskTableHelper.DELETE_TASK_GROUP_TABLE);
             onCreate(sqLiteDatabase);
         }
     }

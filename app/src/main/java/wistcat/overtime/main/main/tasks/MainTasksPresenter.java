@@ -13,12 +13,11 @@ import javax.inject.Inject;
 
 import wistcat.overtime.App;
 import wistcat.overtime.data.datasource.TaskRepository;
+import wistcat.overtime.data.db.SelectionBuilder;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
 import wistcat.overtime.model.Task;
-import wistcat.overtime.model.TaskGroup;
 import wistcat.overtime.util.Const;
-import wistcat.overtime.util.GetDataListCallbackAdapter;
 
 /**
  * @author wistcat 2016/9/2
@@ -45,12 +44,16 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
         if (id == TASKS_QUERY) {
             mLastRefreshTime = SystemClock.uptimeMillis();
             mView.setLoadingIndicator(true);
+            // 创建搜索语句
+            SelectionBuilder builder = new SelectionBuilder();
+            builder.whereOr(TaskTableHelper.WHERE_TASK_STATE, TaskTableHelper.WHERE_TASK_STATE_ACTIVATE)
+                    .whereOr(TaskTableHelper.WHERE_TASK_STATE, TaskTableHelper.WHERE_TASK_STATE_RUNNING);
             return new CursorLoader(
                     App.getInstance(),
                     TaskContract.buildTasksUriWith(App.getInstance().getAccountName()),
                     TaskTableHelper.TASK_PROJECTION,
-                    TaskTableHelper.WHERE_TASK_STATE,
-                    TaskTableHelper.WHERE_TASK_STATE_ACTIVATE,
+                    builder.getSelection(),
+                    builder.getSelectionArgs(),
                     null
             );
         }
@@ -77,10 +80,10 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     private void doLoadFinished(Cursor data) {
         mRepository.clearDirty();
         mView.setLoadingIndicator(false);
-        if (data != null) {
-            mView.showTasks(data);
-        } else {
+        if (data == null || !data.moveToLast()) {
             mView.showNoTasks();
+        } else {
+            mView.showTasks(data);
         }
     }
 
@@ -127,10 +130,12 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
 
     @Override
     public void start() {
-        if (isFirst || mRepository.isDirty()) {
+        if (isFirst) {
             isFirst = false;
             loadTasks();
-            mRepository.getCachedTaskGroup(new GetDataListCallbackAdapter<TaskGroup>());
+            mRepository.initAccount(App.getInstance().getAccountName());
+        } else if (mRepository.isDirty()) {
+            loadTasks();
         }
     }
 }

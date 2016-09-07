@@ -2,6 +2,7 @@ package wistcat.overtime.data.datasource;
 
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -29,6 +30,7 @@ import wistcat.overtime.model.TaskGroup;
  */
 @Singleton
 public class TaskRepository implements TaskDataSource {
+    private static final String TAG = "TaskRepository_TAG";
 
     private static final int CORE_POOL_SIZE = 5;
     private static final int MAX_POOL_SIZE = 128;
@@ -269,8 +271,19 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void initAccount(@NonNull final String account) {
+        Log.i(TAG, "---initAccount---");
+        mLocalDataSource.initAccount(account);
+    }
+
+    @Override
+    public void deleteAccount(@NonNull String account) {
+        // TODO
+    }
+
+    @Override
     public void deleteTables() {
-        // ...
+        // TODO
     }
 
     public void setDirty() {

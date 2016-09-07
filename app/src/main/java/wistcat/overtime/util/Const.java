@@ -15,6 +15,13 @@ public class Const {
     /** 默认账号名 */
     public static final String ACCOUNT_GUEST = "Guest";
 
+    /** 默认TaskGroup名 */
+    public static final String DEFAULT_GROUP = "Default";
+
+    public static final int DEFAULT_GROUP_ID = 0;
+
+    public static final String ACCOUNT_IS_FIRST = "%s_is_first";
+
     /** 默认swipeRefresh显示时间 */
     public static final int DEFAULT_REFRESH_DURATION = 500;
 

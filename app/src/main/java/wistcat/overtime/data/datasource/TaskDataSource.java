@@ -98,6 +98,12 @@ public interface TaskDataSource {
 
     void deleteEpisode(int episodeId);
 
+    // ----account----
+
+    void initAccount(@NonNull String account);
+
+    void deleteAccount(@NonNull String account);
+
     //  ----other----
 
     void deleteTables();
