@@ -28,4 +28,5 @@
     <color name="Semi_White">#80FFFFFF</color>
     <color name="Semi_Black">#80000000</color>
 
+    <color name="text_dark">#dd000000</color>
 </resources>

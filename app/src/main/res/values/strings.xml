@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">OverTime</string>
 
+    <!--common-->
+    <string name="Positive">确定</string>
+    <string name="Negative">取消</string>
+
+    <string name="error_name_is_null">名称不能为空</string>
+
     <!-- MainActivity -->
     <string name="under_construction">前方正在施工&#8230;</string>
     <string name="no_tasks">没有活动的任务</string>
@@ -33,4 +39,6 @@
     <string name="task_groups">任务组</string>
     <string name="add_taskgroup">添加分组</string>
     <string name="edit_taskgroup_list">编辑分组</string>
+    <string name="create_task_group">新建任务小组</string>
+    <string name="hint_input_group_name">请输入小组名</string>
 </resources>

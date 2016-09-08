@@ -118,4 +118,9 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
     public void openEditList() {
         mView.showGroupManage();
     }
+
+    @Override
+    public void closeCreateDialog() {
+        mView.hideCreateDialog();
+    }
 }

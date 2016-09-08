@@ -3,10 +3,10 @@ package wistcat.overtime.main.tasksmanage;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -128,7 +128,8 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
 
     @Override
     public void showCreateDialog() {
-        // TODO
+        TasksManageActivity activity = (TasksManageActivity) getActivity();
+        activity.popupAddDialog();
     }
 
     @Override
@@ -156,24 +157,8 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
 
     @Override
     public void showMoreMenu(View view) {
-        PopupMenu menu = new PopupMenu(getContext(), view);
-        menu.getMenuInflater().inflate(R.menu.menu_taskgroup_popup, menu.getMenu());
-        menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_add_taskgroup:
-                        mPresenter.openAddDialog();
-                        return true;
-                    case R.id.action_edit_task_list:
-                        mPresenter.openEditList();
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-        });
-        menu.show();
+        TasksManageActivity activity = (TasksManageActivity) getActivity();
+        activity.popupMoreMenu();
     }
 
     @Override
@@ -182,6 +167,17 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
         if (adapter != null) {
             adapter.swapCursor(null);
         }
+    }
+
+    @Override
+    public void hideCreateDialog() {
+        dismissFragment("AddTaskGroup");
+        // TODO ..other..
+    }
+
+    private void dismissFragment(@NonNull String tag) {
+        TasksManageActivity activity = (TasksManageActivity) getActivity();
+        activity.dismissFragment(tag);
     }
 
 }

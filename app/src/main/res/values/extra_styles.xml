@@ -48,4 +48,10 @@
         <item name="colorControlActivated">@color/Primary_Limited</item>
         <item name="tintBackground">@color/Primary_Limited</item>
     </style>
+
+    <style name="DialogAccessAnim" parent="android:Animation">
+        <item name="@android:windowEnterAnimation">@anim/anim_window_bottom_enter</item>
+        <item name="@android:windowExitAnimation">@anim/anim_window_bottom_exit</item>
+    </style>
+
 </resources>

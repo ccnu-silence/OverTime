@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import java.util.UUID;
+
 import wistcat.overtime.R;
 import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
@@ -214,4 +216,10 @@ public class TaskEngine {
     public static int taskToRes(@NonNull Task task) {
         return taskToRes(task.getType());
     }
+
+    /** 为{@link wistcat.overtime.model.Entity}生成唯一ID */
+    public static int createId() {
+        return UUID.randomUUID().hashCode();
+    }
+
 }

@@ -35,6 +35,9 @@ public interface TasksManageContract {
 
         /** 清空CursorAdapter的数据 */
         void clearCursor();
+
+        /** 关闭新建*/
+        void hideCreateDialog();
     }
 
     interface Presenter extends BasePresenter {
@@ -62,5 +65,8 @@ public interface TasksManageContract {
 
         /** 打开列表管理 */
         void openEditList();
+
+        /** 关闭新建Dialog */
+        void closeCreateDialog();
     }
 }
