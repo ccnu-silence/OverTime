@@ -23,8 +23,8 @@ public class Episode extends Entity implements Comparable<Episode> {
     private String extra_3;
     private String extra_4;
 
-    public Episode(int id, int recordId, int type, String name, String remark, String startTime, int seq) {
-        super(id);
+    public Episode(int id, int uuid, int recordId, int type, String name, String remark, String startTime, int seq) {
+        super(id, uuid);
         mRecordId = recordId;
         mType = type;
         mName = name;

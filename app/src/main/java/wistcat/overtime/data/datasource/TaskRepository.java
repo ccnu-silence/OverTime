@@ -22,6 +22,7 @@ import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
+import wistcat.overtime.model.TaskState;
 
 /**
  * 数据接口，向上为Presenter层提供统一服务接口， 向下直接管理全部的数据源
@@ -32,6 +33,7 @@ import wistcat.overtime.model.TaskGroup;
 public class TaskRepository implements TaskDataSource {
     private static final String TAG = "TaskRepository_TAG";
 
+    /* 创建线程池 */
     private static final int CORE_POOL_SIZE = 5;
     private static final int MAX_POOL_SIZE = 128;
     private static final int KEEP_ALIVE = 1;
@@ -47,6 +49,7 @@ public class TaskRepository implements TaskDataSource {
     public static final Executor mExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE,
             KEEP_ALIVE, TimeUnit.SECONDS, sPoolWorkQueue, sThreadFactory);
 
+    /* 本地数据源 */
     private final TaskDataSource mLocalDataSource;
     private boolean isDirty;
 
@@ -76,6 +79,16 @@ public class TaskRepository implements TaskDataSource {
             @Override
             public void run() {
                 mLocalDataSource.deleteTaskGroup(taskGroupId);
+            }
+        });
+    }
+
+    @Override
+    public void deleteTaskGroups(@NonNull final List<Integer> taskGroupIds) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.deleteTaskGroups(taskGroupIds);
             }
         });
     }
@@ -136,46 +149,71 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
-    public void stopRunningTask(@NonNull final Task task, final String toState) {
-        stopRunningTask(task.getId(), toState);
-    }
-
-    @Override
-    public void stopRunningTask(final int taskId, final String toState) {
+    public void stopRunningTask(@NonNull final Task task, final TaskState state) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.stopRunningTask(taskId, toState);
+                mLocalDataSource.stopRunningTask(task, state);
             }
         });
     }
 
     @Override
     public void completeTask(@NonNull final Task task) {
-        completeTask(task.getId());
-    }
-
-    @Override
-    public void completeTask(final int taskId) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.completeTask(taskId);
+                mLocalDataSource.completeTask(task);
             }
         });
     }
 
     @Override
-    public void activateTask(@NonNull final Task task) {
-       activateTask(task.getId());
-    }
-
-    @Override
-    public void activateTask(final int taskId) {
+    public void completeTasks(@NonNull final List<Integer> taskIds, final int groupId) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.activateTask(taskId);
+                mLocalDataSource.completeTasks(taskIds, groupId);
+            }
+        });
+    }
+
+    @Override
+    public void activateTask(@NonNull final Task task, final @NonNull TaskGroup group) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.activateTask(task, group);
+            }
+        });
+    }
+
+    @Override
+    public void activateTasks(@NonNull final List<Integer> taskIds, @NonNull final TaskGroup group) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.activateTasks(taskIds, group);
+            }
+        });
+    }
+
+    @Override
+    public void recycleTask(@NonNull final Task task) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.recycleTask(task);
+            }
+        });
+    }
+
+    @Override
+    public void recycleTasks(@NonNull final List<Integer> taskIds, final int groupId) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.recycleTasks(taskIds, groupId);
             }
         });
     }
@@ -196,11 +234,21 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
-    public void deleteAllTasks(final int groupId) {
+    public void deleteTasks(@NonNull final List<Integer> taskIds, final int groupId) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.deleteAllTasks(groupId);
+                mLocalDataSource.deleteTasks(taskIds, groupId);
+            }
+        });
+    }
+
+    @Override
+    public void initAndCheckRecords(@NonNull final GetDataListCallback<Record> callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.initAndCheckRecords(callback);
             }
         });
     }
@@ -231,16 +279,11 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
-    public void deleteAllRecords(@NonNull final Task task) {
-        deleteAllRecords(task.getId());
-    }
-
-    @Override
-    public void deleteAllRecords(final int taskId) {
+    public void deleteRecords(@NonNull final List<Integer> recordIds) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.deleteAllRecords(taskId);
+                mLocalDataSource.deleteRecords(recordIds);
             }
         });
     }
@@ -266,6 +309,16 @@ public class TaskRepository implements TaskDataSource {
             @Override
             public void run() {
                 mLocalDataSource.deleteEpisode(episodeId);
+            }
+        });
+    }
+
+    @Override
+    public void deleteEpisodes(@NonNull final List<Integer> episodeIds) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.deleteEpisodes(episodeIds);
             }
         });
     }

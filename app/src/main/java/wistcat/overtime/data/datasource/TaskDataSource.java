@@ -10,6 +10,7 @@ import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
+import wistcat.overtime.model.TaskState;
 
 /**
  * 数据源
@@ -19,11 +20,14 @@ import wistcat.overtime.model.TaskGroup;
 public interface TaskDataSource {
 
     // ----taskgroup---
+
     void saveTaskGroup(@NonNull TaskGroup taskGroup);
 
     void deleteTaskGroup(@NonNull TaskGroup taskGroup);
 
     void deleteTaskGroup(int taskGroupId);
+
+    void deleteTaskGroups(@NonNull List<Integer> taskGroupIds);
 
     void getCachedTaskGroup(@NonNull GetDataListCallback<TaskGroup> callback);
 
@@ -50,25 +54,32 @@ public interface TaskDataSource {
     void startRunningTask(int taskId);
 
     /* Running -> Activate/Completed */
-    void stopRunningTask(@NonNull Task task, String toState);
+    void stopRunningTask(@NonNull Task task, TaskState state);
 
-    void stopRunningTask(int taskId, String toState);
-
-    /* Activiate/Recycled/Running -> Completed */
+    /* Activiate/Running -> Completed */
     void completeTask(@NonNull Task task);
 
-    void completeTask(int taskId);
+    /* 只在TaskGroup打开页才有编辑功能 */
+    void completeTasks(@NonNull List<Integer> taskIds, int groupId);
 
-    /* completed/Recycled -> Activate */
-    void activateTask(@NonNull Task task);
+    /* Completed/Recycled -> Activate (need new groupTask) */
+    void activateTask(@NonNull Task task, @NonNull TaskGroup group);
 
-    void activateTask(int taskId);
+    /* 只在TaskGroup打开页才有编辑功能 */
+    void activateTasks(@NonNull List<Integer> taskIds, @NonNull TaskGroup group);
 
+    /* Activate/Completed -> Recycled */
+    void recycleTask(@NonNull Task task);
+
+    /* 只在TaskGroup打开页才有编辑功能 */
+    void recycleTasks(@NonNull List<Integer> taskIds, int groupId);
+
+    /* delete */
     void deleteTask(@NonNull Task task);
 
     void deleteTask(int taskId);
 
-    void deleteAllTasks(int groupId);
+    void deleteTasks(@NonNull List<Integer> taskIds, int groupId);
 
     // ----Record----
 
@@ -76,15 +87,15 @@ public interface TaskDataSource {
 //    void getRecord(@NonNull Task task, @NonNull Record record, GetDataCallback<Record> callback);
 //    void getRecords(@NonNull Task task, GetDataListCallback<Record> callback);
 
+    void initAndCheckRecords(@NonNull GetDataListCallback<Record> callback);
+
     void saveRecord(@NonNull Record record);
 
     void deleteRecord(@NonNull Record record);
 
     void deleteRecord(int recordId);
 
-    void deleteAllRecords(@NonNull Task task);
-
-    void deleteAllRecords(int taskId);
+    void deleteRecords(@NonNull List<Integer> recordIds);
 
     // ----Episode----
 
@@ -97,6 +108,8 @@ public interface TaskDataSource {
     void deleteEpisode(@NonNull Episode episode);
 
     void deleteEpisode(int episodeId);
+
+    void deleteEpisodes(@NonNull List<Integer> episodeIds);
 
     // ----account----
 

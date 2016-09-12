@@ -9,13 +9,12 @@ public class TaskGroup extends Entity {
 
     private final String mName;
     private final String mAccount;
-    private int mActive;
-    private int mRunning;
-    private int mCompleted;
-    private int mRecycled;
+    private int mTaskCount;
+    private String extra_1;
+    private String extra_2;
 
-    public TaskGroup(int id, String name, String account) {
-        super(id);
+    public TaskGroup(int id, int uuid, String name, String account) {
+        super(id, uuid);
         mName = name;
         mAccount = account;
     }
@@ -33,42 +32,31 @@ public class TaskGroup extends Entity {
         return mAccount;
     }
 
-    public void init(int active, int running, int completed, int recycled) {
-        mActive = active;
-        mRunning = completed;
-        mCompleted = completed;
-        mRecycled = recycled;
+    public int getTaskCount() {
+        return mTaskCount;
     }
 
-    public int getRecycled() {
-        return mRecycled;
+    public TaskGroup setCount(int count) {
+        mTaskCount = count;
+        return this;
     }
 
-    public void setRecycled(int mRecycled) {
-        this.mRecycled = mRecycled;
+    public TaskGroup setExtra_1(String extra) {
+        extra_1 = extra;
+        return this;
     }
 
-    public int getCompleted() {
-        return mCompleted;
+    public TaskGroup setExtra_2(String extra) {
+        extra_2 = extra;
+        return this;
     }
 
-    public void setCompleted(int mCompleted) {
-        this.mCompleted = mCompleted;
+    public String getExtra_1() {
+        return extra_1;
     }
 
-    public int getRunning() {
-        return mRunning;
+    public String getExtra_2() {
+        return extra_2;
     }
 
-    public void setRunning(int mRunning) {
-        this.mRunning = mRunning;
-    }
-
-    public int getActive() {
-        return mActive;
-    }
-
-    public void setActive(int mActive) {
-        this.mActive = mActive;
-    }
 }

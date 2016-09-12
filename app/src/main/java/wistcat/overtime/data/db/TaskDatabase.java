@@ -51,7 +51,7 @@ public class TaskDatabase {
     }
 
     /**
-     * 插入一条Task，values中需要指定task_id列
+     * 插入一条Task，values中需要指定uuid列
      * <br/> 先检查条目是否存在，再选择更新或者插入
      *
      * @return 返回的uri以_ID结尾
@@ -62,9 +62,9 @@ public class TaskDatabase {
         Uri ret;
         Cursor cursor = db.query(
                 table,
-                new String[]{TaskEntry.COLUMN_NAME_TASK_ID},
-                TaskTableHelper.WHERE_TASK_ID,
-                new String[]{values.getAsString(TaskEntry.COLUMN_NAME_TASK_ID)},
+                new String[]{TaskEntry.COLUMN_UUID},
+                TaskTableHelper.WHERE_UUID,
+                new String[]{values.getAsString(TaskEntry.COLUMN_UUID)},
                 null,
                 null,
                 null
@@ -72,17 +72,16 @@ public class TaskDatabase {
 
         long _id;
         if (cursor.moveToLast()) { // return false if empty
-            _id = db.update(table, values, TaskTableHelper.WHERE_TASK_ID,
-                    new String[]{values.getAsString(TaskEntry.COLUMN_NAME_TASK_ID)});
+            _id = db.update(table, values, TaskTableHelper.WHERE_UUID,
+                    new String[]{values.getAsString(TaskEntry.COLUMN_UUID)});
         } else {
             _id = db.insert(table, nullColumnHack, values);
         }
-        // build uri
-        if (_id > 0) {
-            ret = TaskContract.buildTasksUriWith(account, _id);
-        } else {
+        // rowid 自增
+        if (_id < 0) {
             throw new android.database.SQLException("Failed to insert row");
         }
+        ret = TaskContract.buildTasksUriWith(account, _id);
         cursor.close();
         return ret;
     }
@@ -102,9 +101,9 @@ public class TaskDatabase {
         Uri ret;
         Cursor cursor = db.query(
                 table,
-                new String[]{RecordEntry.COLUMN_NAME_RECORD_ID},
-                TaskTableHelper.WHERE_RECORD_ID,
-                new String[]{values.getAsString(RecordEntry.COLUMN_NAME_RECORD_ID)},
+                new String[]{RecordEntry.COLUMN_UUID},
+                TaskTableHelper.WHERE_UUID,
+                new String[]{values.getAsString(RecordEntry.COLUMN_UUID)},
                 null,
                 null,
                 null
@@ -112,17 +111,16 @@ public class TaskDatabase {
 
         long _id;
         if (cursor.moveToLast()) { // return false if empty
-            _id = db.update(table, values, TaskTableHelper.WHERE_RECORD_ID,
-                    new String[]{values.getAsString(RecordEntry.COLUMN_NAME_RECORD_ID)});
+            _id = db.update(table, values, TaskTableHelper.WHERE_UUID,
+                    new String[]{values.getAsString(RecordEntry.COLUMN_UUID)});
         } else {
             _id = db.insert(table, nullColumnHack, values);
         }
-        // build uri
-        if (_id > 0) {
-            ret = TaskContract.buildRecordsUriWith(account, _id);
-        } else {
+        // rowid 自增
+        if (_id < 0) {
             throw new android.database.SQLException("Failed to insert row");
         }
+        ret = TaskContract.buildRecordsUriWith(account, _id);
         cursor.close();
         return ret;
     }
@@ -142,9 +140,9 @@ public class TaskDatabase {
         Uri ret;
         Cursor cursor = db.query(
                 table,
-                new String[]{EpisodeEntry.COLUMN_NAME_EPISODE_ID},
-                TaskTableHelper.WHERE_EPISODE_ID,
-                new String[]{values.getAsString(EpisodeEntry.COLUMN_NAME_EPISODE_ID)},
+                new String[]{EpisodeEntry.COLUMN_UUID},
+                TaskTableHelper.WHERE_UUID,
+                new String[]{values.getAsString(EpisodeEntry.COLUMN_UUID)},
                 null,
                 null,
                 null
@@ -152,18 +150,17 @@ public class TaskDatabase {
 
         long _id;
         if (cursor.moveToLast()) { // return false if empty
-            _id = db.update(table, values, TaskTableHelper.WHERE_EPISODE_ID,
-                    new String[]{values.getAsString(EpisodeEntry.COLUMN_NAME_EPISODE_ID)}
+            _id = db.update(table, values, TaskTableHelper.WHERE_UUID,
+                    new String[]{values.getAsString(EpisodeEntry.COLUMN_UUID)}
             );
         } else {
             _id = db.insert(table, nullColumnHack, values);
         }
-        // build uri
-        if (_id > 0) {
-            ret = TaskContract.buildEpisodesUriWith(account, _id);
-        } else {
+        // rowid 自增
+        if (_id < 0) {
             throw new android.database.SQLException("Failed to insert row");
         }
+        ret = TaskContract.buildEpisodesUriWith(account, _id);
         cursor.close();
         return ret;
     }
@@ -185,9 +182,9 @@ public class TaskDatabase {
         String table = TaskGroupEntry.getTableName(account);
         Cursor cursor = db.query(
                 table,
-                new String[]{TaskGroupEntry.COLUMN_NAME_GROUP_ID},
-                TaskTableHelper.WHERE_TASK_GOUP_ID,
-                new String[]{values.getAsString(TaskGroupEntry.COLUMN_NAME_GROUP_ID)},
+                new String[]{TaskGroupEntry.COLUMN_UUID},
+                TaskTableHelper.WHERE_UUID,
+                new String[]{values.getAsString(TaskGroupEntry.COLUMN_UUID)},
                 null,
                 null,
                 null
@@ -195,18 +192,17 @@ public class TaskDatabase {
 
         long _id;
         if (cursor.moveToLast()) { // return false if empty
-            _id = db.update(table, values, TaskTableHelper.WHERE_TASK_GOUP_ID,
-                    new String[]{values.getAsString(TaskGroupEntry.COLUMN_NAME_GROUP_ID)}
+            _id = db.update(table, values, TaskTableHelper.WHERE_UUID,
+                    new String[]{values.getAsString(TaskGroupEntry.COLUMN_UUID)}
             );
         } else {
             _id = db.insert(table, nullColumnHack, values);
         }
-        // build uri
-        if (_id > 0) {
-            ret = TaskContract.buildTaskGroupUriWith(account, _id);
-        } else {
+        // rowid 自增
+        if (_id < 0) {
             throw new android.database.SQLException("Failed to insert row");
         }
+        ret = TaskContract.buildTaskGroupUriWith(account, _id);
         cursor.close();
         return ret;
     }
@@ -215,6 +211,11 @@ public class TaskDatabase {
     public int update(String table, ContentValues values, String where, String[] whereArgs) {
         SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         return db.update(table, values, where, whereArgs);
+    }
+
+    public void update(String sentence) {
+        SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+        db.execSQL(sentence);
     }
 
     /** 删除条目 */

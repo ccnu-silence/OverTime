@@ -2,6 +2,7 @@ package wistcat.overtime.main.tasksmanage;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -11,8 +12,11 @@ import javax.inject.Inject;
 
 import wistcat.overtime.App;
 import wistcat.overtime.data.datasource.TaskRepository;
+import wistcat.overtime.data.db.SelectionBuilder;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
+import wistcat.overtime.model.TaskGroup;
+import wistcat.overtime.util.Const;
 
 /**
  * @author wistcat 2016/9/5
@@ -48,12 +52,16 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == TASK_GROUP_QUERY) {
+            SelectionBuilder builder = new SelectionBuilder();
+            builder.notIn(TaskContract.TaskGroupEntry._ID, null)
+                    .notIn(null, String.valueOf(Const.COMPLETED_GROUP_ID))
+                    .notIn(null, String.valueOf(Const.RECYCLED_GROUP_ID));
             return new CursorLoader(
                     App.getInstance(),
                     TaskContract.buildTaskGroupUri(App.getInstance().getAccountName()),
                     TaskTableHelper.TASK_GROUP_PROJECTION,
-                    null,
-                    null,
+                    builder.getSelection(),
+                    builder.getSelectionArgs(),
                     null
             );
         }
@@ -122,5 +130,10 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
     @Override
     public void closeCreateDialog() {
         mView.hideCreateDialog();
+    }
+
+    @Override
+    public void addNewTaskGroup(@NonNull TaskGroup taskGroup) {
+        mRepository.saveTaskGroup(taskGroup);
     }
 }

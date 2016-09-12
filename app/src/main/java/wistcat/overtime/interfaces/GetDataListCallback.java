@@ -2,12 +2,10 @@ package wistcat.overtime.interfaces;
 
 import java.util.List;
 
-import wistcat.overtime.model.Entity;
-
 /**
  * @author wistcat 2016/9/4
  */
-public interface GetDataListCallback<T extends Entity> {
+public interface GetDataListCallback<T> {
 
     void onDataLoaded(List<T> dataList);
 

@@ -54,4 +54,9 @@
         <item name="@android:windowExitAnimation">@anim/anim_window_bottom_exit</item>
     </style>
 
+    <style name="CheckBoxStyle" parent="AppTheme">
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="android:textColorSecondary">?attr/colorPrimary</item>
+    </style>
+
 </resources>

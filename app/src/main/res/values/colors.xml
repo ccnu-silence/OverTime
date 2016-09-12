@@ -29,4 +29,6 @@
     <color name="Semi_Black">#80000000</color>
 
     <color name="text_dark">#dd000000</color>
+    <color name="divider">@color/Grey300</color>
+    <color name="divider2">#ddE0E0E0</color>
 </resources>

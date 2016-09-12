@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/include_empty_toolbar"/>
+
+    <FrameLayout
+        android:background="@color/bg_tasks_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="60dp"/>
+        <wistcat.overtime.widget.OutButton
+            android:id="@+id/confirm"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_gravity="bottom"
+            android:paddingTop="4dp"
+            android:background="@color/colorPrimary"
+            android:text="@string/Delete"
+            android:drawableTop="@drawable/vec_delete"
+            android:drawablePadding="0dp"
+            android:textColor="@color/White"
+            android:gravity="center"/>
+
+    </FrameLayout>
+
+
+</LinearLayout>

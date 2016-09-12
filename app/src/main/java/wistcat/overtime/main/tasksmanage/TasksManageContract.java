@@ -1,9 +1,11 @@
 package wistcat.overtime.main.tasksmanage;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import wistcat.overtime.base.BasePresenter;
 import wistcat.overtime.base.BaseView;
+import wistcat.overtime.model.TaskGroup;
 
 /**
  * @author wistcat 2016/9/5
@@ -68,5 +70,8 @@ public interface TasksManageContract {
 
         /** 关闭新建Dialog */
         void closeCreateDialog();
+
+        /** 添加新的任务组 */
+        void addNewTaskGroup(@NonNull TaskGroup taskGroup);
     }
 }

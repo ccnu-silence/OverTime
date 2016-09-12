@@ -15,7 +15,8 @@ public class SelectionBuilder {
 
     /**
      * 连接多个查询语句，使用 "AND" 连接where语句。<br/>
-     * 需要自己注意输入的where语句和参数的正确性。
+     * 需要自己注意输入的where语句和参数的正确性。<br/>
+     * 注意不要和其他方法混用！
      *
      * @param selection SQL where语句，一般是 "columns contains ?" 或者 "columns = ?"等，请使用占位符
      * @param selectionArgs 用于替换{@code selection}参数中的 "?" 占位符，并注意与"?"的1对1数量关系
@@ -39,7 +40,8 @@ public class SelectionBuilder {
 
     /**
      * 连接多个查询语句，使用 "OR" 连接where语句。<br/>
-     * 需要自己注意输入的where语句和参数的正确性。
+     * 需要自己注意输入的where语句和参数的正确性。<br/>
+     * 注意不要和其他方法混用！
      *
      * @param selection SQL where语句，一般是 "columns contains ?" 或者 "columns = ?"等，请使用占位符
      * @param selectionArgs 用于替换{@code selection}参数中的 "?" 占位符，并注意与"?"的1对1数量关系
@@ -57,6 +59,63 @@ public class SelectionBuilder {
         mSelection.append("(").append(selection).append(")");
         if (selectionArgs != null) {
             Collections.addAll(mSelectionArgs, selectionArgs);
+        }
+        return this;
+    }
+
+
+    /**
+     * 用于IN操作拼接：... where 列名 in (?, ?, ...) <br/>
+     * 配合 selectionArgs参数使用 <br/>
+     * 注意不要和其他方法混用！
+     *
+     * @param column 第一次需要输入列名，并且只有第一次有效，因此注意使用
+     * @param selectionArgs 用于替换in(?, ?..)中的占位符，第一次必须为null
+     *
+     */
+    public SelectionBuilder in(String column, String selectionArgs) {
+        if (mSelection.length() == 0) {
+            if (TextUtils.isEmpty(column) || selectionArgs != null) {
+                throw new IllegalArgumentException("列名为空，无效的查询");
+            }
+            mSelection.append(column).append(" IN ()");
+        } else {
+            mSelection.deleteCharAt(mSelection.length() - 1);
+            if (mSelectionArgs.size() != 0) {
+                mSelection.append(",");
+            }
+            mSelection.append("?)");
+        }
+        if (selectionArgs != null) {
+            mSelectionArgs.add(selectionArgs);
+        }
+        return this;
+    }
+
+    /**
+     * 用于NOT IN操作拼接：... where 列名 not in (?, ?, ...) <br/>
+     * 配合 selectionArgs参数使用<br/>
+     * 注意不要和其他方法混用！
+     *
+     * @param column 第一次需要输入列名，并且只有第一次有效，因此注意使用
+     * @param selectionArgs 用于替换not in(?, ?..)中的占位符，第一次必须为null
+     *
+     */
+    public SelectionBuilder notIn(String column, String selectionArgs) {
+        if (mSelection.length() == 0) {
+            if (TextUtils.isEmpty(column) || selectionArgs != null) {
+                throw new IllegalArgumentException("列名为空，无效的查询");
+            }
+            mSelection.append(column).append(" NOT IN ()");
+        } else {
+            mSelection.deleteCharAt(mSelection.length() - 1);
+            if (mSelectionArgs.size() != 0) {
+                mSelection.append(",");
+            }
+            mSelection.append("?)");
+        }
+        if (selectionArgs != null) {
+            mSelectionArgs.add(selectionArgs);
         }
         return this;
     }

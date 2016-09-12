@@ -18,6 +18,8 @@ public final class TaskContract {
     public static final String AUTHORITY = "wistcat.overtime.TaskProvider";
     /** 基础URI */
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    /** uuid */
+    public static final String UUID = "uuid";
 
     private TaskContract(){}
 
@@ -85,6 +87,12 @@ public final class TaskContract {
         return TaskGroupEntry.CONTENT_URI.buildUpon().appendPath(account).appendPath(id).build();
     }
 
+    /** 创建TaskGroup的Uri的路径，用于update自增/自减 */
+    public static Uri buildAutoTaskGroupUriWith(@NonNull String account, long id) {
+        Uri base = buildTaskGroupUriWith(account, id);
+        return base.buildUpon().appendPath("auto").build();
+    }
+
     /**
      * Task表数据操作相关常量
      */
@@ -102,12 +110,14 @@ public final class TaskContract {
         /** 资源URI */
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
-        /** 任务组别 */
+        /** uuid */
+        public static final String COLUMN_UUID = UUID;
+        /** 任务组id */
         public static final String COLUMN_NAME_GROUP_ID = "group_id";
+        /** 所属任务组名称 */
+        public static final String COLUMN_NAME_GROUP_NAME = "group_name";
         /** 任务状态 */
         public static final String COLUMN_NAME_TASK_STATE = "task_state";
-        /** 任务ID */
-        public static final String COLUMN_NAME_TASK_ID = "task_id";
         /** 任务名称 */
         public static final String COLUMN_NAME_TASK_NAME = "name";
         /** 任务类型 */
@@ -151,10 +161,10 @@ public final class TaskContract {
         /** 资源URI */
         public static Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
+        /** uuid */
+        public static final String COLUMN_UUID = UUID;
         /** 所属任务的id */
         public static final String COLUMN_NAME_TASK_ID = "task_id";
-        /** 记录id */
-        public static final String COLUMN_NAME_RECORD_ID = "record_id";
         /** 记录类型 */
         public static final String COLUMN_NAME_REOCRD_TYPE = "type";
         /** 记录用时 */
@@ -196,10 +206,10 @@ public final class TaskContract {
         /** 资源URI */
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
+        /** uuid */
+        public static final String COLUMN_UUID = UUID;
         /** 所属记录的id */
         public static final String COLUMN_NAME_RECORD_ID = "record_id";
-        /** Episode的id */
-        public static final String COLUMN_NAME_EPISODE_ID = "episode_id";
         /** Episode名 */
         public static final String COLUMN_NAME_EPISODE_NAME = "episode_name";
         /** Episode类型 */
@@ -238,21 +248,18 @@ public final class TaskContract {
         /** 资源URI */
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH).build();
-
-        /** TaskGroup的ID */
-        public static final String COLUMN_NAME_GROUP_ID = "group_id";
+        /** uuid */
+        public static final String COLUMN_UUID = UUID;
         /** TaskGroup的名称 */
         public static final String COLUMN_NAME_GROUP_NAME = "group_name";
         /** TaskGroup所属的帐户名 */
         public static final String COLUMN_NAME_GROUP_ACCOUNT = "account";
-        /** 包含的Activate Task的统计 */
-        public static final String COLUMN_NAME_COUNT_ACTIVATE = "count_activate";
-        /** 包含的Running Task的统计 */
-        public static final String COLUMN_NAME_COUNT_RUNNING = "count_running";
-        /** 包含的Completed Task的统计 */
-        public static final String COLUMN_NAME_COUNT_COMPLETED = "count_completed";
-        /** 包含的Recycled Task的统计 */
-        public static final String COLUMN_NAME_COUNT_RECYCLED = "count_recycled";
+        /** 包含的Task的统计 */
+        public static final String COLUMN_NAME_COUNT = "count";
+        /** 扩展列 */
+        public static final String COLUMN_NAME_EXTRA_1 = "extra1";
+        /** 扩展列 */
+        public static final String COLUMN_NAME_EXTRA_2 = "extra2";
 
         public static String getTableName(String account) {
             return account + TABLE_NAME;

@@ -4,6 +4,9 @@
     <!--common-->
     <string name="Positive">确定</string>
     <string name="Negative">取消</string>
+    <string name="Delete">删除</string>
+    <string name="select_all">全选</string>
+    <string name="select_all_reverse">取消全选</string>
 
     <string name="error_name_is_null">名称不能为空</string>
 

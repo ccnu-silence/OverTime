@@ -50,8 +50,8 @@ public class TaskGroupsAdapter extends CursorAdapter {
 
         final TaskGroup group = TaskEngine.taskGroupFrom(cursor);
         String name = group.getName();
-        int activate = group.getActive();
-        String description = MessageFormat.format("活动任务：{0}", activate);
+        int count = group.getTaskCount();
+        String description = MessageFormat.format("任务数：{0}", count);
 
         holder.root.setOnClickListener(new View.OnClickListener() {
             @Override

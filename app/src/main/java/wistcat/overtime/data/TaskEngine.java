@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import java.util.UUID;
 
+import wistcat.overtime.App;
 import wistcat.overtime.R;
 import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
@@ -32,38 +33,37 @@ public class TaskEngine {
 
     private TaskEngine(){}
 
-    /** 用于账户的TaskGroup表的默认组的生成 */
-    public static ContentValues taskGroupToDefault(@NonNull String account) {
+    /** 用于账户的TaskGroup表的默认组的生成: default、completed、recycled */
+    public static ContentValues taskGroupToDefault(@NonNull String account, @NonNull String name, int id) {
         ContentValues values = new ContentValues();
-        values.put(TaskGroupEntry.COLUMN_NAME_GROUP_ID, Const.DEFAULT_GROUP_ID);
-        values.put(TaskGroupEntry.COLUMN_NAME_GROUP_NAME, Const.DEFAULT_GROUP);
+        values.put(TaskGroupEntry._ID, id);
+        values.put(TaskGroupEntry.COLUMN_UUID, createId());
+        values.put(TaskGroupEntry.COLUMN_NAME_GROUP_NAME, name);
         values.put(TaskGroupEntry.COLUMN_NAME_GROUP_ACCOUNT, account);
-        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_ACTIVATE, 0);
-        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_RUNNING, 0);
-        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_COMPLETED, 0);
-        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_RECYCLED, 0);
+        values.put(TaskGroupEntry.COLUMN_NAME_COUNT, 0);
+        values.put(TaskGroupEntry.COLUMN_NAME_EXTRA_1, "");
+        values.put(TaskGroupEntry.COLUMN_NAME_EXTRA_1, "");
         return values;
     }
 
     /** 为一个TaskGroup生成一个ContentValues，用于插入数据库 */
     public static ContentValues taskGroupTo(@NonNull TaskGroup group) {
         ContentValues values = new ContentValues();
-        values.put(TaskGroupEntry.COLUMN_NAME_GROUP_ID, group.getId());
+        values.put(TaskGroupEntry.COLUMN_UUID, group.getUUID());
         values.put(TaskGroupEntry.COLUMN_NAME_GROUP_NAME, group.getName());
         values.put(TaskGroupEntry.COLUMN_NAME_GROUP_ACCOUNT, group.getAccount());
-        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_ACTIVATE, group.getActive());
-        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_RUNNING, group.getRunning());
-        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_COMPLETED, group.getCompleted());
-        values.put(TaskGroupEntry.COLUMN_NAME_COUNT_RECYCLED, group.getRecycled());
+        values.put(TaskGroupEntry.COLUMN_NAME_COUNT, group.getTaskCount());
+        values.put(TaskGroupEntry.COLUMN_NAME_EXTRA_1, group.getExtra_1());
+        values.put(TaskGroupEntry.COLUMN_NAME_EXTRA_2, group.getExtra_2());
         return values;
     }
 
     /** 为一个Task生成一个ContentValues，用于插入数据库 */
     public static ContentValues taskTo(@NonNull Task task) {
         ContentValues values = new ContentValues();
+        values.put(TaskEntry.COLUMN_UUID, task.getUUID());
         values.put(TaskEntry.COLUMN_NAME_GROUP_ID, task.getGroupId());
         values.put(TaskEntry.COLUMN_NAME_TASK_STATE, task.getState().name());
-        values.put(TaskEntry.COLUMN_NAME_TASK_ID, task.getId());
         values.put(TaskEntry.COLUMN_NAME_TASK_NAME, task.getName());
         values.put(TaskEntry.COLUMN_NAME_TASK_TYPE, task.getType());
         values.put(TaskEntry.COLUMN_NAME_DESCREPTION, task.getDescription());
@@ -80,8 +80,8 @@ public class TaskEngine {
     /** 为一个Record生成一个ContentValues，用于插入数据库 */
     public static ContentValues recordTo(@NonNull Record record) {
         ContentValues values = new ContentValues();
+        values.put(RecordEntry.COLUMN_UUID, record.getUUID());
         values.put(RecordEntry.COLUMN_NAME_TASK_ID, record.getTaskId());
-        values.put(RecordEntry.COLUMN_NAME_RECORD_ID, record.getId());
         values.put(RecordEntry.COLUMN_NAME_REOCRD_TYPE, record.getType());
         values.put(RecordEntry.COLUMN_NAME_USED_TIME, record.getUsedTime());
         values.put(RecordEntry.COLUMN_NAME_START_TIME, record.getStartTime());
@@ -97,8 +97,8 @@ public class TaskEngine {
     /** 为一个Episode生成一个ContentValues，用于插入数据库 */
     public static ContentValues episodeTo(@NonNull Episode episode) {
         ContentValues values = new ContentValues();
+        values.put(EpisodeEntry.COLUMN_UUID, episode.getUUID());
         values.put(EpisodeEntry.COLUMN_NAME_RECORD_ID, episode.getRecordId());
-        values.put(EpisodeEntry.COLUMN_NAME_EPISODE_ID, episode.getId());
         values.put(EpisodeEntry.COLUMN_NAME_EPISODE_NAME, episode.getName());
         values.put(EpisodeEntry.COLUMN_NAME_EPISODE_TYPE, episode.getType());
         values.put(EpisodeEntry.COLUMN_NAME_EPISODE_REMARK, episode.getRemark());
@@ -112,22 +112,24 @@ public class TaskEngine {
     }
 
     public static TaskGroup taskGroupFrom(@NonNull Cursor cursor) {
-        int id = cursor.getInt(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_GROUP_ID);
+        int id = cursor.getInt(QUERY_TASK_GROUP_PROJECTION._ID);
+        int uuid = cursor.getInt(QUERY_TASK_GROUP_PROJECTION._UUID);
         String name = cursor.getString(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_GROUP_NAME);
         String account = cursor.getString(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_GROUP_ACCOUNT);
-        int activate = cursor.getInt(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_COUNT_ACTIVATE);
-        int running = cursor.getInt(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_COUNT_RUNNING);
-        int completed = cursor.getInt(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_COUNT_COMPLETED);
-        int recycled = cursor.getInt(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_COUNT_RECYCLED);
-        TaskGroup ret = new TaskGroup(id, name, account);
-        ret.init(activate, running, completed, recycled);
+        int count = cursor.getInt(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_COUNT);
+        String extra1 = cursor.getString(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_EXTRA_1);
+        String extra2 = cursor.getString(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_EXTRA_2);
+        TaskGroup ret = new TaskGroup(id, uuid, name, account);
+        ret.setCount(count).setExtra_1(extra1).setExtra_2(extra2);
         return ret;
     }
 
     public static Task taskFrom(@NonNull Cursor cursor) {
+        int id = cursor.getInt(QUERY_TASK_PROJECTION._ID);
+        int uuid = cursor.getInt(QUERY_TASK_PROJECTION._UUID);
         int group_id = cursor.getInt(QUERY_TASK_PROJECTION.GROUP_ID);
+        String group_name = cursor.getString(QUERY_TASK_PROJECTION.GROUP_NAME);
         TaskState state = stateFrom(cursor.getString(QUERY_TASK_PROJECTION.TASK_STATE));
-        int task_id = cursor.getInt(QUERY_TASK_PROJECTION.TASK_ID);
         String name = cursor.getString(QUERY_TASK_PROJECTION.TASK_NAME);
         int type = cursor.getInt(QUERY_TASK_PROJECTION.TASK_TYPE);
         String description = cursor.getString(QUERY_TASK_PROJECTION.TASK_DESCRIPTION);
@@ -138,13 +140,14 @@ public class TaskEngine {
         String extra2 = cursor.getString(QUERY_TASK_PROJECTION.EXTRA_2);
         String extra3 = cursor.getString(QUERY_TASK_PROJECTION.EXTRA_3);
         String extra4 = cursor.getString(QUERY_TASK_PROJECTION.EXTRA_4);
-        Task ret = new Task(group_id, task_id, type, state, name, description, time, remark, degree);
+        Task ret = new Task(group_id, group_name, id, uuid, type, state, name, description, time, remark, degree);
         return ret.setExtra1(extra1).setExtra2(extra2).setExtra3(extra3).setExtra4(extra4);
     }
 
     public static Record recordFrom(@NonNull Cursor cursor) {
+        int id = cursor.getInt(QUERY_RECORD_PROJECTION._ID);
+        int uuid = cursor.getInt(QUERY_RECORD_PROJECTION._UUID);
         int task_id = cursor.getInt(QUERY_RECORD_PROJECTION.COLUMN_NAME_TASK_ID);
-        int record_id = cursor.getInt(QUERY_RECORD_PROJECTION.COLUMN_NAME_RECORD_ID);
         int type = cursor.getInt(QUERY_RECORD_PROJECTION.COLUMN_NAME_REOCRD_TYPE);
         long used = cursor.getLong(QUERY_RECORD_PROJECTION.COLUMN_NAME_USED_TIME);
         String start = cursor.getString(QUERY_RECORD_PROJECTION.COLUMN_NAME_START_TIME);
@@ -154,13 +157,14 @@ public class TaskEngine {
         String extra2 = cursor.getString(QUERY_RECORD_PROJECTION.COLUMN_NAME_EXTRA_2);
         String extra3 = cursor.getString(QUERY_RECORD_PROJECTION.COLUMN_NAME_EXTRA_3);
         String extra4 = cursor.getString(QUERY_RECORD_PROJECTION.COLUMN_NAME_EXTRA_4);
-        Record ret = new Record(record_id, task_id, type, used, start, end, remark);
+        Record ret = new Record(id, uuid, task_id, type, used, start, end, remark);
         return ret.setExtra1(extra1).setExtra2(extra2).setExtra3(extra3).setExtra4(extra4);
     }
 
     public static Episode episodeFrom(@NonNull Cursor cursor) {
+        int id = cursor.getInt(QUERY_EPISODE_PROJECTION._ID);
+        int uuid = cursor.getInt(QUERY_EPISODE_PROJECTION._UUID);
         int record_id = cursor.getInt(QUERY_EPISODE_PROJECTION.COLUMN_NAME_RECORD_ID);
-        int episode_id = cursor.getInt(QUERY_EPISODE_PROJECTION.COLUMN_NAME_EPISODE_ID);
         String name = cursor.getString(QUERY_EPISODE_PROJECTION.COLUMN_NAME_EPISODE_NAME);
         int type = cursor.getInt(QUERY_EPISODE_PROJECTION.COLUMN_NAME_EPISODE_TYPE);
         String remark = cursor.getString(QUERY_EPISODE_PROJECTION.COLUMN_NAME_EPISODE_REMARK);
@@ -170,7 +174,7 @@ public class TaskEngine {
         String extra2 = cursor.getString(QUERY_EPISODE_PROJECTION.COLUMN_NAME_EXTRA_2);
         String extra3 = cursor.getString(QUERY_EPISODE_PROJECTION.COLUMN_NAME_EXTRA_3);
         String extra4 = cursor.getString(QUERY_EPISODE_PROJECTION.COLUMN_NAME_EXTRA_4);
-        Episode ret = new Episode(episode_id, record_id, type, name, remark, start, seq);
+        Episode ret = new Episode(id, uuid, record_id, type, name, remark, start, seq);
         return ret.setExtra1(extra1).setExtra2(extra2).setExtra3(extra3).setExtra4(extra4);
     }
 
@@ -189,11 +193,37 @@ public class TaskEngine {
         }
     }
 
-    /** 生成指定TaskState的ContentValues，用于更新数据库 */
-    public static ContentValues taskToState(int taskId, String taskState) {
+    public static ContentValues taskToState(@NonNull TaskGroup group, @NonNull TaskState state) {
         ContentValues values = new ContentValues();
-        values.put(TaskEntry.COLUMN_NAME_TASK_ID, taskId);
-        values.put(TaskEntry.COLUMN_NAME_TASK_STATE, taskState);
+        values.put(TaskEntry.COLUMN_NAME_TASK_STATE, state.name());
+        values.put(TaskEntry.COLUMN_NAME_GROUP_ID, group.getId());
+        values.put(TaskEntry.COLUMN_NAME_GROUP_NAME, group.getName());
+        return values;
+    }
+
+    public static ContentValues taskToCompleted() {
+        ContentValues values = new ContentValues();
+        values.put(TaskEntry.COLUMN_NAME_TASK_STATE, TaskState.Completed.name());
+        values.put(TaskEntry.COLUMN_NAME_GROUP_ID, Const.COMPLETED_GROUP_ID);
+        values.put(TaskEntry.COLUMN_NAME_GROUP_NAME, Const.DEFAULT_COMPLETED_GROUP);
+        return values;
+    }
+
+    public static ContentValues taskToActivate(@NonNull TaskGroup group) {
+        return taskToState(group, TaskState.Activate);
+    }
+
+    public static ContentValues taskToRecycled() {
+        ContentValues values = new ContentValues();
+        values.put(TaskEntry.COLUMN_NAME_TASK_STATE, TaskState.Recycled.name());
+        values.put(TaskEntry.COLUMN_NAME_GROUP_ID, Const.RECYCLED_GROUP_ID);
+        values.put(TaskEntry.COLUMN_NAME_GROUP_NAME, Const.DEFAULT_RECYCLED_GROUP);
+        return values;
+    }
+
+    public static ContentValues taskToRunning() {
+        ContentValues values = new ContentValues();
+        values.put(TaskEntry.COLUMN_NAME_TASK_STATE, TaskState.Running.name());
         return values;
     }
 
@@ -210,6 +240,11 @@ public class TaskEngine {
             default:
                 throw new IllegalArgumentException("unkown tast type: " + taskType);
         }
+    }
+
+    /** 用于更新Task时，生成一个临时的TaskGroup */
+    public static TaskGroup mockTaskGroup(@NonNull Task task) {
+        return new TaskGroup(task.getGroupId(), 0, task.getGroupName(), App.getInstance().getAccountName());
     }
 
     /** 根据Task类型获取Drawable资源，用于绘制Item颜色 */

@@ -5,13 +5,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDialogFragment;
 import android.view.KeyEvent;
 
 import javax.inject.Inject;
 
 import wistcat.overtime.App;
 import wistcat.overtime.R;
-import wistcat.overtime.base.BottomDialogFragment;
+import wistcat.overtime.base.BottomFragment;
 import wistcat.overtime.interfaces.ItemSelectListener;
 
 public class TasksManageActivity extends AppCompatActivity implements ItemSelectListener<Integer> {
@@ -66,7 +67,7 @@ public class TasksManageActivity extends AppCompatActivity implements ItemSelect
     }
 
     public void popupMoreMenu() {
-        BottomDialogFragment fragment = BottomDialogFragment.getInstance("更多选项", mMoreItems);
+        BottomFragment fragment = BottomFragment.getInstance("更多选项", mMoreItems);
         fragment.setSelectListener(this);
         fragment.show(getSupportFragmentManager(), "MoreMenu");
     }
@@ -82,10 +83,8 @@ public class TasksManageActivity extends AppCompatActivity implements ItemSelect
     public void dismissFragment(@NonNull String tag) {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
         if (fragment != null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .remove(fragment)
-                    .commit();
+            AppCompatDialogFragment f = (AppCompatDialogFragment) fragment;
+            f.dismiss();
         }
     }
 

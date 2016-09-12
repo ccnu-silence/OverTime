@@ -7,6 +7,8 @@ import android.support.design.widget.TextInputLayout;
 import com.android.databinding.library.baseAdapters.BR;
 
 import wistcat.overtime.App;
+import wistcat.overtime.data.TaskEngine;
+import wistcat.overtime.model.TaskGroup;
 
 /**
  * 用于DataBinding对新建TaskGroup的处理
@@ -14,7 +16,6 @@ import wistcat.overtime.App;
  * @author wistcat 2016/9/8
  */
 public class HandleCreateTaskGroup extends BaseObservable {
-    // TODO: 暂时没有添加逻辑，只是测试一下DataBinding的使用情况
 
     private TasksManagePresenter mPresenter;
     private String mInput;
@@ -34,22 +35,30 @@ public class HandleCreateTaskGroup extends BaseObservable {
     }
 
     public void onQuit() {
-        App.showToast("退出");
-        mPresenter.closeCreateDialog();
-        mPresenter = null;
+        quit();
     }
 
     public void onConfirm(TextInputLayout layout) {
         if (mInput == null || mInput.trim().equals("")) {
             layout.setError("名称不能为空");
         } else {
-            App.showToast("新建 " + mInput);
-            mPresenter.closeCreateDialog();
-            mPresenter = null;
+            layout.setError(null);
+            TaskGroup taskGroup = new TaskGroup(0, TaskEngine.createId(), mInput, getAccount());
+            mPresenter.addNewTaskGroup(taskGroup);
+            quit();
         }
+    }
+
+    private void quit() {
+        mPresenter.closeCreateDialog();
+        mPresenter = null;
     }
 
     public void clearError(TextInputLayout layout) {
         layout.setError(null);
+    }
+
+    private String getAccount() {
+        return App.getInstance().getAccountName();
     }
 }

@@ -9,10 +9,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import wistcat.overtime.databinding.FragmentAddTaskgroupBinding;
 
 /**
+ * 新建任务分组页
+ *
  * @author wistcat 2016/9/8
  */
 public class AddTaskGroupFragment extends AppCompatDialogFragment {
@@ -42,6 +46,7 @@ public class AddTaskGroupFragment extends AppCompatDialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         FragmentAddTaskgroupBinding binding = FragmentAddTaskgroupBinding.inflate(inflater, container, false);
         binding.setHandler(new HandleCreateTaskGroup(mPresenter));
+        popupKeyboard(binding.edit);
         return binding.getRoot();
     }
 
@@ -51,7 +56,19 @@ public class AddTaskGroupFragment extends AppCompatDialogFragment {
         DisplayMetrics dm = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
         Window window = getDialog().getWindow();
-        window.setLayout(dm.widthPixels, window.getAttributes().height);
+        window.setLayout((int) (dm.widthPixels * 0.8), window.getAttributes().height);
+    }
+
+    /** 显示软键盘 */
+    private void popupKeyboard(final EditText edit) {
+        edit.requestFocus();
+        final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        edit.post(new Runnable() {
+            @Override
+            public void run() {
+                imm.showSoftInput(edit, InputMethodManager.SHOW_IMPLICIT);
+            }
+        });
     }
 
 }

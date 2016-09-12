@@ -19,6 +19,7 @@ import android.widget.CursorAdapter;
 import wistcat.overtime.R;
 import wistcat.overtime.adapter.TaskGroupsAdapter;
 import wistcat.overtime.interfaces.ItemSelectListener;
+import wistcat.overtime.main.editlist.EditListActivity;
 import wistcat.overtime.main.taskslist.TasksListActivity;
 import wistcat.overtime.model.TaskGroup;
 import wistcat.overtime.util.Const;
@@ -39,7 +40,6 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
         // toolbar
         Toolbar toolbar = (Toolbar) root.findViewById(R.id.toolbar);
         if (toolbar != null) {
-            toolbar.inflateMenu(R.menu.menu_taskgroup_more);
             setHasOptionsMenu(true);
             // actionBar
             AppCompatActivity activity = (AppCompatActivity) getActivity();
@@ -50,12 +50,6 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
                 actionBar.setTitle(R.string.title_tasks_manage);
             }
         }
-        return root;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstance) {
-        super.onViewCreated(view, savedInstance);
 
         // listView
         TaskGroupsAdapter adapter = new TaskGroupsAdapter(getContext());
@@ -63,15 +57,16 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
         setListAdapter(adapter);
 
         // text_more
-        View more = view.findViewById(R.id.more_menu);
+        View more = root.findViewById(R.id.more_menu);
         more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mPresenter.openMoreMenu(view);
             }
         });
-    }
 
+        return root;
+    }
 
     @Override
     public void onResume() {
@@ -134,7 +129,10 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
 
     @Override
     public void showGroupManage() {
-        // TODO
+        dismissFragment("MoreMenu");
+        Intent intent = new Intent(getActivity(), EditListActivity.class);
+        // TODO maybadd flags
+        startActivity(intent);
     }
 
     @Override
@@ -163,10 +161,7 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
 
     @Override
     public void clearCursor() {
-        CursorAdapter adapter = (CursorAdapter) getListAdapter();
-        if (adapter != null) {
-            adapter.swapCursor(null);
-        }
+        showTaskGroups(null);
     }
 
     @Override
@@ -175,7 +170,7 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
         // TODO ..other..
     }
 
-    private void dismissFragment(@NonNull String tag) {
+    public void dismissFragment(@NonNull String tag) {
         TasksManageActivity activity = (TasksManageActivity) getActivity();
         activity.dismissFragment(tag);
     }

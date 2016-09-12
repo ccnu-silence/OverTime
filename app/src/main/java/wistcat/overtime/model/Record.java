@@ -19,8 +19,9 @@ public class Record extends Entity {
     private String extra_3;
     private String extra_4;
 
-    public Record(int id, int taskId, int type, long usedTime, String startTime, String endTime, String remark) {
-        super(id);
+    public Record(int id, int uuid, int taskId, int type,
+                  long usedTime, String startTime, String endTime, String remark) {
+        super(id, uuid);
         mTaskId = taskId;
         mType = type;
         mUsedTime = usedTime;

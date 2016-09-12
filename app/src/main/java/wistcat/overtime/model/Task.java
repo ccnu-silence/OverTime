@@ -14,6 +14,7 @@ public class Task extends Entity implements Comparable<Task> {
     public static final int TYPE_LIMITED = 0x04;
 
     private final int mGroupId;
+    private final String mGroupName;
     private final int mType;
     private final TaskState mState;
     private final String mName;
@@ -26,14 +27,16 @@ public class Task extends Entity implements Comparable<Task> {
     private String extra_3;
     private String extra_4;
 
-    public Task(int groupId, int id, int type, TaskState taskState, String name, String description, long sumTime) {
-        this(groupId, id, type, taskState, name, description, sumTime, null, -1);
+    public Task(int groupId, String groupName, int id, int uuid, int type, TaskState taskState, String name,
+                String description, long sumTime) {
+        this(groupId, groupName, id, uuid, type, taskState, name, description, sumTime, null, -1);
     }
 
-    public Task(int groupId, int id, int type, TaskState taskState, String name,
+    public Task(int groupId, String groupName, int id, int uuid, int type, TaskState taskState, String name,
                 String description, long sumTime, String remark, int completedDegree) {
-        super(id);
+        super(id, uuid);
         mGroupId = groupId;
+        mGroupName = groupName;
         mType = type;
         mState = taskState;
         mName = name;
@@ -45,6 +48,10 @@ public class Task extends Entity implements Comparable<Task> {
 
     public int getGroupId() {
         return mGroupId;
+    }
+
+    public String getGroupName() {
+        return mGroupName;
     }
 
     public TaskState getState() {
