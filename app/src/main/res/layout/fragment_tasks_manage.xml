@@ -1,41 +1,13 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/fg_dim_grey">
-
     <include layout="@layout/include_empty_toolbar"/>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        style="?attr/buttonBarStyle">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/task_groups"
-            android:layout_centerVertical="true"
-            android:textColor="@color/DarkGrey"/>
-        <ImageButton
-            android:id="@+id/more_menu"
-            android:layout_width="32dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:src="@drawable/vec_more_vert"
-            android:layout_alignParentRight="true"
-            style="?attr/buttonBarButtonStyle"
-            tools:ignore="contentDescription"/>
-
-    </RelativeLayout>
-
+    <include layout="@layout/include_linear_more"/>
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-
 </LinearLayout>

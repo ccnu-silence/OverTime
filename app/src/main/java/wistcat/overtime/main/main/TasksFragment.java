@@ -33,7 +33,6 @@ import wistcat.overtime.main.tasksmanage.TasksManageActivity;
 import wistcat.overtime.main.tasksmore.TasksMoreActivity;
 import wistcat.overtime.main.taskstatistics.TasksStatisticsActivity;
 import wistcat.overtime.model.Task;
-import wistcat.overtime.util.Const;
 import wistcat.overtime.widget.ScrollChildSwipeRefreshLayout;
 
 /**
@@ -179,9 +178,10 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, I
 
     @Override
     public void showTaskDetails(Task task) {
-        Bundle extras = new Bundle();
-        extras.putSerializable(Const.BUNDLE_KEY_TASK, task);
         Intent intent = new Intent(getContext(), TaskDetailsActivity.class);
+        Bundle data = new Bundle();
+        data.putSerializable(TaskDetailsActivity.KEY_TASK, task);
+        intent.putExtras(data);
         startActivity(intent);
     }
 

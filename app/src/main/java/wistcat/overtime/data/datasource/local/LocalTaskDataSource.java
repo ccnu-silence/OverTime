@@ -46,7 +46,8 @@ import static wistcat.overtime.data.db.TaskContract.TaskGroupEntry;
 public class LocalTaskDataSource implements TaskDataSource {
 
     private final ContentResolver mContentResolver;
-    /* 缓存任务组，这里的TaskGroup只使用id和name，不同步task数据 */
+    /* 缓存任务组，这里的TaskGroup只使用id和name，不同步task数据,
+     * TODO: 换成HaskMap也不错 */
     private volatile List<TaskGroup> mCachedTaskGroup;
     private CountDownLatch mDown;
 

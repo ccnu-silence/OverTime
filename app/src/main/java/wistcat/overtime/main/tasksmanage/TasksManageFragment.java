@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.TextView;
 
 import wistcat.overtime.R;
 import wistcat.overtime.adapter.TaskGroupsAdapter;
@@ -22,7 +23,6 @@ import wistcat.overtime.interfaces.ItemSelectListener;
 import wistcat.overtime.main.editlist.EditListActivity;
 import wistcat.overtime.main.taskslist.TasksListActivity;
 import wistcat.overtime.model.TaskGroup;
-import wistcat.overtime.util.Const;
 
 /**
  * 任务管理页面
@@ -56,7 +56,9 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
         adapter.setTaskGroupItemListener(this);
         setListAdapter(adapter);
 
-        // text_more
+        // more
+        TextView tmore = (TextView) root.findViewById(R.id.more_title);
+        tmore.setText("任务组");
         View more = root.findViewById(R.id.more_menu);
         more.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,10 +89,10 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
                 getActivity().onBackPressed();
                 return true;
             case R.id.action_completed:
-                // TODO
+                mPresenter.redirectToCompleted();
                 return true;
             case R.id.action_recycled:
-                // TODO
+                mPresenter.redirectToRecycled();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -100,7 +102,6 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         mPresenter.result(requestCode, resultCode);
-        // TODO ...
     }
 
     @Override
@@ -110,7 +111,7 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
 
     @Override
     public void onSelected(TaskGroup item) {
-        mPresenter.openTaskGroup(item.getId());
+        mPresenter.openTaskGroup(item);
     }
 
     @Override
@@ -131,25 +132,26 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
     public void showGroupManage() {
         dismissFragment("MoreMenu");
         Intent intent = new Intent(getActivity(), EditListActivity.class);
-        // TODO maybadd flags
+        // TODO maybe add flags
         startActivity(intent);
     }
 
     @Override
-    public void showCompletedTasks() {
-        // TODO
+    public void showCompletedTasks(@NonNull TaskGroup group) {
+        showTaskList(group);
     }
 
     @Override
-    public void showRecycledTasks() {
-        // TODO
+    public void showRecycledTasks(@NonNull TaskGroup group) {
+        showTaskList(group);
     }
 
     @Override
-    public void showTaskList(int groupId) {
-        // TODO FIXME
+    public void showTaskList(@NonNull TaskGroup group) {
         Intent intent = new Intent(getActivity(), TasksListActivity.class);
-        intent.putExtra(Const.BUNDLE_KEY_ITEM_ID, groupId);
+        Bundle data = new Bundle();
+        data.putSerializable(TasksListActivity.KEY_TASK_GROUP, group);
+        intent.putExtras(data);
         startActivity(intent);
     }
 
@@ -167,7 +169,6 @@ public class TasksManageFragment extends ListFragment implements TasksManageCont
     @Override
     public void hideCreateDialog() {
         dismissFragment("AddTaskGroup");
-        // TODO ..other..
     }
 
     public void dismissFragment(@NonNull String tag) {

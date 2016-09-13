@@ -7,6 +7,8 @@ import wistcat.overtime.R;
 
 public class TaskDetailsActivity extends AppCompatActivity {
 
+    public static final String KEY_TASK = "task";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

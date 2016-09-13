@@ -2,6 +2,10 @@ package wistcat.overtime.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.TextAppearanceSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,28 +13,28 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 import wistcat.overtime.R;
 import wistcat.overtime.data.TaskEngine;
 import wistcat.overtime.data.db.TaskTableHelper;
-import wistcat.overtime.interfaces.ItemSelectListener;
+import wistcat.overtime.interfaces.OnSearchTermChanged;
+import wistcat.overtime.main.taskslist.TasksListContract;
 import wistcat.overtime.model.Task;
 
 /**
- * {@link wistcat.overtime.main.main.TasksFragment} 显示Activate任务
- *
- * @author wistcat 2016/9/2
+ * @author wistcat 2016/9/12
  */
-public class MainTasksAdapter extends CursorAdapter {
-    // FIXME: 要改成LRU排序的活动任务...现在先演示用...
+public class TasksListAdapter extends CursorAdapter implements OnSearchTermChanged {
 
-    private ItemSelectListener<Task> mItemListener;
+    private final TasksListContract.Presenter mPresenter;
+    private TextAppearanceSpan mSpan;
+    private String mTerm;
 
-    public MainTasksAdapter(Context context) {
+    public TasksListAdapter(Context context, TasksListContract.Presenter presenter) {
         super(context, null, 0);
-    }
-
-    public void setTaskItemListener(ItemSelectListener<Task> listener) {
-        mItemListener = listener;
+        mPresenter = presenter;
+        mSpan = new TextAppearanceSpan(context, R.style.SearchTextHighLightStyle);
     }
 
     @Override
@@ -48,17 +52,28 @@ public class MainTasksAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder holder = (ViewHolder) view.getTag();
-
         final Task task = TaskEngine.taskFrom(cursor);
         final int res = TaskEngine.taskToRes(task);
         final String name = cursor.getString(TaskTableHelper.QUERY_TASK_PROJECTION.TASK_NAME);
+
+        // 查找匹配的第一个字符位置
+        final int index = indexOfSearchQuery(name);
+        if (index == -1) {
+            // 正常显示
+            holder.mName.setText(name);
+        } else {
+            // 搜索的时候，高亮显示匹配字符
+            SpannableString matched = new SpannableString(name);
+            matched.setSpan(mSpan, index, index + mTerm.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            holder.mName.setText(matched);
+        }
+        // other
         holder.root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mItemListener.onSelected(task);
+                mPresenter.onItemSelected(task);
             }
         });
-        holder.mName.setText(name);
         holder.mHeader.setImageResource(res);
     }
 
@@ -68,6 +83,19 @@ public class MainTasksAdapter extends CursorAdapter {
         ViewHolder holder = (ViewHolder) v.getTag();
         holder.mSeq.setText(String.valueOf(position + 1));
         return v;
+    }
+
+    private int indexOfSearchQuery(String displayName) {
+        if (!TextUtils.isEmpty(mTerm)) {
+            return displayName.toLowerCase(Locale.getDefault())
+                    .indexOf(mTerm.toLowerCase(Locale.getDefault()));
+        }
+        return -1;
+    }
+
+    @Override
+    public void onTermChanged(String newTerm) {
+        mTerm = newTerm;
     }
 
     private static class ViewHolder {

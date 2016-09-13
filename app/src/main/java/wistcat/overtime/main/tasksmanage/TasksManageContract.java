@@ -24,13 +24,13 @@ public interface TasksManageContract {
         void showGroupManage();
 
         /** 跳转到已完成的任务页 */
-        void showCompletedTasks();
+        void showCompletedTasks(@NonNull TaskGroup group);
 
         /** 跳转到回收站 */
-        void showRecycledTasks();
+        void showRecycledTasks(@NonNull TaskGroup group);
 
         /** 打开一个TaskGroup项 */
-        void showTaskList(int groupId);
+        void showTaskList(@NonNull TaskGroup group);
 
         /** 弹出管理menu */
         void showMoreMenu(android.view.View view);
@@ -57,7 +57,7 @@ public interface TasksManageContract {
         void redirectToRecycled();
 
         /** 打开一个TaskGroup项 */
-        void openTaskGroup(int groupId);
+        void openTaskGroup(@NonNull TaskGroup group);
 
         /** 打开Popup菜单  */
         void openMoreMenu(android.view.View view);

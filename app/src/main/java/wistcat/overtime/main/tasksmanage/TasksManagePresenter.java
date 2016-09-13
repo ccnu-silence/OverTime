@@ -99,17 +99,21 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
 
     @Override
     public void redirectToCompleted() {
-        mView.showCompletedTasks();
+        TaskGroup group = new TaskGroup(Const.COMPLETED_GROUP_ID, 0,
+                Const.DEFAULT_COMPLETED_GROUP, App.getInstance().getAccountName());
+        mView.showCompletedTasks(group);
     }
 
     @Override
     public void redirectToRecycled() {
-        mView.showRecycledTasks();
+        TaskGroup group = new TaskGroup(Const.RECYCLED_GROUP_ID, 0,
+                Const.DEFAULT_RECYCLED_GROUP, App.getInstance().getAccountName());
+        mView.showRecycledTasks(group);
     }
 
     @Override
-    public void openTaskGroup(int groupId) {
-        mView.showTaskList(groupId);
+    public void openTaskGroup(@NonNull TaskGroup group) {
+        mView.showTaskList(group);
     }
 
     @Override

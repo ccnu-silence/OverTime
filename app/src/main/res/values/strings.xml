@@ -7,6 +7,7 @@
     <string name="Delete">删除</string>
     <string name="select_all">全选</string>
     <string name="select_all_reverse">取消全选</string>
+    <string name="searchable">search</string>
 
     <string name="error_name_is_null">名称不能为空</string>
 
@@ -44,4 +45,7 @@
     <string name="edit_taskgroup_list">编辑分组</string>
     <string name="create_task_group">新建任务小组</string>
     <string name="hint_input_group_name">请输入小组名</string>
+
+    <!-- -->
+    <string name="hint_search">输入要查询的任务&#8230;</string>
 </resources>

@@ -42,4 +42,8 @@
         <item name="cardBackgroundColor">@color/White</item>
     </style>
 
+    <style name="SearchTextHighLightStyle">
+        <item name="android:textColor">@color/holo_blue</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

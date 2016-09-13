@@ -18,6 +18,7 @@ import wistcat.overtime.interfaces.ItemSelectListener;
  */
 public class BottomFragment extends BottomSheetDialogFragment {
 
+    public static final String TAG = "Bottom";
     private static final String TITLE = "title";
     private static final String ITEMS = "items";
     private String mTitle;
