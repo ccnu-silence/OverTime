@@ -22,6 +22,8 @@ public class Const {
 
     public static final String DEFAULT_RECYCLED_GROUP = "回收站";
 
+    public static final int DELETE_GROUP_ID = -1;
+
     public static final int DEFAULT_GROUP_ID = 1;
 
     public static final int COMPLETED_GROUP_ID = 10;

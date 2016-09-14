@@ -24,7 +24,7 @@ import wistcat.overtime.util.Const;
  * @author wistcat 2016/9/9
  */
 public class EditListPresenter implements EditListContract.Presenter,
-        LoaderManager.LoaderCallbacks<Cursor>, GetDataListCallback<Integer> {
+        LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final int LIST_QUERY = 0x03;
 
@@ -180,16 +180,4 @@ public class EditListPresenter implements EditListContract.Presenter,
         return App.getInstance().getAccountName();
     }
 
-    @Override
-    public void onDataLoaded(List<Integer> dataList) {
-        if (mCount != 0 && mDataList != null) {
-            mRepository.deleteTaskGroups(dataList);
-        }
-    }
-
-    @Override
-    public void onError() {
-        // TODO
-        Log.e("TAG", "Unkown Error");
-    }
 }

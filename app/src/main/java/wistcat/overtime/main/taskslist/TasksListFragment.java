@@ -1,5 +1,7 @@
 package wistcat.overtime.main.taskslist;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.Context;
@@ -47,6 +49,7 @@ public class TasksListFragment extends ListFragment implements TasksListContract
     private TaskGroup mTaskGroup;
     private OnSearchTermChanged mTermChangedListener;
     private TasksListContract.Presenter mPresenter;
+    private View mNoText;
     private FloatingActionButton mFab;
     private String mSearchTerm;
 
@@ -103,6 +106,9 @@ public class TasksListFragment extends ListFragment implements TasksListContract
             mSearchTerm = savedInstanceState.getString(SearchManager.QUERY);
             mTermChangedListener.onTermChanged(mSearchTerm);
         }
+
+        // no task text
+        mNoText = root.findViewById(R.id.no_task);
 
         // floating
         mFab = (FloatingActionButton) root.findViewById(R.id.fab);
@@ -279,6 +285,7 @@ public class TasksListFragment extends ListFragment implements TasksListContract
         Intent intent = new Intent(getActivity(), EditTasksListActivity.class);
         Bundle data = new Bundle();
         data.putSerializable(EditTasksListActivity.KEY_EDIT_TASKS_LIST, mTaskGroup);
+        intent.putExtras(data);
         startActivity(intent);
     }
 
@@ -307,6 +314,24 @@ public class TasksListFragment extends ListFragment implements TasksListContract
                 break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    public void showNoText(boolean isNull) {
+        final int duration = 200;
+        if (isNull && mNoText.getVisibility() == View.GONE) {
+            mNoText.setAlpha(0.f);
+            mNoText.setVisibility(View.VISIBLE);
+            mNoText.animate().alpha(1.f).setDuration(duration).setListener(null);
+
+        } else if (!isNull && mNoText.getVisibility() == View.VISIBLE) {
+            mNoText.animate().alpha(0.f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mNoText.setVisibility(View.GONE);
+                }
+            });
         }
     }
 }

@@ -17,7 +17,7 @@ import wistcat.overtime.interfaces.ItemSelectListener;
 
 public class TasksManageActivity extends AppCompatActivity implements ItemSelectListener<Integer> {
 
-    private String[] mMoreItems = new String[]{"添加分组", "编辑分组"};
+    private String[] mMoreItems = new String[]{"添加任务组", "管理任务组"};
 
     @Inject
     public TasksManagePresenter mPresenter;
@@ -25,7 +25,7 @@ public class TasksManageActivity extends AppCompatActivity implements ItemSelect
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tasks_manage);
+        setContentView(R.layout.activity_container);
 
         // fragment
         TasksManageFragment fragment =

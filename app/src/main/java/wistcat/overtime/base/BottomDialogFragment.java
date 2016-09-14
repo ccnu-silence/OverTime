@@ -13,7 +13,8 @@ import wistcat.overtime.R;
 import wistcat.overtime.interfaces.ItemSelectListener;
 
 /**
- * 默认显示在底部的DialogFragment，根据传入的一组String生成简单的List
+ * 默认显示在底部的DialogFragment，根据传入的一组String生成简单的List <br/>
+ * 已弃用，改用{@link BottomFragment}
  *
  * @author wistcat 2016/9/8
  */

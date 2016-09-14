@@ -22,13 +22,14 @@ import wistcat.overtime.App;
 import wistcat.overtime.R;
 import wistcat.overtime.adapter.EditListAdapter;
 import wistcat.overtime.interfaces.GetDataListCallback;
+import wistcat.overtime.interfaces.ItemSelectListener;
 
 /**
  * 显示列表编辑
  *
  * @author wistcat 2016/9/9
  */
-public class EditListFragment extends ListFragment implements EditListContract.View {
+public class EditListFragment extends ListFragment implements EditListContract.View, ItemSelectListener<Integer>{
 
     private final String TITLE = "已选择{0}项";
     private EditListContract.Presenter mPresenter;
@@ -61,8 +62,9 @@ public class EditListFragment extends ListFragment implements EditListContract.V
                 mActionBar.setTitle(MessageFormat.format(TITLE, 0));
             }
         }
+
         // listView
-        final EditListAdapter adapter = new EditListAdapter(getContext(), mPresenter);
+        final EditListAdapter adapter = new EditListAdapter(getContext(), this);
         setListAdapter(adapter);
 
         // button
@@ -119,9 +121,9 @@ public class EditListFragment extends ListFragment implements EditListContract.V
         adapter.swapCursor(cursor);
     }
 
-
     @Override
     public void showSelectedCount(int count) {
+        // 在标题显示选中数量
         if (mActionBar != null) {
             String title = MessageFormat.format(TITLE, count);
             mActionBar.setTitle(title);
@@ -130,6 +132,7 @@ public class EditListFragment extends ListFragment implements EditListContract.V
 
     @Override
     public void showAdapterChanged(List<Integer> list) {
+        // 根据全选/取消全选设置Adapter
         EditListAdapter adapter = (EditListAdapter) getListAdapter();
         if (adapter != null) {
             adapter.setSelectedList(list);
@@ -138,6 +141,7 @@ public class EditListFragment extends ListFragment implements EditListContract.V
 
     @Override
     public void getAdapterState(@NonNull GetDataListCallback<Integer> callback) {
+        // 从Adapter获取选中的项的Task id;
         EditListAdapter adapter = (EditListAdapter) getListAdapter();
         if (adapter != null) {
             List<Integer> data = adapter.getSelectedList();
@@ -179,8 +183,7 @@ public class EditListFragment extends ListFragment implements EditListContract.V
     @Override
     public void dismissAlertDialog() {
         if (isAdded()) {
-            EditAlertDialogFragment f = (EditAlertDialogFragment)
-                    getFragmentManager().findFragmentByTag("Delete");
+            EditAlertDialogFragment f = (EditAlertDialogFragment) getFragmentManager().findFragmentByTag("Delete");
             f.dismiss();
         }
     }
@@ -197,4 +200,8 @@ public class EditListFragment extends ListFragment implements EditListContract.V
         mPresenter = presenter;
     }
 
+    @Override
+    public void onSelected(Integer count) {
+        mPresenter.doItemChanged(count);
+    }
 }

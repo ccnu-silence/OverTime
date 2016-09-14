@@ -31,6 +31,8 @@ public interface TasksListContract {
         void showTaskGroupDetails();
 
         void showScrollUp();
+
+        void showNoText(boolean isNull);
     }
 
     interface Presenter extends BasePresenter {

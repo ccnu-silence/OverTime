@@ -59,4 +59,8 @@ public class TaskGroup extends Entity {
         return extra_2;
     }
 
+    public String toString() {
+        return "_id:" + _id + " uuid:" + _uuid + " name:" + mName;
+    }
+
 }

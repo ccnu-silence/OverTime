@@ -4,8 +4,8 @@
     <!--<color name="colorPrimaryDark">#303F9F</color>-->
     <!--<color name="colorAccent">#FF4081</color>-->
 
-    <color name="colorPrimary">@color/Orange700</color>
-    <color name="colorPrimaryDark">@color/Orange900</color>
+    <color name="colorPrimary">@color/Orange600</color>
+    <color name="colorPrimaryDark">@color/Orange800</color>
     <color name="colorAccent">#FF4081</color>
 
     <!-- MainActivity -->

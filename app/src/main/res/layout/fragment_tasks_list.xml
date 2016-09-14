@@ -4,16 +4,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/fg_dim_grey">
         <include layout="@layout/include_empty_toolbar"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+
             android:orientation="vertical">
             <!--<LinearLayout-->
             <!--android:id="@+id/panel"-->
@@ -29,6 +30,14 @@
                 android:layout_height="match_parent"/>
         </LinearLayout>
     </LinearLayout>
+    <TextView
+        android:id="@+id/no_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/DarkGrey"
+        android:text="@string/no_tasks"
+        android:visibility="gone"
+        android:layout_gravity="center"/>
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"

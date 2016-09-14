@@ -16,7 +16,7 @@ import java.util.List;
 
 import wistcat.overtime.R;
 import wistcat.overtime.data.db.TaskTableHelper;
-import wistcat.overtime.main.editlist.EditListContract;
+import wistcat.overtime.interfaces.ItemSelectListener;
 
 /**
  * @author wistcat 2016/9/9
@@ -24,11 +24,11 @@ import wistcat.overtime.main.editlist.EditListContract;
 public class EditListAdapter extends CursorAdapter {
 
     private SparseBooleanArray mChecked = new SparseBooleanArray();
-    private EditListContract.Presenter mPresenter;
+    private ItemSelectListener<Integer> mSelectListener;
 
-    public EditListAdapter(Context context, EditListContract.Presenter presenter) {
+    public EditListAdapter(Context context, ItemSelectListener<Integer> listener) {
         super(context, null, 0);
-        mPresenter = presenter;
+        mSelectListener = listener;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class EditListAdapter extends CursorAdapter {
                 } else {
                     mChecked.delete(itemId);
                 }
-                mPresenter.doItemChanged(mChecked.size());
+                mSelectListener.onSelected(mChecked.size());
             }
         });
         holder.checkBox.setChecked(mChecked.get(itemId, false));
@@ -85,7 +85,6 @@ public class EditListAdapter extends CursorAdapter {
                 mChecked.put(i, true);
             }
         }
-        // TODO: 不知道效果如何
         notifyDataSetChanged();
     }
 

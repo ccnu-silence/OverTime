@@ -62,6 +62,11 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == TASKS_QUERY) {
             mView.showList(data);
+            if (data == null || data.getCount() == 0) {
+                mView.showNoText(true);
+            } else {
+                mView.showNoText(false);
+            }
         }
     }
 

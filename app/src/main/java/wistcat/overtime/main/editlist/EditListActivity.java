@@ -16,7 +16,7 @@ public class EditListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_list);
+        setContentView(R.layout.activity_container);
         EditListFragment fragment =
                 (EditListFragment) getSupportFragmentManager().findFragmentById(R.id.container);
         if (fragment == null) {
