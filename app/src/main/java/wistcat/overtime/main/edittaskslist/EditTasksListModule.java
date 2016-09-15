@@ -4,6 +4,7 @@ import android.support.v4.app.LoaderManager;
 
 import dagger.Module;
 import dagger.Provides;
+import wistcat.overtime.model.TaskGroup;
 
 /**
  * @author wistcat 2016/9/12
@@ -13,10 +14,12 @@ public class EditTasksListModule {
 
     private final EditTasksListContract.View mView;
     private final LoaderManager mManager;
+    private final TaskGroup mTaskGroup;
 
-    public EditTasksListModule(LoaderManager manager, EditTasksListContract.View view) {
+    public EditTasksListModule(LoaderManager manager, EditTasksListContract.View view, TaskGroup taskGroup) {
         mManager = manager;
         mView = view;
+        mTaskGroup = taskGroup;
     }
 
     @Provides
@@ -27,6 +30,11 @@ public class EditTasksListModule {
     @Provides
     public LoaderManager provideLoaderManager() {
         return mManager;
+    }
+
+    @Provides
+    public TaskGroup provideTaskGroup() {
+        return mTaskGroup;
     }
 
 }

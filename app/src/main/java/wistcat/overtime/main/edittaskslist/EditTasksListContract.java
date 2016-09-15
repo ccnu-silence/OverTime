@@ -59,9 +59,6 @@ public interface EditTasksListContract {
         /** 初始化列表 */
         void loadList();
 
-        /** 初始化TaskGroup */
-        void loadTaskGroup(@NonNull TaskGroup group);
-
         /** 初始化BottomSheet的参数 */
         void loadBottomSheet();
 

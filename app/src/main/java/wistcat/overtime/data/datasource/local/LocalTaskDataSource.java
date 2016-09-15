@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -15,11 +16,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
 import wistcat.overtime.App;
 import wistcat.overtime.data.TaskEngine;
 import wistcat.overtime.data.datasource.TaskDataSource;
@@ -34,7 +30,6 @@ import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
 import wistcat.overtime.model.TaskState;
 import wistcat.overtime.util.Const;
-import wistcat.overtime.util.GetDataListCallbackAdapter;
 
 import static wistcat.overtime.data.db.TaskContract.TaskGroupEntry;
 
@@ -46,9 +41,6 @@ import static wistcat.overtime.data.db.TaskContract.TaskGroupEntry;
 public class LocalTaskDataSource implements TaskDataSource {
 
     private final ContentResolver mContentResolver;
-    /* 缓存任务组，这里的TaskGroup只使用id和name，不同步task数据,
-     * TODO: 换成HaskMap也不错 */
-    private volatile List<TaskGroup> mCachedTaskGroup;
     private CountDownLatch mDown;
 
     public LocalTaskDataSource(@NonNull Context context) {
@@ -88,7 +80,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteTaskGroups(@NonNull List<Integer> taskGroupIds) {
-        // FIXME: 如果性能有问题，改进或者不这么做...
+        // FIXME: 如果性能有问题，改进或者删除...
         for (int i : taskGroupIds) {
             // 转移Task
             mContentResolver.update(
@@ -112,102 +104,60 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
-    public void getCachedTaskGroup(@NonNull final GetDataListCallback<TaskGroup> callback) {
-        // 不需要在这一层实现，由{@link TaskRepository}完成转换
-    }
-
-    @Override
-    public void getCachedTaskGroup(@NonNull final GetDataListCallback<TaskGroup> callback, boolean forceRefresh) {
+    public void getTaskGroups(@NonNull final GetDataListCallback<TaskGroup> callback) {
         // 本方法的调用场景在主线程中进行，不会是异步的
         if (Looper.myLooper() != Looper.getMainLooper()) {
             // 若对异步有要求，考虑使用AsyncTaskLoader之类的...
             Log.e("DataSource_TAG", "+++++ Not in the UI thread!!!! FIXME!!!! +++++++");
         }
-        if (mCachedTaskGroup == null || forceRefresh) {
-            Observable
-                    .create(mObservable)
-                    .subscribeOn(Schedulers.io())
-                    .toList()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Action1<List<TaskGroup>>() {
-                        @Override
-                        public void call(List<TaskGroup> list) {
-                            mCachedTaskGroup = list;
-                            callback.onDataLoaded(mCachedTaskGroup);
-                        }
-                    });
-        } else {
-            callback.onDataLoaded(mCachedTaskGroup);
-        }
-    }
-
-    /* 注意不能在主线程中执行 */
-    private Observable.OnSubscribe<TaskGroup> mObservable = new Observable.OnSubscribe<TaskGroup>() {
-        @Override
-        public void call(Subscriber<? super TaskGroup> subscriber) {
-            // 只在Account第一次创建时有效
-            if (mDown != null) {
-                try {
-                    mDown.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            mDown = null;
-            // 不包含 Completed和Recycled分组
-            SelectionBuilder builder = new SelectionBuilder();
-            builder.notIn(TaskGroupEntry._ID, null)
-                    .notIn(null, String.valueOf(Const.COMPLETED_GROUP_ID))
-                    .notIn(null, String.valueOf(Const.RECYCLED_GROUP_ID));
-            // 单独查询TaskGroup
-            Cursor c = mContentResolver.query(
-                    TaskContract.buildTaskGroupUri(getAccount()),
-                    TaskTableHelper.TASK_GROUP_PROJECTION,
-                    builder.getSelection(),
-                    builder.getSelectionArgs(),
-                    null
-            );
-            // 遍历结果 Cursor 转化为 TaskGroup 发送
-            if (c != null) {
-                try {
-                    if (c.moveToFirst()) {
-                        do {
-                            TaskEngine.taskGroupFrom(c);
-                            // 发送结果
-                            subscriber.onNext(TaskEngine.taskGroupFrom(c));
-                        } while (c.moveToNext());
+        // 异步执行
+        TaskRepository.mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                // 只在Account第一次创建时有效，等待初始默认条目插入完成
+                if (mDown != null) {
+                    try {
+                        mDown.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                } finally {
-                    c.close();
                 }
-            }
-            // toList()所需要
-            subscriber.onCompleted();
-        }
-    };
+                mDown = null;
+                // 获取不包含Completed和Recycled的全部分组
+                SelectionBuilder builder = new SelectionBuilder();
+                builder.notIn(TaskGroupEntry._ID, null)
+                        .notIn(null, String.valueOf(Const.COMPLETED_GROUP_ID))
+                        .notIn(null, String.valueOf(Const.RECYCLED_GROUP_ID));
+                final List<TaskGroup> data = new ArrayList<>();
+                final Cursor c = mContentResolver.query(
+                        TaskContract.buildTaskGroupUri(getAccount()),
+                        TaskTableHelper.TASK_GROUP_PROJECTION,
+                        builder.getSelection(),
+                        builder.getSelectionArgs(),
+                        null
+                );
 
-    @Override
-    public void setTaskGroupCache(@NonNull List<TaskGroup> data) {
-        mCachedTaskGroup = data;
-    }
-
-    @Override
-    public void setTaskGroupCache(Cursor cursor) {
-        List<TaskGroup> list = new ArrayList<>();
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                while (cursor.moveToNext()) {
-                    list.add(TaskEngine.taskGroupFrom(cursor));
+                if (c != null) {
+                    try {
+                        if (c.moveToFirst()) {
+                            do {
+                                TaskGroup group = TaskEngine.taskGroupFrom(c);
+                                data.add(group);
+                            } while (c.moveToNext());
+                        }
+                    } finally {
+                        c.close();
+                    }
                 }
+                // 主线程中更新
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onDataLoaded(data);
+                    }
+                });
             }
-            cursor.moveToFirst();
-        }
-        mCachedTaskGroup = list;
-    }
-
-    @Override
-    public boolean isGroupCacheAvailable() {
-        return mCachedTaskGroup == null;
+        });
     }
 
     @Override
@@ -271,6 +221,24 @@ public class LocalTaskDataSource implements TaskDataSource {
             updateTaskGroup(true, TaskGroupEntry.COLUMN_NAME_COUNT, 1, Const.COMPLETED_GROUP_ID);
             notifyUri(getTaskGroupUri());
         }
+    }
+
+    @Override
+    public void transformTasks(@NonNull List<Integer> taskIds, @NonNull TaskGroup from, @NonNull TaskGroup to) {
+        SelectionBuilder builder  = new SelectionBuilder();
+        builder.in(TaskContract.TaskEntry._ID, null);
+        for (int i : taskIds) {
+            builder.in(null, String.valueOf(i));
+        }
+        mContentResolver.update(
+                TaskContract.buildTasksUriWith(getAccount()),
+                TaskEngine.taskToActivate(to),
+                builder.getSelection(),
+                builder.getSelectionArgs()
+        );
+        updateTaskGroup(false, TaskGroupEntry.COLUMN_NAME_COUNT, taskIds.size(), from.getId());
+        updateTaskGroup(true, TaskGroupEntry.COLUMN_NAME_COUNT, taskIds.size(), to.getId());
+        notifyUri(getTaskGroupUri());
     }
 
     @Override
@@ -540,7 +508,6 @@ public class LocalTaskDataSource implements TaskDataSource {
                 }
             }
         });
-        getCachedTaskGroup(new GetDataListCallbackAdapter<TaskGroup>(), true);
     }
 
     @Override

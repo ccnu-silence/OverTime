@@ -20,8 +20,8 @@ import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
 import wistcat.overtime.interfaces.GetDataListCallback;
 import wistcat.overtime.model.TaskGroup;
+import wistcat.overtime.model.TaskState;
 import wistcat.overtime.util.Const;
-import wistcat.overtime.util.GetDataListCallbackAdapter;
 
 /**
  * @author wistcat 2016/9/12
@@ -37,8 +37,8 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
     private final LoaderManager mLoaderManager;
     private final TaskRepository mRepository;
     private final EditTasksListContract.View mView;
+    private final TaskGroup mTaskGroup;
 
-    private TaskGroup mTaskGroup;
     private List<Integer> mDataList;
     private List<TaskGroup> mGroups;
     private int mCount;
@@ -48,19 +48,37 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
     private String[] mBottomItems;
 
     @Inject
-    public EditTasksListPresenter(LoaderManager manager, TaskRepository repository, EditTasksListContract.View view) {
+    public EditTasksListPresenter(LoaderManager manager, TaskRepository repository,
+                                  EditTasksListContract.View view, TaskGroup group) {
         mLoaderManager = manager;
         mRepository = repository;
         mView = view;
+        mTaskGroup = group;
+        switch (group.getId()) {
+            case Const.COMPLETED_GROUP_ID:
+                mGroupType = TYPE_COMPLETED;
+                break;
+            case Const.RECYCLED_GROUP_ID:
+                mGroupType = TYPE_RECYCLED;
+                break;
+            default:
+                mGroupType = TYPE_NORMAL;
+                break;
+        }
     }
 
     @Inject
     public void setup() {
         mView.setPresenter(this);
-        mRepository.getCachedTaskGroup(new GetDataListCallbackAdapter<TaskGroup>() {
+        mRepository.getTaskGroups(new GetDataListCallback<TaskGroup>() {
             @Override
             public void onDataLoaded(List<TaskGroup> dataList) {
-                mGroups = dataList;
+                mGroups = filterTaskGroup(dataList);
+            }
+
+            @Override
+            public void onError() {
+
             }
         });
     }
@@ -104,22 +122,6 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
     @Override
     public void loadList() {
         mLoaderManager.initLoader(TASKS_LIST_QUERY, null, this);
-    }
-
-    @Override
-    public void loadTaskGroup(@NonNull TaskGroup group) {
-        mTaskGroup = group;
-        switch (group.getId()) {
-            case Const.COMPLETED_GROUP_ID:
-                mGroupType = TYPE_COMPLETED;
-                break;
-            case Const.RECYCLED_GROUP_ID:
-                mGroupType = TYPE_RECYCLED;
-                break;
-            default:
-                mGroupType = TYPE_NORMAL;
-                break;
-        }
     }
 
     @Override
@@ -204,6 +206,7 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
 
     @Override
     public void doRemove(@NonNull final TaskGroup group) {
+        // FIXME
         mView.getAdapterState(new GetDataListCallback<Integer>() {
             @Override
             public void onDataLoaded(List<Integer> dataList) {
@@ -219,7 +222,7 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
                         break;
                     default:
                         if (group.getId() > 0){
-                            mRepository.activateTasks(dataList, group);
+                            mRepository.transformTasks(dataList, mTaskGroup, group);
                         }
                         break;
                 }
@@ -228,7 +231,6 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
 
             @Override
             public void onError() {
-                // TODO..
                 mView.showErrorToast("get data error");
             }
         });
@@ -244,7 +246,6 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
         mView.dismissDialog(HandleSelectedFragment.TAG);
     }
 
-    /* TODO 需要做进一步处理，要排除当前的TaskGroup才行，考虑删除Local数据源的缓存，改成每次重新加载 */
     @Override
     public List<TaskGroup> getGroups() {
         return mGroups;
@@ -255,12 +256,25 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    list.add(cursor.getInt(0));
+                    String state = cursor.getString(TaskTableHelper.QUERY_TASK_PROJECTION.TASK_STATE);
+                    if (state.equals(TaskState.Activate.name())) {
+                        list.add(cursor.getInt(0));
+                    }
                 } while (cursor.moveToNext());
             }
             cursor.moveToFirst();
         }
         mDataList = list;
+    }
+
+    private List<TaskGroup> filterTaskGroup(List<TaskGroup> list) {
+        List<TaskGroup> ret = new ArrayList<>();
+        for (TaskGroup t : list) {
+            if (t.getId() != mTaskGroup.getId()) {
+                ret.add(t);
+            }
+        }
+        return ret;
     }
 
     private String getAccount() {

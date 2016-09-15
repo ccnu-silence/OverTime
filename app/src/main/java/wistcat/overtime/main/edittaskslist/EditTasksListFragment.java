@@ -21,11 +21,10 @@ import java.util.List;
 
 import wistcat.overtime.App;
 import wistcat.overtime.R;
-import wistcat.overtime.adapter.EditListAdapter;
+import wistcat.overtime.adapter.EditTasksListAdapter;
 import wistcat.overtime.base.BottomFragment;
 import wistcat.overtime.interfaces.GetDataListCallback;
 import wistcat.overtime.interfaces.ItemSelectListener;
-import wistcat.overtime.model.TaskGroup;
 
 /**
  * @author wistcat 2016/9/12
@@ -33,27 +32,21 @@ import wistcat.overtime.model.TaskGroup;
 public class EditTasksListFragment extends ListFragment
         implements EditTasksListContract.View, ItemSelectListener<Integer>{
 
+    /* TODO: 不展示正在执行中的任务 */
+
     public static final String TAG = "EditTasksList";
     private EditTasksListContract.Presenter mPresenter;
     private final String TITLE = "已选择{0}项";
-    private TaskGroup mGroup;
     private ActionBar mActionBar;
     private boolean isAllSelected = true;
 
-    public static EditTasksListFragment getInstance(Bundle data) {
-        EditTasksListFragment fragment = new EditTasksListFragment();
-        fragment.setArguments(data);
-        return fragment;
+    public static EditTasksListFragment getInstance() {
+        return  new EditTasksListFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceSate) {
         super.onCreate(savedInstanceSate);
-        Bundle data = getArguments();
-        if (data == null) {
-            throw new NullPointerException("找不到TaskGroup");
-        }
-        mGroup = (TaskGroup) data.getSerializable(EditTasksListActivity.KEY_EDIT_TASKS_LIST);
     }
 
     @Override
@@ -75,7 +68,7 @@ public class EditTasksListFragment extends ListFragment
         }
 
         // listView
-        EditListAdapter adapter = new EditListAdapter(getActivity(), this);
+        EditTasksListAdapter adapter = new EditTasksListAdapter(getActivity(), this);
         setListAdapter(adapter);
 
         // bottomSheet
@@ -98,7 +91,6 @@ public class EditTasksListFragment extends ListFragment
     @Override
     public void onResume() {
         super.onResume();
-        mPresenter.loadTaskGroup(mGroup);
         mPresenter.start();
     }
 
@@ -177,7 +169,7 @@ public class EditTasksListFragment extends ListFragment
 
     @Override
     public void showAdapterChanged(List<Integer> list) {
-        EditListAdapter adapter = (EditListAdapter) getListAdapter();
+        EditTasksListAdapter adapter = (EditTasksListAdapter) getListAdapter();
         if (adapter != null) {
             adapter.setSelectedList(list);
         }
@@ -185,7 +177,7 @@ public class EditTasksListFragment extends ListFragment
 
     @Override
     public void getAdapterState(@NonNull GetDataListCallback<Integer> callback) {
-        EditListAdapter adapter = (EditListAdapter) getListAdapter();
+        EditTasksListAdapter adapter = (EditTasksListAdapter) getListAdapter();
         if (adapter != null) {
             List<Integer> data = adapter.getSelectedList();
             if (data == null) {

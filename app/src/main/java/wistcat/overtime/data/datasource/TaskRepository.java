@@ -1,6 +1,5 @@
 package wistcat.overtime.data.datasource;
 
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -94,33 +93,8 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
-    public void getCachedTaskGroup(@NonNull GetDataListCallback<TaskGroup> callback) {
-        getCachedTaskGroup(callback, false);
-    }
-
-    @Override
-    public void getCachedTaskGroup(@NonNull GetDataListCallback<TaskGroup> callback, boolean forceRefresh) {
-        mLocalDataSource.getCachedTaskGroup(callback, forceRefresh);
-    }
-
-    @Override
-    public void setTaskGroupCache(@NonNull List<TaskGroup> data) {
-        mLocalDataSource.setTaskGroupCache(data);
-    }
-
-    @Override
-    public void setTaskGroupCache(final Cursor cursor) {
-        mExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                mLocalDataSource.setTaskGroupCache(cursor);
-            }
-        });
-    }
-
-    @Override
-    public boolean isGroupCacheAvailable() {
-        return mLocalDataSource.isGroupCacheAvailable();
+    public void getTaskGroups(@NonNull GetDataListCallback<TaskGroup> callback) {
+        mLocalDataSource.getTaskGroups(callback);
     }
 
     @Override
@@ -154,6 +128,16 @@ public class TaskRepository implements TaskDataSource {
             @Override
             public void run() {
                 mLocalDataSource.stopRunningTask(task, state);
+            }
+        });
+    }
+
+    @Override
+    public void transformTasks(@NonNull final List<Integer> taskIds, @NonNull final TaskGroup from, @NonNull final TaskGroup to) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.transformTasks(taskIds, from, to);
             }
         });
     }

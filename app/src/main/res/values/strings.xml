@@ -51,4 +51,5 @@
     <string name="my_tasks">我的任务</string>
     <string name="select_handle">选择操作</string>
     <string name="choose_group">选择目的分组：</string>
+    <string name="cd_running">运行中的任务</string>
 </resources>

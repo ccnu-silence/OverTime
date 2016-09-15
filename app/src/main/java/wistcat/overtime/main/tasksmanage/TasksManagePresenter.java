@@ -72,7 +72,6 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == TASK_GROUP_QUERY) {
             mView.showTaskGroups(data);
-            mRepository.setTaskGroupCache(data);
         }
     }
 

@@ -227,6 +227,21 @@ public class TaskEngine {
         return values;
     }
 
+    public static TaskGroup clone(TaskGroup group) {
+        TaskGroup ret = new TaskGroup(group.getId(), group.getUUID(), group.getName(), group.getAccount());
+        ret.setCount(group.getTaskCount()).setExtra_1(group.getExtra_1()).setExtra_2(group.getExtra_2());
+        return ret;
+    }
+
+    public static Task clone(Task task) {
+        Task ret = new Task(task.getGroupId(), task.getGroupName(), task.getId(), task.getUUID(),
+                task.getType(), task.getState(), task.getName(), task.getDescription(), task.getSumTime(),
+                task.getRemark(), task.getCompletedDegree());
+        ret.setExtra1(task.getExtra_1()).setExtra2(task.getExtra_2()).setExtra3(task.getExtra_3())
+                .setExtra4(task.getExtra_4());
+        return ret;
+    }
+
     public static int taskToRes(int taskType) {
         switch (taskType) {
             case Task.TYPE_MANUAL:

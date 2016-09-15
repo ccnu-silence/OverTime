@@ -1,6 +1,5 @@
 package wistcat.overtime.data.datasource;
 
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import java.util.List;
@@ -29,21 +28,9 @@ public interface TaskDataSource {
 
     void deleteTaskGroups(@NonNull List<Integer> taskGroupIds);
 
-    void getCachedTaskGroup(@NonNull GetDataListCallback<TaskGroup> callback);
-
-    void getCachedTaskGroup(@NonNull GetDataListCallback<TaskGroup> callback, boolean forceRefresh);
-
-    void setTaskGroupCache(@NonNull List<TaskGroup> data);
-
-    void setTaskGroupCache(Cursor cursor);
-
-    boolean isGroupCacheAvailable();
+    void getTaskGroups(@NonNull GetDataListCallback<TaskGroup> callback);
 
     // ----task-----
-
-    // NOTE: Query功能由Loader框架完成
-//    void getTasks(GetDataListCallback<Task> callback);
-//    void getTask(int taskId, GetDataCallback<Task> callback);
 
     /* 0/Activate->Activate,  Completed->Completed */
     void saveTask(@NonNull Task task);
@@ -55,6 +42,9 @@ public interface TaskDataSource {
 
     /* Running -> Activate/Completed */
     void stopRunningTask(@NonNull Task task, TaskState state);
+
+    /* 更改Task所属 Activate -> Activate */
+    void transformTasks(@NonNull List<Integer> taskIds, @NonNull TaskGroup from, @NonNull TaskGroup to);
 
     /* Activiate/Running -> Completed */
     void completeTask(@NonNull Task task);
@@ -83,10 +73,6 @@ public interface TaskDataSource {
 
     // ----Record----
 
-    // NOTE: Query功能由Loader框架完成
-//    void getRecord(@NonNull Task task, @NonNull Record record, GetDataCallback<Record> callback);
-//    void getRecords(@NonNull Task task, GetDataListCallback<Record> callback);
-
     void initAndCheckRecords(@NonNull GetDataListCallback<Record> callback);
 
     void saveRecord(@NonNull Record record);
@@ -98,10 +84,6 @@ public interface TaskDataSource {
     void deleteRecords(@NonNull List<Integer> recordIds);
 
     // ----Episode----
-
-    // NOTE: Query功能由Loader框架完成
-//    void getEpisode(@NonNull Record record, GetDataCallback<Episode> callback);
-//    void getEpisodes(@NonNull Record record, GetDataListCallback<Episode> callback);
 
     void saveEpisode(@NonNull Episode episode);
 

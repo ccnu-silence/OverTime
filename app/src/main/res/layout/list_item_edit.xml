@@ -9,6 +9,14 @@
     <FrameLayout
         android:layout_width="56dp"
         android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/running"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/circle_1"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:contentDescription="@string/cd_running"/>
         <CheckBox
             android:id="@+id/checkbox"
             android:layout_width="wrap_content"
