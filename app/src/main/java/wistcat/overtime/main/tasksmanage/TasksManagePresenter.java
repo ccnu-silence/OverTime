@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.view.View;
 
 import javax.inject.Inject;
 
@@ -23,11 +22,16 @@ import wistcat.overtime.util.Const;
  */
 public class TasksManagePresenter implements TasksManageContract.Presenter, LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final int MENU_TYPE_GROUP = 1;
+    private static final int MENU_TYPE_ITEM = 2;
     private final static int TASK_GROUP_QUERY = 0x02;
     private final TasksManageContract.View mView;
     private final LoaderManager mLoaderManager;
     private final TaskRepository mRepository;
+
     private boolean isFirst = true;
+    private TaskGroup mDeleteGroup;
+    private int mMenuType;
 
     @Inject
     public TasksManagePresenter(TasksManageContract.View view, LoaderManager manager, TaskRepository repository) {
@@ -71,7 +75,7 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == TASK_GROUP_QUERY) {
-            mView.showTaskGroups(data);
+            mView.showList(data);
         }
     }
 
@@ -97,46 +101,108 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
     }
 
     @Override
-    public void redirectToCompleted() {
+    public void openCompletedList() {
         TaskGroup group = new TaskGroup(Const.COMPLETED_GROUP_ID, 0,
                 Const.DEFAULT_COMPLETED_GROUP, App.getInstance().getAccountName());
-        mView.showCompletedTasks(group);
+        mView.redirectCompletedList(group);
     }
 
     @Override
-    public void redirectToRecycled() {
+    public void openRecycledList() {
         TaskGroup group = new TaskGroup(Const.RECYCLED_GROUP_ID, 0,
                 Const.DEFAULT_RECYCLED_GROUP, App.getInstance().getAccountName());
-        mView.showRecycledTasks(group);
+        mView.redirectRecycledList(group);
     }
 
     @Override
-    public void openTaskGroup(@NonNull TaskGroup group) {
-        mView.showTaskList(group);
+    public void openTasksList(@NonNull TaskGroup group) {
+        mView.redirectTasksList(group);
     }
 
     @Override
-    public void openMoreMenu(View view) {
-        mView.showMoreMenu(view);
+    public void openEditMenu() {
+        mMenuType = MENU_TYPE_GROUP;
+        mView.showEditMenu();
     }
 
     @Override
-    public void openAddDialog() {
+    public void openItemEditMenu(@NonNull TaskGroup group) {
+        mDeleteGroup = group;
+        mMenuType = MENU_TYPE_ITEM;
+        mView.showItemEditMenu();
+    }
+
+    @Override
+    public void openCreateDialog() {
+        mView.dismissMenu();
         mView.showCreateDialog();
     }
 
     @Override
-    public void openEditList() {
-        mView.showGroupManage();
+    public void openGroupsManage() {
+        mView.dismissMenu();
+        mView.redirectGroupsManage();
+    }
+
+    @Override
+    public void openGroupDetails() {
+        mView.dismissMenu();
+        mView.showGroupDetails();
     }
 
     @Override
     public void closeCreateDialog() {
-        mView.hideCreateDialog();
+        mView.dismissCreateDialog();
+    }
+
+    @Override
+    public void openDeleteDialog() {
+        mView.dismissMenu();
+        mView.showDeleteDialog();
+    }
+
+    @Override
+    public void closeDeleteDialog() {
+        mView.dismissDeleteDialog();
+    }
+
+    @Override
+    public void onMenuSelected(int i) {
+        switch (i) {
+            case 0:
+                if (mMenuType == MENU_TYPE_GROUP) {         //添加任务组
+                    openCreateDialog();
+                } else if (mMenuType == MENU_TYPE_ITEM) {   //编辑任务组
+                    openGroupDetails();
+                }
+                break;
+            case 1:
+                if (mMenuType == MENU_TYPE_GROUP) {         //管理任务组
+                    openGroupsManage();
+                } else if (mMenuType == MENU_TYPE_ITEM) {   //删除任务组
+                    openDeleteDialog();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
     public void addNewTaskGroup(@NonNull TaskGroup taskGroup) {
         mRepository.saveTaskGroup(taskGroup);
+        // FIXME: 暂时的处理，以后换成回调
+        mView.showToast("添加成功");
+    }
+
+    @Override
+    public void deleteTaskGroup() {
+        if (mDeleteGroup == null) {
+            throw new NullPointerException("没有指定的TaskGroup");
+        }
+        mRepository.deleteTaskGroup(mDeleteGroup.getId());
+        mView.dismissDeleteDialog();
+        // FIXME: 暂时的处理，以后换成回调
+        mView.showToast("删除成功");
     }
 }

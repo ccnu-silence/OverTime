@@ -15,4 +15,5 @@
     <dimen name="bottom_list_padding_left">16dp</dimen>
 
     <dimen name="bottom_peek_height">56dp</dimen>
+    <dimen name="default_list_item_seq_width">64dp</dimen>
 </resources>

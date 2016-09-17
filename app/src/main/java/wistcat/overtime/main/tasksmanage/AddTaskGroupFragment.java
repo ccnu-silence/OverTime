@@ -15,19 +15,19 @@ import android.widget.EditText;
 import wistcat.overtime.databinding.FragmentAddTaskgroupBinding;
 
 /**
- * 新建任务分组页
+ * 新建任务分组
  *
  * @author wistcat 2016/9/8
  */
 public class AddTaskGroupFragment extends AppCompatDialogFragment {
 
-    private TasksManagePresenter mPresenter;
+    private TasksManageContract.Presenter mPresenter;
 
     public static AddTaskGroupFragment getInstance() {
         return new AddTaskGroupFragment();
     }
 
-    public void setPresenter(TasksManagePresenter presenter) {
+    public void setPresenter(TasksManageContract.Presenter presenter) {
         mPresenter = presenter;
     }
 
@@ -44,8 +44,10 @@ public class AddTaskGroupFragment extends AppCompatDialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // DataBinding
         FragmentAddTaskgroupBinding binding = FragmentAddTaskgroupBinding.inflate(inflater, container, false);
-        binding.setHandler(new HandleCreateTaskGroup(mPresenter));
+        HandleCreateTaskGroup handle = new HandleCreateTaskGroup(mPresenter);
+        binding.setHandler(handle);
         popupKeyboard(binding.edit);
         return binding.getRoot();
     }
@@ -53,6 +55,7 @@ public class AddTaskGroupFragment extends AppCompatDialogFragment {
     @Override
     public void onStart() {
         super.onStart();
+        // 用于设置Dialog的长宽
         DisplayMetrics dm = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
         Window window = getDialog().getWindow();

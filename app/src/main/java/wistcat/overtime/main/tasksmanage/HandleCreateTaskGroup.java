@@ -17,10 +17,10 @@ import wistcat.overtime.model.TaskGroup;
  */
 public class HandleCreateTaskGroup extends BaseObservable {
 
-    private TasksManagePresenter mPresenter;
+    private TasksManageContract.Presenter mPresenter;
     private String mInput;
 
-    public HandleCreateTaskGroup(TasksManagePresenter presenter) {
+    public HandleCreateTaskGroup(TasksManageContract.Presenter presenter) {
         mPresenter = presenter;
     }
 

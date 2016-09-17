@@ -15,31 +15,43 @@ public interface TasksManageContract {
     interface View extends BaseView<Presenter> {
 
         /** 显示TaskGroup列表 */
-        void showTaskGroups(Cursor data);
+        void showList(Cursor data);
 
         /** 显示创建TaskGroup窗口 */
         void showCreateDialog();
 
         /** 跳转到列表管理 */
-        void showGroupManage();
+        void redirectGroupsManage();
 
         /** 跳转到已完成的任务页 */
-        void showCompletedTasks(@NonNull TaskGroup group);
+        void redirectCompletedList(@NonNull TaskGroup group);
 
         /** 跳转到回收站 */
-        void showRecycledTasks(@NonNull TaskGroup group);
+        void redirectRecycledList(@NonNull TaskGroup group);
 
         /** 打开一个TaskGroup项 */
-        void showTaskList(@NonNull TaskGroup group);
+        void redirectTasksList(@NonNull TaskGroup group);
 
-        /** 弹出管理menu */
-        void showMoreMenu(android.view.View view);
+        /** 显示Group管理menu */
+        void showEditMenu();
+
+        void showItemEditMenu();
 
         /** 清空CursorAdapter的数据 */
         void clearCursor();
 
-        /** 关闭新建*/
-        void hideCreateDialog();
+        /** 关闭新建Dialog */
+        void dismissCreateDialog();
+
+        void showGroupDetails();
+
+        void showDeleteDialog();
+
+        void dismissDeleteDialog();
+
+        void dismissMenu();
+
+        void showToast(String msg);
     }
 
     interface Presenter extends BasePresenter {
@@ -51,27 +63,39 @@ public interface TasksManageContract {
         void loadTaskGroups();
 
         /** 打开完成任务列表 */
-        void redirectToCompleted();
+        void openCompletedList();
 
         /** 打开任务回收站列表 */
-        void redirectToRecycled();
+        void openRecycledList();
 
         /** 打开一个TaskGroup项 */
-        void openTaskGroup(@NonNull TaskGroup group);
+        void openTasksList(@NonNull TaskGroup group);
 
         /** 打开Popup菜单  */
-        void openMoreMenu(android.view.View view);
+        void openEditMenu();
+
+        void openItemEditMenu(@NonNull TaskGroup group);
 
         /** 打开添加TaskGroup窗口 */
-        void openAddDialog();
+        void openCreateDialog();
 
         /** 打开列表管理 */
-        void openEditList();
+        void openGroupsManage();
+
+        void openGroupDetails();
 
         /** 关闭新建Dialog */
         void closeCreateDialog();
 
+        void openDeleteDialog();
+
+        void closeDeleteDialog();
+
+        void onMenuSelected(int i);
+
         /** 添加新的任务组 */
-        void addNewTaskGroup(@NonNull TaskGroup taskGroup);
+        void addNewTaskGroup(@NonNull TaskGroup group);
+
+        void deleteTaskGroup();
     }
 }

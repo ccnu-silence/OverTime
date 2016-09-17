@@ -3,25 +3,28 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="12dp"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
-    style="?attr/buttonBarStyle">
+    android:layout_height="36dp"
+    android:background="@color/White">
     <TextView
         android:id="@+id/more_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:text="@string/my_tasks"
+        android:layout_marginLeft="24dp"
         android:textColor="@color/DarkGrey"/>
     <ImageButton
         android:id="@+id/more_menu"
         android:layout_width="32dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:gravity="center"
         android:src="@drawable/vec_more_vert"
         android:layout_alignParentRight="true"
         style="?attr/buttonBarButtonStyle"
         tools:ignore="contentDescription"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/Grey71"
+        android:layout_alignParentBottom="true"/>
 </RelativeLayout>
