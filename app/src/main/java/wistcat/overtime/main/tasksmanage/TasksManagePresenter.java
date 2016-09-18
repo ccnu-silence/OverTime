@@ -14,6 +14,7 @@ import wistcat.overtime.data.datasource.TaskRepository;
 import wistcat.overtime.data.db.SelectionBuilder;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
+import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.TaskGroup;
 import wistcat.overtime.util.Const;
 
@@ -190,9 +191,17 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
 
     @Override
     public void addNewTaskGroup(@NonNull TaskGroup taskGroup) {
-        mRepository.saveTaskGroup(taskGroup);
-        // FIXME: 暂时的处理，以后换成回调
-        mView.showToast("添加成功");
+        mRepository.saveTaskGroup(taskGroup, new ResultCallback() {
+            @Override
+            public void onSuccess() {
+                mView.showToast("添加成功");
+            }
+
+            @Override
+            public void onError() {
+                mView.showToast("添加失败");
+            }
+        });
     }
 
     @Override
@@ -200,9 +209,17 @@ public class TasksManagePresenter implements TasksManageContract.Presenter, Load
         if (mDeleteGroup == null) {
             throw new NullPointerException("没有指定的TaskGroup");
         }
-        mRepository.deleteTaskGroup(mDeleteGroup.getId());
+        mRepository.deleteTaskGroup(mDeleteGroup, new ResultCallback() {
+            @Override
+            public void onSuccess() {
+                mView.showToast("删除成功");
+            }
+
+            @Override
+            public void onError() {
+                mView.showToast("删除失败");
+            }
+        });
         mView.dismissDeleteDialog();
-        // FIXME: 暂时的处理，以后换成回调
-        mView.showToast("删除成功");
     }
 }

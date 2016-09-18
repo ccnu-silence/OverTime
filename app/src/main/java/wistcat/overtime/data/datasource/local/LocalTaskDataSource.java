@@ -24,6 +24,7 @@ import wistcat.overtime.data.db.SelectionBuilder;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
 import wistcat.overtime.interfaces.GetDataListCallback;
+import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
 import wistcat.overtime.model.Task;
@@ -42,6 +43,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     private final ContentResolver mContentResolver;
     private CountDownLatch mDown;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     public LocalTaskDataSource(@NonNull Context context) {
         mContentResolver = context.getContentResolver();
@@ -54,6 +56,17 @@ public class LocalTaskDataSource implements TaskDataSource {
                 TaskContract.buildTaskGroupUri(getAccount()),
                 TaskEngine.taskGroupTo(taskGroup)
         );
+    }
+
+    @Override
+    public void saveTaskGroup(@NonNull TaskGroup group, ResultCallback callback) {
+        try {
+            saveTaskGroup(group);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            // FIXME: 需要在操作数据库时，抛出更有效的异常。关于相关的异常以后再写...
+            sendError(callback);
+        }
     }
 
     @Override
@@ -79,6 +92,16 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
+    public void deleteTaskGroup(@NonNull TaskGroup taskGroup, ResultCallback callback) {
+        try {
+            deleteTaskGroup(taskGroup);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
+    @Override
     public void deleteTaskGroups(@NonNull List<Integer> taskGroupIds) {
         // FIXME: 如果性能有问题，改进或者删除...
         for (int i : taskGroupIds) {
@@ -101,6 +124,16 @@ public class LocalTaskDataSource implements TaskDataSource {
                 builder.getSelection(),
                 builder.getSelectionArgs()
         );
+    }
+
+    @Override
+    public void deleteTaskGroups(@NonNull List<Integer> taskGroupIds, ResultCallback callback) {
+        try {
+            deleteTaskGroups(taskGroupIds);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
     }
 
     @Override
@@ -178,6 +211,16 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
+    public void saveTask(@NonNull Task task, ResultCallback callback) {
+        try {
+            saveTask(task);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
+    @Override
     public void startRunningTask(@NonNull Task task) {
         // 不需要在这一层实现，由{@link TaskRepository}完成转换
     }
@@ -192,6 +235,16 @@ public class LocalTaskDataSource implements TaskDataSource {
                 null
         );
         // TODO something..
+    }
+
+    @Override
+    public void startRunningTask(@NonNull Task task, ResultCallback callback) {
+        try {
+            startRunningTask(task);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
     }
 
     @Override
@@ -224,6 +277,16 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
+    public void stopRunningTask(@NonNull Task task, TaskState state, ResultCallback callback) {
+        try {
+            stopRunningTask(task, state);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
+    @Override
     public void transformTasks(@NonNull List<Integer> taskIds, @NonNull TaskGroup from, @NonNull TaskGroup to) {
         SelectionBuilder builder  = new SelectionBuilder();
         builder.in(TaskContract.TaskEntry._ID, null);
@@ -242,6 +305,16 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
+    public void transformTasks(@NonNull List<Integer> taskIds, @NonNull TaskGroup from, @NonNull TaskGroup to, ResultCallback callback) {
+        try {
+            transformTasks(taskIds, from, to);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
+    @Override
     public void completeTask(@NonNull Task task) {
         mContentResolver.update(
                 TaskContract.buildTasksUriWith(getAccount(), task.getId()),
@@ -252,6 +325,16 @@ public class LocalTaskDataSource implements TaskDataSource {
         updateTaskGroup(false, TaskGroupEntry.COLUMN_NAME_COUNT, 1, task.getGroupId());
         updateTaskGroup(true, TaskGroupEntry.COLUMN_NAME_COUNT, 1, Const.COMPLETED_GROUP_ID);
         notifyUri(getTaskGroupUri());
+    }
+
+    @Override
+    public void completeTask(@NonNull Task task, ResultCallback callback) {
+        try {
+            completeTask(task);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
     }
 
     @Override
@@ -271,6 +354,16 @@ public class LocalTaskDataSource implements TaskDataSource {
         updateTaskGroup(false, TaskGroupEntry.COLUMN_NAME_COUNT, taskIds.size(), groupId);
         updateTaskGroup(true, TaskGroupEntry.COLUMN_NAME_COUNT, taskIds.size(), Const.COMPLETED_GROUP_ID);
         notifyUri(getTaskGroupUri());
+    }
+
+    @Override
+    public void completeTasks(@NonNull List<Integer> taskIds, int groupId, ResultCallback callback) {
+        try {
+            completeTasks(taskIds, groupId);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
     }
 
     @Override
@@ -298,6 +391,16 @@ public class LocalTaskDataSource implements TaskDataSource {
         }
         // 通知刷新
         notifyUri(getTaskGroupUri());
+    }
+
+    @Override
+    public void activateTask(@NonNull Task task, @NonNull TaskGroup group, ResultCallback callback) {
+        try {
+            activateTask(task, group);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
     }
 
     @Override
@@ -332,6 +435,16 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
+    public void activateTasks(@NonNull List<Integer> taskIds, @NonNull TaskGroup group, ResultCallback callback) {
+        try {
+            activateTasks(taskIds, group);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
+    @Override
     public void recycleTask(@NonNull Task task) {
         mContentResolver.update(
                 TaskContract.buildTasksUriWith(getAccount(), task.getId()),
@@ -342,6 +455,16 @@ public class LocalTaskDataSource implements TaskDataSource {
         updateTaskGroup(false, TaskGroupEntry.COLUMN_NAME_COUNT, 1, task.getGroupId());
         updateTaskGroup(true, TaskGroupEntry.COLUMN_NAME_COUNT, 1, Const.RECYCLED_GROUP_ID);
         notifyUri(getTaskGroupUri());
+    }
+
+    @Override
+    public void recycleTask(@NonNull Task task, ResultCallback callback) {
+        try {
+            recycleTask(task);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
     }
 
     @Override
@@ -364,6 +487,16 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
+    public void recycleTasks(@NonNull List<Integer> taskIds, int groupId, ResultCallback callback) {
+        try {
+            recycleTasks(taskIds, groupId);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
+    @Override
     public void deleteTask(@NonNull Task task) {
         // 不需要在这一层实现，由{@link TaskRepository}完成转换
     }
@@ -377,6 +510,16 @@ public class LocalTaskDataSource implements TaskDataSource {
         );
         updateTaskGroup(false, TaskGroupEntry.COLUMN_NAME_COUNT, 1, Const.RECYCLED_GROUP_ID);
         notifyUri(getTaskGroupUri());
+    }
+
+    @Override
+    public void deleteTask(@NonNull Task task, ResultCallback callback) {
+        try {
+            deleteTask(task);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
     }
 
     @Override
@@ -396,6 +539,16 @@ public class LocalTaskDataSource implements TaskDataSource {
         notifyUri(getTaskGroupUri());
     }
 
+    @Override
+    public void deleteTasks(@NonNull List<Integer> taskIds, int groupId, ResultCallback callback) {
+        try {
+            deleteTasks(taskIds, groupId);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
 
     @Override
     public void initAndCheckRecords(@NonNull GetDataListCallback<Record> callback) {
@@ -408,6 +561,16 @@ public class LocalTaskDataSource implements TaskDataSource {
                 TaskContract.buildRecordsUriWith(getAccount()),
                 TaskEngine.recordTo(record)
         );
+    }
+
+    @Override
+    public void saveRecord(@NonNull Record record, ResultCallback callback) {
+        try {
+            saveRecord(record);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
     }
 
     @Override
@@ -425,6 +588,16 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
+    public void deleteRecord(@NonNull Record record, ResultCallback callback) {
+        try {
+            deleteRecord(record);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
+    @Override
     public void deleteRecords(@NonNull List<Integer> recordIds) {
         SelectionBuilder builder = new SelectionBuilder();
         builder.in(TaskContract.RecordEntry._ID, null);
@@ -439,11 +612,31 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
+    public void deleteRecords(@NonNull List<Integer> recordIds, ResultCallback callback) {
+        try {
+            deleteRecords(recordIds);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
+    @Override
     public void saveEpisode(@NonNull Episode episode) {
         mContentResolver.insert(
                 TaskContract.buildEpisodesUriWith(getAccount()),
                 TaskEngine.episodeTo(episode)
         );
+    }
+
+    @Override
+    public void saveEpisode(@NonNull Episode episode, ResultCallback callback) {
+        try {
+            saveEpisode(episode);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
     }
 
     @Override
@@ -461,6 +654,16 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
+    public void deleteEpisode(@NonNull Episode episode, ResultCallback callback) {
+        try {
+            deleteEpisode(episode);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
+    @Override
     public void deleteEpisodes(@NonNull List<Integer> episodeIds) {
         SelectionBuilder builder = new SelectionBuilder();
         builder.in(TaskContract.EpisodeEntry._ID, null);
@@ -472,6 +675,16 @@ public class LocalTaskDataSource implements TaskDataSource {
                 builder.getSelection(),
                 builder.getSelectionArgs()
         );
+    }
+
+    @Override
+    public void deleteEpisodes(@NonNull List<Integer> episodeIds, ResultCallback callback) {
+        try {
+            deleteEpisodes(episodeIds);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
     }
 
     @Override
@@ -512,7 +725,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteAccount(@NonNull String account) {
-
+        // TODO
     }
 
     @Override
@@ -542,6 +755,24 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     private Uri getTaskGroupUri() {
         return TaskContract.buildTaskGroupUri(getAccount());
+    }
+
+    private void sendSuccess(final ResultCallback callback) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onSuccess();
+            }
+        });
+    }
+
+    private void sendError(final ResultCallback callback) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onError();
+            }
+        });
     }
 
 }

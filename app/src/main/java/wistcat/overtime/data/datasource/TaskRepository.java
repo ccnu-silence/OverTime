@@ -17,6 +17,7 @@ import javax.inject.Singleton;
 
 import wistcat.overtime.data.datasource.local.Local;
 import wistcat.overtime.interfaces.GetDataListCallback;
+import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
 import wistcat.overtime.model.Task;
@@ -68,6 +69,16 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void saveTaskGroup(@NonNull final TaskGroup group, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.saveTaskGroup(group, callback);
+            }
+        });
+    }
+
+    @Override
     public void deleteTaskGroup(@NonNull final TaskGroup taskGroup) {
         deleteTaskGroup(taskGroup.getId());
     }
@@ -83,11 +94,31 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void deleteTaskGroup(@NonNull final TaskGroup taskGroup, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                deleteTaskGroup(taskGroup, callback);
+            }
+        });
+    }
+
+    @Override
     public void deleteTaskGroups(@NonNull final List<Integer> taskGroupIds) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 mLocalDataSource.deleteTaskGroups(taskGroupIds);
+            }
+        });
+    }
+
+    @Override
+    public void deleteTaskGroups(@NonNull final List<Integer> taskGroupIds, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                deleteTaskGroups(taskGroupIds, callback);
             }
         });
     }
@@ -108,6 +139,16 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void saveTask(@NonNull final Task task, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                saveTask(task, callback);
+            }
+        });
+    }
+
+    @Override
     public void startRunningTask(@NonNull final Task task) {
         startRunningTask(task.getId());
     }
@@ -123,6 +164,16 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void startRunningTask(@NonNull final Task task, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                startRunningTask(task, callback);
+            }
+        });
+    }
+
+    @Override
     public void stopRunningTask(@NonNull final Task task, final TaskState state) {
         mExecutor.execute(new Runnable() {
             @Override
@@ -133,11 +184,33 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
-    public void transformTasks(@NonNull final List<Integer> taskIds, @NonNull final TaskGroup from, @NonNull final TaskGroup to) {
+    public void stopRunningTask(@NonNull final Task task, final TaskState state, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                stopRunningTask(task, state, callback);
+            }
+        });
+    }
+
+    @Override
+    public void transformTasks(@NonNull final List<Integer> taskIds, @NonNull final TaskGroup from,
+                               @NonNull final TaskGroup to) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 mLocalDataSource.transformTasks(taskIds, from, to);
+            }
+        });
+    }
+
+    @Override
+    public void transformTasks(@NonNull final List<Integer> taskIds, @NonNull final TaskGroup from,
+                               @NonNull final TaskGroup to, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.transformTasks(taskIds, from, to, callback);
             }
         });
     }
@@ -153,11 +226,31 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void completeTask(@NonNull final Task task, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                completeTask(task, callback);
+            }
+        });
+    }
+
+    @Override
     public void completeTasks(@NonNull final List<Integer> taskIds, final int groupId) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 mLocalDataSource.completeTasks(taskIds, groupId);
+            }
+        });
+    }
+
+    @Override
+    public void completeTasks(@NonNull final List<Integer> taskIds, final int groupId, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.completeTasks(taskIds, groupId, callback);
             }
         });
     }
@@ -173,11 +266,32 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void activateTask(@NonNull final Task task, @NonNull final TaskGroup group, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.activateTask(task, group, callback);
+            }
+        });
+    }
+
+    @Override
     public void activateTasks(@NonNull final List<Integer> taskIds, @NonNull final TaskGroup group) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 mLocalDataSource.activateTasks(taskIds, group);
+            }
+        });
+    }
+
+    @Override
+    public void activateTasks(@NonNull final List<Integer> taskIds, @NonNull final TaskGroup group,
+                              final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                activateTasks(taskIds, group, callback);
             }
         });
     }
@@ -193,11 +307,31 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void recycleTask(@NonNull final Task task, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.recycleTask(task, callback);
+            }
+        });
+    }
+
+    @Override
     public void recycleTasks(@NonNull final List<Integer> taskIds, final int groupId) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 mLocalDataSource.recycleTasks(taskIds, groupId);
+            }
+        });
+    }
+
+    @Override
+    public void recycleTasks(@NonNull final List<Integer> taskIds, final int groupId, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.recycleTasks(taskIds, groupId, callback);
             }
         });
     }
@@ -218,11 +352,31 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void deleteTask(@NonNull final Task task, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.deleteTask(task, callback);
+            }
+        });
+    }
+
+    @Override
     public void deleteTasks(@NonNull final List<Integer> taskIds, final int groupId) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 mLocalDataSource.deleteTasks(taskIds, groupId);
+            }
+        });
+    }
+
+    @Override
+    public void deleteTasks(@NonNull final List<Integer> taskIds, final int groupId, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.deleteTasks(taskIds, groupId, callback);
             }
         });
     }
@@ -248,6 +402,16 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void saveRecord(@NonNull final Record record, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.saveRecord(record, callback);
+            }
+        });
+    }
+
+    @Override
     public void deleteRecord(@NonNull final Record record) {
         deleteRecord(record.getId());
     }
@@ -263,6 +427,16 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void deleteRecord(@NonNull final Record record, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.deleteRecord(record, callback);
+            }
+        });
+    }
+
+    @Override
     public void deleteRecords(@NonNull final List<Integer> recordIds) {
         mExecutor.execute(new Runnable() {
             @Override
@@ -273,11 +447,31 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void deleteRecords(@NonNull final List<Integer> recordIds, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.deleteRecords(recordIds, callback);
+            }
+        });
+    }
+
+    @Override
     public void saveEpisode(@NonNull final Episode episode) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 mLocalDataSource.saveEpisode(episode);
+            }
+        });
+    }
+
+    @Override
+    public void saveEpisode(@NonNull final Episode episode, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.saveEpisode(episode, callback);
             }
         });
     }
@@ -298,11 +492,31 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
+    public void deleteEpisode(@NonNull final Episode episode, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.deleteEpisode(episode, callback);
+            }
+        });
+    }
+
+    @Override
     public void deleteEpisodes(@NonNull final List<Integer> episodeIds) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 mLocalDataSource.deleteEpisodes(episodeIds);
+            }
+        });
+    }
+
+    @Override
+    public void deleteEpisodes(@NonNull final List<Integer> episodeIds, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.deleteEpisodes(episodeIds, callback);
             }
         });
     }
