@@ -35,4 +35,6 @@ public class Const {
     /** 默认swipeRefresh显示时间 */
     public static final int DEFAULT_REFRESH_DURATION = 500;
 
+    public static final String DEFAULT_TASK_NAME = "我的任务";
+
 }

@@ -8,8 +8,16 @@ import android.view.KeyEvent;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import wistcat.overtime.App;
 import wistcat.overtime.R;
 import wistcat.overtime.interfaces.CreateTaskListener;
+import wistcat.overtime.main.addtask.limited.CreateLimitedFragment;
+import wistcat.overtime.main.addtask.manual.CreateManualFragment;
+import wistcat.overtime.main.addtask.shortly.CreateShortFragment;
+import wistcat.overtime.main.addtask.timing.CreateTimingFragment;
+import wistcat.overtime.model.TaskGroup;
 
 
 /**
@@ -19,18 +27,29 @@ import wistcat.overtime.interfaces.CreateTaskListener;
  */
 public class AddTaskActivity extends AppCompatActivity implements CreateTaskListener {
 
+    public static final String GROUP_KEY = "Group";
     public static final String ARG_CX = "cx";
     public static final String ARG_CY = "cy";
+    private TaskGroup mGroup;
+
+    // 注意不能是接口
+    @Inject
+    public CreateTaskPresenter mPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_task);
+        setContentView(R.layout.activity_container);
 
         getSupportFragmentManager()
                 .beginTransaction()
                 .add(R.id.container, new AddTaskFragment(), AddTaskFragment.MARK)
                 .commit();
+
+        Bundle data = getIntent().getExtras();
+        if (data != null) {
+            mGroup = (TaskGroup) data.getSerializable(GROUP_KEY);
+        }
     }
 
     @Override
@@ -42,24 +61,31 @@ public class AddTaskActivity extends AppCompatActivity implements CreateTaskList
     @Override
     public void switchPage(int cx, int cy, String tag) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        Fragment fragment;
+        BaseCreateFragment fragment;
         switch (tag) {
             case CreateManualFragment.MARK:
-                fragment = CreateManualFragment.getInstance(cx, cy);
+                fragment = CreateManualFragment.getInstance(cx, cy, mGroup);
                 break;
             case CreateTimingFragment.MARK:
-                fragment = CreateTimingFragment.getInstance(cx, cy);
+                fragment = CreateTimingFragment.getInstance(cx, cy, mGroup);
                 break;
             case CreateShortFragment.MARK:
-                fragment = CreateShortFragment.getInstance(cx, cy);
+                fragment = CreateShortFragment.getInstance(cx, cy, mGroup);
                 break;
             case CreateLimitedFragment.MARK:
-                fragment = CreateLimitedFragment.getInstance(cx, cy);
+                fragment = CreateLimitedFragment.getInstance(cx, cy, mGroup);
                 break;
             default:
                 throw new IllegalArgumentException();
         }
-
+        // dagger
+        TaskViewModule viewModule = new TaskViewModule(fragment);
+        CreateTaskComponent component = DaggerCreateTaskComponent
+                .builder()
+                .appComponent(App.getInstance().getAppComponent())
+                .taskViewModule(viewModule)
+                .build();
+        component.inject(this);
         ft.add(R.id.container, fragment, tag);
         ft.commit();
     }

@@ -98,7 +98,7 @@ public class TaskRepository implements TaskDataSource {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                deleteTaskGroup(taskGroup, callback);
+                mLocalDataSource.deleteTaskGroup(taskGroup, callback);
             }
         });
     }
@@ -118,7 +118,7 @@ public class TaskRepository implements TaskDataSource {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                deleteTaskGroups(taskGroupIds, callback);
+                mLocalDataSource.deleteTaskGroups(taskGroupIds, callback);
             }
         });
     }
@@ -143,7 +143,7 @@ public class TaskRepository implements TaskDataSource {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                saveTask(task, callback);
+                mLocalDataSource.saveTask(task, callback);
             }
         });
     }
@@ -168,7 +168,7 @@ public class TaskRepository implements TaskDataSource {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                startRunningTask(task, callback);
+                mLocalDataSource.startRunningTask(task, callback);
             }
         });
     }
@@ -188,7 +188,7 @@ public class TaskRepository implements TaskDataSource {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                stopRunningTask(task, state, callback);
+                mLocalDataSource.stopRunningTask(task, state, callback);
             }
         });
     }
@@ -230,7 +230,7 @@ public class TaskRepository implements TaskDataSource {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                completeTask(task, callback);
+                mLocalDataSource.completeTask(task, callback);
             }
         });
     }
@@ -291,7 +291,7 @@ public class TaskRepository implements TaskDataSource {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                activateTasks(taskIds, group, callback);
+                mLocalDataSource.activateTasks(taskIds, group, callback);
             }
         });
     }

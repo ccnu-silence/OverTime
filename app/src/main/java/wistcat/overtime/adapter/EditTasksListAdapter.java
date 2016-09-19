@@ -50,20 +50,21 @@ public class EditTasksListAdapter extends CursorAdapter {
         final ViewHolder holder = (ViewHolder) view.getTag();
         final int itemId = cursor.getInt(0);
         boolean isActivate = cursor.getString(TaskTableHelper.QUERY_TASK_PROJECTION.TASK_STATE)
-                .equals(TaskState.Activate.name());
+                .equals(TaskState.Running.name());
         final String itemName = cursor.getString(
-                TaskTableHelper.QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_GROUP_NAME);
+                TaskTableHelper.QUERY_TASK_PROJECTION.TASK_NAME);
         holder.name.setText(itemName);
 
-        if (isActivate) {
+        // 非Running任务，则可以选择
+        if (!isActivate) {
             holder.linear.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     holder.checkBox.toggle();
                 }
             });
-            holder.checkBox.setVisibility(View.GONE);
-            holder.runState.setVisibility(View.VISIBLE);
+            holder.checkBox.setVisibility(View.VISIBLE);
+            holder.runState.setVisibility(View.GONE);
             holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {

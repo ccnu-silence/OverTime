@@ -32,10 +32,12 @@ import wistcat.overtime.adapter.TasksListAdapter;
 import wistcat.overtime.base.BottomFragment;
 import wistcat.overtime.interfaces.ItemSelectListener;
 import wistcat.overtime.interfaces.OnSearchTermChanged;
+import wistcat.overtime.main.addtask.AddTaskActivity;
 import wistcat.overtime.main.edittaskslist.EditTasksListActivity;
 import wistcat.overtime.main.taskdetail.TaskDetailsActivity;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
+import wistcat.overtime.util.Const;
 
 /**
  * 任务列表页，从TaskGroup列表打开
@@ -45,7 +47,9 @@ import wistcat.overtime.model.TaskGroup;
 public class TasksListFragment extends ListFragment implements TasksListContract.View,
         SearchView.OnQueryTextListener, MenuItemCompat.OnActionExpandListener, ItemSelectListener<Integer> {
 
-    private final String[] mMoreMenu = new String[]{"编辑分组", "管理任务"};
+    private final String[] COMMON_MENU = new String[]{"编辑分组", "管理任务", "新建任务"};
+    private final String[] SPECIAL_MENU = new String[]{"编辑分组", "管理任务"};
+    private String[] mMoreMenu;
     private TaskGroup mTaskGroup;
     private OnSearchTermChanged mTermChangedListener;
     private TasksListContract.Presenter mPresenter;
@@ -69,6 +73,11 @@ public class TasksListFragment extends ListFragment implements TasksListContract
                 throw new NullPointerException("找不到TaskGroup");
             }
             mTaskGroup = taskGroup;
+            if (mTaskGroup.getId() == Const.COMPLETED_GROUP_ID || mTaskGroup.getId() == Const.RECYCLED_GROUP_ID) {
+                mMoreMenu = SPECIAL_MENU;
+            } else {
+                mMoreMenu = COMMON_MENU;
+            }
         }
     }
 
@@ -312,6 +321,8 @@ public class TasksListFragment extends ListFragment implements TasksListContract
             case 1:
                 mPresenter.openEditTasksList();
                 break;
+            case 2:
+                mPresenter.createNewTask();
             default:
                 break;
         }
@@ -333,5 +344,14 @@ public class TasksListFragment extends ListFragment implements TasksListContract
                 }
             });
         }
+    }
+
+    @Override
+    public void redirectCreateTask() {
+        Bundle data = new Bundle();
+        data.putSerializable(AddTaskActivity.GROUP_KEY, mTaskGroup);
+        Intent intent = new Intent(getActivity(), AddTaskActivity.class);
+        intent.putExtras(data);
+        startActivity(intent);
     }
 }

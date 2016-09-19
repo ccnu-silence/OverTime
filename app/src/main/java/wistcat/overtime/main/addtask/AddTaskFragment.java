@@ -16,6 +16,10 @@ import android.widget.Button;
 
 import wistcat.overtime.R;
 import wistcat.overtime.interfaces.CreateTaskListener;
+import wistcat.overtime.main.addtask.limited.CreateLimitedFragment;
+import wistcat.overtime.main.addtask.manual.CreateManualFragment;
+import wistcat.overtime.main.addtask.shortly.CreateShortFragment;
+import wistcat.overtime.main.addtask.timing.CreateTimingFragment;
 
 /**
  * 任务选择界面
@@ -35,6 +39,7 @@ public class AddTaskFragment extends Fragment implements View.OnClickListener {
         if (context instanceof CreateTaskListener) {
             mCreateListener = (CreateTaskListener) context;
         }
+
     }
 
     @Override

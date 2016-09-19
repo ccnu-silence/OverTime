@@ -257,6 +257,21 @@ public class TaskEngine {
         }
     }
 
+    public static int taskToColor(int taskType) {
+        switch (taskType) {
+            case Task.TYPE_MANUAL:
+                return 0x88CE93D8;
+            case Task.TYPE_TIMING:
+                return 0x8872D572;
+            case Task.TYPE_SHORT:
+                return 0x88F48FB1;
+            case Task.TYPE_LIMITED:
+                return 0x8880DEEA;
+            default:
+                throw new IllegalArgumentException("unkown tast type: " + taskType);
+        }
+    }
+
     /** 用于更新Task时，生成一个临时的TaskGroup */
     public static TaskGroup mockTaskGroup(@NonNull Task task) {
         return new TaskGroup(task.getGroupId(), 0, task.getGroupName(), App.getInstance().getAccountName());

@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import wistcat.overtime.R;
@@ -38,7 +37,6 @@ public class MainTasksAdapter extends CursorAdapter {
         View root = LayoutInflater.from(context).inflate(R.layout.list_item_simple_task, viewGroup, false);
         ViewHolder holder = new ViewHolder();
         holder.root = root;
-        holder.mHeader = (ImageView) root.findViewById(R.id.task_header);
         holder.mName = (TextView) root.findViewById(R.id.task_name);
         holder.mSeq = (TextView) root.findViewById(R.id.seq);
         root.setTag(holder);
@@ -50,7 +48,10 @@ public class MainTasksAdapter extends CursorAdapter {
         ViewHolder holder = (ViewHolder) view.getTag();
 
         final Task task = TaskEngine.taskFrom(cursor);
-        final int res = TaskEngine.taskToRes(task);
+        final int res = TaskEngine.taskToColor(task.getType());
+        int position = cursor.getPosition();
+        holder.mSeq.setText(String.valueOf(position + 1));
+        holder.mSeq.setBackgroundColor(res);
         final String name = cursor.getString(TaskTableHelper.QUERY_TASK_PROJECTION.TASK_NAME);
         holder.root.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,21 +60,12 @@ public class MainTasksAdapter extends CursorAdapter {
             }
         });
         holder.mName.setText(name);
-        holder.mHeader.setImageResource(res);
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View v = super.getView(position, convertView, parent);
-        ViewHolder holder = (ViewHolder) v.getTag();
-        holder.mSeq.setText(String.valueOf(position + 1));
-        return v;
-    }
 
     private static class ViewHolder {
         View root;
         TextView mSeq;
-        ImageView mHeader;
         TextView mName;
     }
 }

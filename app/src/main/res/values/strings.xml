@@ -53,4 +53,5 @@
     <string name="choose_group">选择目的分组：</string>
     <string name="cd_running">运行中的任务</string>
     <string name="no_more">没有更多了</string>
+    <string name="create_task_name">输入任务名</string>
 </resources>

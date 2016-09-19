@@ -33,6 +33,8 @@ public interface TasksListContract {
         void showScrollUp();
 
         void showNoText(boolean isNull);
+
+        void redirectCreateTask();
     }
 
     interface Presenter extends BasePresenter {
@@ -48,5 +50,7 @@ public interface TasksListContract {
         void openEditTasksList();
 
         void scrollTop();
+
+        void createNewTask();
     }
 }

@@ -20,6 +20,7 @@ import android.view.animation.LinearInterpolator;
 import sample.myresource.util.PlatformVersion;
 import wistcat.overtime.R;
 import wistcat.overtime.interfaces.CreateTaskListener;
+import wistcat.overtime.model.TaskGroup;
 import wistcat.overtime.widget.RippleFrameLayout;
 
 /**
@@ -27,16 +28,18 @@ import wistcat.overtime.widget.RippleFrameLayout;
  *
  * @author wistcat 2016/8/25
  */
-public abstract class BaseCreateFragment extends Fragment {
+public abstract class BaseCreateFragment extends Fragment implements CreateTaskContract.View {
 
     private static final int ANIM_DURATION = 800;
     private CreateTaskListener mCreateListener;
+    protected CreateTaskContract.Presenter mPresenter;
+    protected TaskGroup mGroup;
 
-    abstract int getTheme();
-    abstract int getLayout();
-    abstract String getMark();
-    abstract int getTitle();
-    abstract void initView(View layout);
+    protected abstract int getTheme();
+    protected abstract int getLayout();
+    protected abstract String getMark();
+    protected abstract int getTitle();
+    protected abstract void initView(View layout);
 
     @Override
     public void onAttach(Context context) {
@@ -69,6 +72,7 @@ public abstract class BaseCreateFragment extends Fragment {
                     createAnimator((RippleFrameLayout) root, cx, cy, 32, radius).start();
                 }
             });
+            mGroup = (TaskGroup) args.getSerializable(AddTaskActivity.GROUP_KEY);
         }
 
         // toolbar
@@ -86,6 +90,7 @@ public abstract class BaseCreateFragment extends Fragment {
         initView(root);
         return root;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -130,11 +135,17 @@ public abstract class BaseCreateFragment extends Fragment {
         return animator;
     }
 
-    public static Bundle createArgs(int cx, int cy) {
+    public static Bundle createArgs(int cx, int cy, TaskGroup group) {
         Bundle args = new Bundle();
         args.putInt(AddTaskActivity.ARG_CX, cx);
         args.putInt(AddTaskActivity.ARG_CY, cy);
+        args.putSerializable(AddTaskActivity.GROUP_KEY, group);
         return args;
+    }
+
+    @Override
+    public void setPresenter(CreateTaskContract.Presenter presenter) {
+        mPresenter = presenter;
     }
 
 }

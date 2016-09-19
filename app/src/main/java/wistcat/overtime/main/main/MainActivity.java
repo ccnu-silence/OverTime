@@ -45,7 +45,7 @@ public class MainActivity extends AbsBaseActivity {
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
-            ab.setDisplayShowTitleEnabled(false);
+            ab.setTitle(R.string.app_name);
             ab.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
             ab.setDisplayHomeAsUpEnabled(true);
         }

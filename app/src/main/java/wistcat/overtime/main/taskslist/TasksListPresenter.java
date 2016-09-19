@@ -115,6 +115,12 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
         mView.showScrollUp();
     }
 
+    @Override
+    public void createNewTask() {
+        mView.hideMoreMenu();
+        mView.redirectCreateTask();
+    }
+
     private CursorLoader createLoader(String str) {
         Uri uri = TaskContract.buildTasksUriWith(getAccount());
         SelectionBuilder builder = new SelectionBuilder();
