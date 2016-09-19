@@ -1,11 +1,8 @@
 package wistcat.overtime.main.addtask.manual;
 
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -13,6 +10,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import wistcat.overtime.R;
+import wistcat.overtime.adapter.SpinnerAdapter;
 import wistcat.overtime.main.addtask.BaseCreateFragment;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
@@ -113,7 +111,7 @@ public class CreateManualFragment extends BaseCreateFragment {
 
     @Override
     public void showSpinner(List<TaskGroup> groups) {
-        final MyAdapter adapter = new MyAdapter(groups);
+        final SpinnerAdapter adapter = new SpinnerAdapter(getContext(), groups);
         if (mSpinner == null) {
             throw new NullPointerException("初始化错误！");
         }
@@ -136,49 +134,4 @@ public class CreateManualFragment extends BaseCreateFragment {
         getActivity().finish();
     }
 
-
-    //
-    private class MyAdapter extends BaseAdapter {
-
-        private final List<TaskGroup> mList;
-
-        public MyAdapter(List<TaskGroup> list) {
-            mList = list;
-        }
-
-        @Override
-        public int getCount() {
-            return mList.size();
-        }
-
-        @Override
-        public TaskGroup getItem(int i) {
-            return mList.get(i);
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return i;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder;
-            if (convertView == null) {
-                holder = new ViewHolder();
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_0, parent, false);
-                holder.t = (TextView) convertView.findViewById(android.R.id.text1);
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-            TaskGroup item = getItem(position);
-            holder.t.setText(item.getName());
-            return convertView;
-        }
-
-        private class ViewHolder {
-            TextView t;
-        }
-    }
 }

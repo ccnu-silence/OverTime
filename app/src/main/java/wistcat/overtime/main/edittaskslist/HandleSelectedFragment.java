@@ -11,12 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import java.util.List;
-
 import wistcat.overtime.R;
+import wistcat.overtime.adapter.SpinnerAdapter;
 import wistcat.overtime.model.TaskGroup;
 import wistcat.overtime.util.Const;
 
@@ -97,7 +95,7 @@ public class HandleSelectedFragment extends AppCompatDialogFragment {
         if (mType == DIALOG_TYPE_MOVE) {
             content.setVisibility(View.GONE);
             choose.setVisibility(View.VISIBLE);
-            final MyAdapter adapter = new MyAdapter(mPresenter.getGroups());
+            final SpinnerAdapter adapter = new SpinnerAdapter(getContext(), mPresenter.getGroups());
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -151,48 +149,4 @@ public class HandleSelectedFragment extends AppCompatDialogFragment {
             }
         }
     };
-
-    private class MyAdapter extends BaseAdapter {
-
-        private final List<TaskGroup> mList;
-
-        public MyAdapter(List<TaskGroup> list) {
-            mList = list;
-        }
-
-        @Override
-        public int getCount() {
-            return mList.size();
-        }
-
-        @Override
-        public TaskGroup getItem(int i) {
-            return mList.get(i);
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return i;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder;
-            if (convertView == null) {
-                holder = new ViewHolder();
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_0, parent, false);
-                holder.t = (TextView) convertView.findViewById(android.R.id.text1);
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-            TaskGroup item = getItem(position);
-            holder.t.setText(item.getName());
-            return convertView;
-        }
-
-        private class ViewHolder {
-            TextView t;
-        }
-    }
 }

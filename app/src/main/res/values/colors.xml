@@ -33,4 +33,5 @@
     <color name="divider2">#ddE0E0E0</color>
 
     <color name="holo_blue">#FF33B5E5</color>
+    <color name="default_foreground">#22000000</color>
 </resources>

@@ -108,7 +108,9 @@ public class TasksManageFragment extends Fragment implements TasksManageContract
         LinearLayoutManager adapterManager = new LinearLayoutManager(getContext());
         RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.list);
         // 设置ItemDecoration，用于绘制分割线
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        int left = getResources().getDimensionPixelOffset(R.dimen.default_list_item_seq_width);
+        DividerItemDecoration itemDecoration =
+                new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL, left, 0);
         recyclerView.addItemDecoration(itemDecoration);
         recyclerView.setLayoutManager(adapterManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());

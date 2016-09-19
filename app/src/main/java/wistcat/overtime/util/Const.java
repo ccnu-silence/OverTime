@@ -37,4 +37,6 @@ public class Const {
 
     public static final String DEFAULT_TASK_NAME = "我的任务";
 
+    public static final String X = "暂时无法使用";
+
 }

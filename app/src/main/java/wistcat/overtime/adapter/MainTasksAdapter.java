@@ -2,16 +2,17 @@ package wistcat.overtime.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import wistcat.overtime.R;
+import wistcat.overtime.base.CursorRecyclerViewAdapter;
 import wistcat.overtime.data.TaskEngine;
 import wistcat.overtime.data.db.TaskTableHelper;
-import wistcat.overtime.interfaces.ItemSelectListener;
+import wistcat.overtime.interfaces.EditItemSelectListener;
 import wistcat.overtime.model.Task;
 
 /**
@@ -19,53 +20,61 @@ import wistcat.overtime.model.Task;
  *
  * @author wistcat 2016/9/2
  */
-public class MainTasksAdapter extends CursorAdapter {
+public class MainTasksAdapter extends CursorRecyclerViewAdapter<MainTasksAdapter.ViewHolder> {
     // FIXME: 要改成LRU排序的活动任务...现在先演示用...
 
-    private ItemSelectListener<Task> mItemListener;
+    private EditItemSelectListener<Task> mItemListener;
+    private Context mContext;
 
-    public MainTasksAdapter(Context context) {
-        super(context, null, 0);
-    }
-
-    public void setTaskItemListener(ItemSelectListener<Task> listener) {
+    public MainTasksAdapter(Context context, EditItemSelectListener<Task> listener) {
+        super(context, null);
+        mContext = context;
         mItemListener = listener;
     }
 
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-        View root = LayoutInflater.from(context).inflate(R.layout.list_item_simple_task, viewGroup, false);
-        ViewHolder holder = new ViewHolder();
-        holder.root = root;
-        holder.mName = (TextView) root.findViewById(R.id.task_name);
-        holder.mSeq = (TextView) root.findViewById(R.id.seq);
-        root.setTag(holder);
-        return root;
-    }
-
-    @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-        ViewHolder holder = (ViewHolder) view.getTag();
-
+    public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor, int position) {
         final Task task = TaskEngine.taskFrom(cursor);
         final int res = TaskEngine.taskToColor(task.getType());
-        int position = cursor.getPosition();
-        holder.mSeq.setText(String.valueOf(position + 1));
-        holder.mSeq.setBackgroundColor(res);
         final String name = cursor.getString(TaskTableHelper.QUERY_TASK_PROJECTION.TASK_NAME);
-        holder.root.setOnClickListener(new View.OnClickListener() {
+        viewHolder.root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mItemListener.onSelected(task);
             }
         });
-        holder.mName.setText(name);
+        viewHolder.edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mItemListener.onEditSelected(task);
+            }
+        });
+        viewHolder.seq.setText(String.valueOf(position + 1));
+        viewHolder.header.setBackgroundColor(res);
+        viewHolder.name.setText(name);
     }
 
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View root = LayoutInflater.from(mContext).inflate(R.layout.list_item_simple_task, parent, false);
+        return new ViewHolder(root);
+    }
 
-    private static class ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         View root;
-        TextView mSeq;
-        TextView mName;
+        View header;
+        TextView seq;
+        TextView name;
+        View edit;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            root = itemView;
+            header = root.findViewById(R.id.header);
+            seq = (TextView) root.findViewById(R.id.seq);
+            name = (TextView) root.findViewById(R.id.task_name);
+            edit = root.findViewById(R.id.edit);
+        }
     }
+
 }

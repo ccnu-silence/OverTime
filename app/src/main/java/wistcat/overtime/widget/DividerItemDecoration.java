@@ -23,8 +23,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import wistcat.overtime.R;
-
 /**
  * 为RecyclerView绘制分割线
  */
@@ -36,13 +34,19 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     private Drawable mDivider;
     private int mOrientation;
     private int mLeftOffset;
+    private int mRightOffset;
 
     public DividerItemDecoration(Context context, int orientation) {
+        this(context, orientation, 0, 0);
+    }
+
+    public DividerItemDecoration(Context context, int orientation, int leftOffset, int rightOffset) {
         final TypedArray ta = context.getTheme().obtainStyledAttributes(ATTRS);
         mDivider = ta.getDrawable(0);
         ta.recycle();
         setOrientation(orientation);
-        mLeftOffset = context.getResources().getDimensionPixelOffset(R.dimen.default_list_item_seq_width);
+        mLeftOffset = leftOffset;
+        mRightOffset = rightOffset;
     }
 
     private void setOrientation(int orientation) {
@@ -81,7 +85,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
             final RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
             final int top = child.getBottom() + params.bottomMargin + Math.round(ViewCompat.getTranslationY(child));
             final int bottom = top + mDivider.getIntrinsicHeight();
-            mDivider.setBounds(left + mLeftOffset, top, right, bottom);
+            mDivider.setBounds(left + mLeftOffset, top, right - mRightOffset, bottom);
             mDivider.draw(canvas);
         }
     }

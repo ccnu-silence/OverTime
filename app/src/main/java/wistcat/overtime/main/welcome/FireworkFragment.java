@@ -106,7 +106,6 @@ public class FireworkFragment extends Fragment {
         anim.start();
     }
 
-
     private void initAccount() {
         new Thread(new Runnable() {
             @Override

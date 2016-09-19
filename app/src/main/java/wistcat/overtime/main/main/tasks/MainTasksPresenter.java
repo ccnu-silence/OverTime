@@ -12,11 +12,14 @@ import android.support.v4.content.Loader;
 import javax.inject.Inject;
 
 import wistcat.overtime.App;
+import wistcat.overtime.data.TaskEngine;
 import wistcat.overtime.data.datasource.TaskRepository;
 import wistcat.overtime.data.db.SelectionBuilder;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
+import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Task;
+import wistcat.overtime.model.TaskGroup;
 import wistcat.overtime.util.Const;
 
 /**
@@ -30,7 +33,7 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     private final TaskRepository mRepository;
     private boolean isFirst = true;
     private Handler mHandler = new Handler();
-    private long mLastRefreshTime;
+    private Task mSelectedTask;
 
     @Inject
     public MainTasksPresenter(MainTasksContract.View view, LoaderManager loaderManager, TaskRepository repository) {
@@ -42,8 +45,6 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == TASKS_QUERY) {
-            mLastRefreshTime = SystemClock.uptimeMillis();
-            mView.setLoadingIndicator(true);
             // 创建搜索语句
             SelectionBuilder builder = new SelectionBuilder();
             builder.whereOr(TaskTableHelper.WHERE_TASK_STATE, TaskTableHelper.WHERE_TASK_STATE_ACTIVATE)
@@ -63,28 +64,14 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     @Override
     public void onLoadFinished(final Loader<Cursor> loader, final  Cursor data) {
         if (loader.getId() == TASKS_QUERY) {
-            long now = SystemClock.uptimeMillis();
-            // 每次刷新都至少要显示一段时间，比如500ms
-            if (now < mLastRefreshTime + Const.DEFAULT_REFRESH_DURATION) {
-                mHandler.postAtTime(new Runnable() {
-                    @Override
-                    public void run() {
-                        doLoadFinished(data);
-                    }
-                }, mLastRefreshTime + Const.DEFAULT_REFRESH_DURATION);
-                return;
+            mRepository.clearDirty();
+            mView.setLoadingIndicator(false);
+            mView.showList(data);
+            if (data == null || data.getCount() == 0) {
+                mView.showNoText(true);
+            } else {
+                mView.showNoText(false);
             }
-            doLoadFinished(data);
-        }
-    }
-
-    private void doLoadFinished(Cursor data) {
-        mRepository.clearDirty();
-        mView.setLoadingIndicator(false);
-        if (data == null || !data.moveToLast()) {
-            mView.showNoTasks();
-        } else {
-            mView.showTasks(data);
         }
     }
 
@@ -97,11 +84,19 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
 
     @Override
     public void loadTasks() {
-        if (mLoaderManager.getLoader(TASKS_QUERY) == null) {
-            mLoaderManager.initLoader(TASKS_QUERY, null, this);
-        } else {
-            mLoaderManager.restartLoader(TASKS_QUERY, null, this);
-        }
+        mView.setLoadingIndicator(true);
+        long now = SystemClock.uptimeMillis();
+        // 每次刷新都至少要显示一段时间，比如500ms
+        mHandler.postAtTime(new Runnable() {
+            @Override
+            public void run() {
+                if (mLoaderManager.getLoader(TASKS_QUERY) == null) {
+                    mLoaderManager.initLoader(TASKS_QUERY, null, MainTasksPresenter.this);
+                } else {
+                    mLoaderManager.restartLoader(TASKS_QUERY, null, MainTasksPresenter.this);
+                }
+            }
+        }, now + Const.DEFAULT_REFRESH_DURATION);
     }
 
     @Override
@@ -122,6 +117,54 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     @Override
     public void statisticsTasks() {
         mView.showTasksStatistics();
+    }
+
+    @Override
+    public void openTaskMenu(@NonNull Task task) {
+        mSelectedTask = task;
+        mView.showTaskMenu(task.getName(), task.getGroupName());
+    }
+
+    @Override
+    public void openDeleteDialog() {
+        mView.dismissTaskMenu();
+        mView.showDeleteDialog(mSelectedTask);
+    }
+
+    @Override
+    public void closeDeleteDialog() {
+        mView.dismissDeleteDialog();
+    }
+
+    @Override
+    public void openGroup() {
+        mView.dismissTaskMenu();
+        TaskGroup group = TaskEngine.mockTaskGroup(mSelectedTask);
+        mView.redirectGroup(group);
+    }
+
+    @Override
+    public void doDelete() {
+        mView.dismissDeleteDialog();
+        mView.setLoadingIndicator(true);
+        mRepository.recycleTask(mSelectedTask, new ResultCallback() {
+            @Override
+            public void onSuccess() {
+                mView.setLoadingIndicator(false);
+                mView.showToast("删除成功");
+            }
+
+            @Override
+            public void onError() {
+                mView.showToast("删除失败");
+            }
+        });
+    }
+
+    @Override
+    public void doStart() {
+        mView.dismissTaskMenu();
+        mView.showToast(Const.X);
     }
 
     @Override

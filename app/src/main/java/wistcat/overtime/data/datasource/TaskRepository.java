@@ -336,11 +336,13 @@ public class TaskRepository implements TaskDataSource {
         });
     }
 
+    /* NOTE: 已在固定场景使用，请勿调用，请使用recycleTask */
     @Override
     public void deleteTask(@NonNull final Task task) {
         deleteTask(task.getId());
     }
 
+    /* NOTE: 已在固定场景使用，请勿调用，请使用recycleTask */
     @Override
     public void deleteTask(final int taskId) {
         mExecutor.execute(new Runnable() {
@@ -351,6 +353,7 @@ public class TaskRepository implements TaskDataSource {
         });
     }
 
+    /* NOTE: 已在固定场景使用，请勿调用，请使用recycleTask */
     @Override
     public void deleteTask(@NonNull final Task task, final ResultCallback callback) {
         mExecutor.execute(new Runnable() {
@@ -361,6 +364,7 @@ public class TaskRepository implements TaskDataSource {
         });
     }
 
+    /* NOTE: 已在固定场景使用，请勿调用，请使用recycleTasks */
     @Override
     public void deleteTasks(@NonNull final List<Integer> taskIds, final int groupId) {
         mExecutor.execute(new Runnable() {
@@ -371,6 +375,7 @@ public class TaskRepository implements TaskDataSource {
         });
     }
 
+    /* NOTE: 已在固定场景使用，请勿调用，请使用recycleTasks */
     @Override
     public void deleteTasks(@NonNull final List<Integer> taskIds, final int groupId, final ResultCallback callback) {
         mExecutor.execute(new Runnable() {

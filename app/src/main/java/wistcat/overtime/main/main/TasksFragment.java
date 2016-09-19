@@ -5,15 +5,17 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.CardView;
+import android.support.v7.app.AppCompatDialogFragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import javax.inject.Inject;
@@ -21,6 +23,11 @@ import javax.inject.Inject;
 import wistcat.overtime.App;
 import wistcat.overtime.R;
 import wistcat.overtime.adapter.MainTasksAdapter;
+import wistcat.overtime.base.BottomFragment;
+import wistcat.overtime.base.CursorRecyclerViewAdapter;
+import wistcat.overtime.base.MoveTaskDialog;
+import wistcat.overtime.interfaces.DialogButtonListener;
+import wistcat.overtime.interfaces.EditItemSelectListener;
 import wistcat.overtime.interfaces.ItemSelectListener;
 import wistcat.overtime.main.addtask.AddTaskActivity;
 import wistcat.overtime.main.main.tasks.DaggerMainTasksComponent;
@@ -29,10 +36,13 @@ import wistcat.overtime.main.main.tasks.MainTasksContract;
 import wistcat.overtime.main.main.tasks.MainTasksModule;
 import wistcat.overtime.main.main.tasks.MainTasksPresenter;
 import wistcat.overtime.main.taskdetail.TaskDetailsActivity;
+import wistcat.overtime.main.taskslist.TasksListActivity;
 import wistcat.overtime.main.tasksmanage.TasksManageActivity;
 import wistcat.overtime.main.tasksmore.TasksMoreActivity;
 import wistcat.overtime.main.taskstatistics.TasksStatisticsActivity;
 import wistcat.overtime.model.Task;
+import wistcat.overtime.model.TaskGroup;
+import wistcat.overtime.widget.DividerItemDecoration;
 import wistcat.overtime.widget.ScrollChildSwipeRefreshLayout;
 
 /**
@@ -40,15 +50,13 @@ import wistcat.overtime.widget.ScrollChildSwipeRefreshLayout;
  *
  * @author wistcat
  */
-public class TasksFragment extends Fragment implements MainTasksContract.View, ItemSelectListener<Task> {
+public class TasksFragment extends Fragment implements MainTasksContract.View, EditItemSelectListener<Task> {
 
-    private CardView mManagerCard, mAnalysisCard, mAddCard;
-    private ListView mActivateList;
-    private TextView mNoTaskText;
-    private TextView mMoreText;
-    private MainTasksAdapter mAdapter;
-    private View currentView;
-    private Handler mHandler = new Handler();
+    private String[] ITEMS = new String[]{null, "启动任务", "删除任务"};
+    private final String MENU = "menu";
+    private final String DELETE = "delete";
+    private TextView mNoText;
+    private CursorRecyclerViewAdapter mAdapter;
 
     @Inject
     public MainTasksPresenter mPresenter;
@@ -57,6 +65,7 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, I
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        // 完成Presenter的注入
         MainTasksComponent component = DaggerMainTasksComponent
                 .builder()
                 .appComponent(App.getInstance().getAppComponent())
@@ -69,29 +78,34 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, I
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_tasks, parent, false);
 
-        // CardView
-        mManagerCard = (CardView) root.findViewById(R.id.tasks_manager);
-        mManagerCard.setOnClickListener(mClickListener);
-        mAnalysisCard = (CardView) root.findViewById(R.id.tasks_analy);
-        mAnalysisCard.setOnClickListener(mClickListener);
-        mAddCard = (CardView) root.findViewById(R.id.tasks_add);
-        mAddCard.setOnClickListener(mClickListener);
+        // Guide选项
+        root.findViewById(R.id.tasks_manage).setOnClickListener(mClickListener);
+        root.findViewById(R.id.tasks_analyse).setOnClickListener(mClickListener);
+        root.findViewById(R.id.tasks_create).setOnClickListener(mClickListener);
 
-        // TextView
-        mNoTaskText = (TextView) root.findViewById(R.id.text_no_task);
-        mMoreText = (TextView) root.findViewById(R.id.text_more);
-        mMoreText.setOnClickListener(mClickListener);
+        // 更多选项
+        mNoText = (TextView) root.findViewById(R.id.text_no_task);
+        root.findViewById(R.id.text_more).setOnClickListener(mClickListener);
 
         // List
-        mActivateList = (ListView) root.findViewById(R.id.tasks_list);
-        mAdapter = new MainTasksAdapter(getContext());
-        mActivateList.setAdapter(mAdapter);
-        mAdapter.setTaskItemListener(this);
-        currentView = mActivateList;
+        RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.tasks_list);
+        mAdapter = new MainTasksAdapter(getContext().getApplicationContext(), this);
+        LinearLayoutManager adapterManager = new LinearLayoutManager(getContext());
+        // 设置ItemDecoration，用于绘制分割线
+        int left = getResources().getDimensionPixelOffset(R.dimen.default_task_item_seq_width);
+        DividerItemDecoration itemDecoration =
+                new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL, left, 0);
+        // 设置RecyclerView
+        recyclerView.addItemDecoration(itemDecoration);
+        recyclerView.setLayoutManager(adapterManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setNestedScrollingEnabled(false);
+        recyclerView.setAdapter(mAdapter);
 
         // swipeRefresh
         ScrollChildSwipeRefreshLayout refreshLayout = (ScrollChildSwipeRefreshLayout) root.findViewById(R.id.scrollview);
-        refreshLayout.setScrollUpChild(mActivateList);
+        refreshLayout.setScrollUpChild(recyclerView);
         refreshLayout.setColorSchemeResources(R.color.colorPrimary);
         // 触发refresh需要拉动的距离
         refreshLayout.setDistanceToTriggerSync(getPx(36));
@@ -120,17 +134,21 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, I
     private View.OnClickListener mClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            if (mManagerCard == view) {
-                mPresenter.manageTasks();
-            }
-            if (mAnalysisCard == view) {
-                mPresenter.statisticsTasks();
-            }
-            if (mAddCard == view) {
-                mPresenter.addNewTask();
-            }
-            if (mMoreText == view) {
-                mPresenter.moreTasks();
+            switch (view.getId()) {
+                case R.id.tasks_manage:
+                    mPresenter.manageTasks();
+                    break;
+                case R.id.tasks_analyse:
+                    mPresenter.statisticsTasks();
+                    break;
+                case R.id.tasks_create:
+                    mPresenter.addNewTask();
+                    break;
+                case R.id.text_more:
+                    mPresenter.moreTasks();
+                    break;
+                default:
+                    break;
             }
         }
     };
@@ -150,25 +168,8 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, I
     }
 
     @Override
-    public void showTasks(final Cursor tasks) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mAdapter.swapCursor(tasks);
-                crossAnim(true);
-            }
-        });
-    }
-
-    @Override
-    public void showNoTasks() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                crossAnim(false);
-            }
-        });
-
+    public void showList(final Cursor tasks) {
+        mAdapter.swapCursor(tasks);
     }
 
     @Override
@@ -178,6 +179,7 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, I
 
     @Override
     public void showTaskDetails(Task task) {
+        // 跳转到任务详情页
         Intent intent = new Intent(getContext(), TaskDetailsActivity.class);
         Bundle data = new Bundle();
         data.putSerializable(TaskDetailsActivity.KEY_TASK, task);
@@ -215,29 +217,101 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, I
         mAdapter.swapCursor(null);
     }
 
+    @Override
+    public void showTaskMenu(String name, String group) {
+        ITEMS[0] = String.format("任务组: %s", group);
+        BottomFragment fragment = BottomFragment.getInstance(name, ITEMS);
+        fragment.setSelectListener(new ItemSelectListener<Integer>() {
+            @Override
+            public void onSelected(Integer item) {
+                switch (item) {
+                    case 0: // 打开任务组
+                        mPresenter.openGroup();
+                        break;
+                    case 1: // 开始任务
+                        mPresenter.doStart();
+                        break;
+                    case 2: // 删除任务
+                        mPresenter.openDeleteDialog();
+                        break;
+                }
+            }
+        });
+        fragment.show(getFragmentManager(), MENU);
+    }
+
+    @Override
+    public void showToast(String msg) {
+        App.showToast(msg);
+    }
+
+    @Override
+    public void dismissTaskMenu() {
+        dismissDialog(MENU);
+    }
+
+    @Override
+    public void showDeleteDialog(@NonNull Task task) {
+        MoveTaskDialog dialog = MoveTaskDialog.getInstance("删除的任务会放入回收站，是否确定删除？");
+        dialog.setListener(new DialogButtonListener() {
+            @Override
+            public void onNegative() {
+                mPresenter.closeDeleteDialog();
+            }
+
+            @Override
+            public void onNeutral() {
+                // null
+            }
+
+            @Override
+            public void onPositive() {
+                mPresenter.doDelete();
+            }
+
+            @Override
+            public void onData(Object data) {
+                // null
+            }
+        });
+        dialog.show(getFragmentManager(), DELETE);
+    }
+
+    @Override
+    public void dismissDeleteDialog() {
+        dismissDialog(DELETE);
+    }
+
     private void intentTo(Class<?> clazz) {
         startActivity(new Intent(getActivity(), clazz));
     }
 
-    private void crossAnim(boolean isLoaded) {
-        final View show = isLoaded ? mActivateList : mNoTaskText;
-        final View hide = isLoaded ? mNoTaskText : mActivateList;
-        if (show == currentView) {
-            return;
+    /** 列表为空/不为空时，切换提示 */
+    @Override
+    public void showNoText(boolean isNull) {
+        final int duration = 200;
+        if (isNull && mNoText.getVisibility() == View.GONE) {
+            mNoText.setAlpha(0.f);
+            mNoText.setVisibility(View.VISIBLE);
+            mNoText.animate().alpha(1.f).setDuration(duration).setListener(null);
+
+        } else if (!isNull && mNoText.getVisibility() == View.VISIBLE) {
+            mNoText.animate().alpha(0.f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mNoText.setVisibility(View.GONE);
+                }
+            });
         }
-        final int duration = getResources().getInteger(android.R.integer.config_shortAnimTime);
+    }
 
-        show.setAlpha(0.f);
-        show.setVisibility(View.VISIBLE);
-        show.animate().alpha(1.f).setDuration(duration).setListener(null);
-
-        hide.animate().alpha(0.f).setDuration(duration).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                hide.setVisibility(View.GONE);
-            }
-        });
-        currentView = show;
+    @Override
+    public void redirectGroup(@NonNull TaskGroup group) {
+        Bundle data = new Bundle();
+        data.putSerializable(TasksListActivity.KEY_TASK_GROUP, group);
+        Intent intent = new Intent(getActivity(), TasksListActivity.class);
+        intent.putExtras(data);
+        startActivity(intent);
     }
 
     @Override
@@ -249,4 +323,15 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, I
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
     }
 
+    @Override
+    public void onEditSelected(Task item) {
+        mPresenter.openTaskMenu(item);
+    }
+
+    private void dismissDialog(String tag) {
+        AppCompatDialogFragment fragment = (AppCompatDialogFragment) getFragmentManager().findFragmentByTag(tag);
+        if (fragment != null) {
+            fragment.dismiss();
+        }
+    }
 }

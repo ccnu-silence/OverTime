@@ -9,13 +9,20 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import wistcat.overtime.App;
+import wistcat.overtime.data.datasource.TaskRepository;
 import wistcat.overtime.data.db.SelectionBuilder;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
+import wistcat.overtime.interfaces.GetDataListCallback;
+import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Task;
+import wistcat.overtime.model.TaskGroup;
 
 /**
  * @author wistcat 2016/9/12
@@ -26,13 +33,17 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
     private final String SEARCH = "search";
     private final TasksListContract.View mView;
     private final LoaderManager mLoaderManager;
-    private int mGroupId;
+    private final TaskRepository mRepository;
+    private final TaskGroup mGroup;
     private boolean isFirst = true;
+    private Task mSelectedTask;
 
     @Inject
-    public TasksListPresenter(TasksListContract.View view, LoaderManager manager) {
+    public TasksListPresenter(TasksListContract.View view, LoaderManager manager, TaskRepository repository, TaskGroup group) {
+        mRepository = repository;
         mView = view;
         mLoaderManager = manager;
+        mGroup = group;
     }
 
     @Inject
@@ -42,7 +53,6 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
 
     @Override
     public void start() {
-        mGroupId = mView.getGroupId();
         if (isFirst) {
             isFirst = false;
             loadTasks(null);
@@ -90,7 +100,14 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
 
     @Override
     public void onItemSelected(@NonNull Task task) {
-        mView.showTaskDetails(task);
+        mView.redirectTaskDetails(task);
+    }
+
+    @Override
+    public void onItemEditSelected(@NonNull Task task) {
+        // 重要，记录选择的Task，配合之后的几个Dialog使用
+        mSelectedTask = task;
+        mView.showItemMenu(task);
     }
 
     @Override
@@ -100,25 +117,118 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
 
     @Override
     public void openTaskGroupDetails() {
-        mView.hideMoreMenu();
-        mView.showTaskGroupDetails();
+        mView.dismissMoreMenu();
+        mView.redirectTaskGroupDetails();
     }
 
     @Override
     public void openEditTasksList() {
-        mView.hideMoreMenu();
-        mView.showEditTasksList();
+        mView.dismissMoreMenu();
+        mView.redirectEditTasksList();
     }
 
     @Override
-    public void scrollTop() {
-        mView.showScrollUp();
+    public void openMoveDialog() {
+        mView.dismissItemMenu();
+        mRepository.getTaskGroups(new GetDataListCallback<TaskGroup>() {
+            @Override
+            public void onDataLoaded(List<TaskGroup> dataList) {
+                List<TaskGroup> temp = filterGroup(dataList);
+                if (temp == null || temp.size() == 0) {
+                    mView.showToast("没有可选的分组");
+                    return;
+                }
+                mView.showMoveDialog(temp);
+            }
+
+            @Override
+            public void onError() {
+                mView.showToast("加载失败！");
+            }
+        });
+    }
+
+    @Override
+    public void closeMoveDialog() {
+        mView.dismissMoveDialog();
+    }
+
+    @Override
+    public void openDeleteDialog() {
+        mView.dismissItemMenu();
+        mView.showDeleteDialog();
+    }
+
+    @Override
+    public void closeDeleteDialog() {
+        mView.dismissDeleteDialog();
+    }
+
+    @Override
+    public void openSaveDialog() {
+        mView.dismissItemMenu();
+        mView.showSaveDialog();
+    }
+
+    @Override
+    public void closeSaveDialog() {
+        mView.dismissSaveDialog();
     }
 
     @Override
     public void createNewTask() {
-        mView.hideMoreMenu();
+        mView.dismissMoreMenu();
         mView.redirectCreateTask();
+    }
+
+    @Override
+    public void doMove(@NonNull TaskGroup group) {
+        mView.dismissMoveDialog();
+        List<Integer> data = new ArrayList<>(1);
+        data.add(mSelectedTask.getId());
+        mRepository.transformTasks(data, mGroup, group, new ResultCallback() {
+            @Override
+            public void onSuccess() {
+                mView.showToast("移动成功");
+            }
+
+            @Override
+            public void onError() {
+                mView.showToast("移动失败");
+            }
+        });
+    }
+
+    @Override
+    public void doSave() {
+        mView.dismissSaveDialog();
+        mRepository.saveTask(mSelectedTask, new ResultCallback() {
+            @Override
+            public void onSuccess() {
+                mView.showToast("保存成功");
+            }
+
+            @Override
+            public void onError() {
+                mView.showToast("保存失败");
+            }
+        });
+    }
+
+    @Override
+    public void doDelete() {
+        mView.dismissDeleteDialog();
+        mRepository.recycleTask(mSelectedTask, new ResultCallback() {
+            @Override
+            public void onSuccess() {
+                mView.showToast("删除成功");
+            }
+
+            @Override
+            public void onError() {
+                mView.showToast("删除失败");
+            }
+        });
     }
 
     private CursorLoader createLoader(String str) {
@@ -126,7 +236,7 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
         SelectionBuilder builder = new SelectionBuilder();
         builder.whereAnd(
                 TaskContract.TaskEntry.COLUMN_NAME_GROUP_ID + " = ?",
-                String.valueOf(mGroupId)
+                String.valueOf(mGroup.getId())
         );
         if (!TextUtils.isEmpty(str)) {
             builder.whereAnd(
@@ -146,6 +256,19 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
 
     private String getAccount() {
         return App.getInstance().getAccountName();
+    }
+
+    private List<TaskGroup> filterGroup(List<TaskGroup> groups) {
+        if (groups  == null) {
+            return null;
+        }
+        List<TaskGroup> ret = new ArrayList<>(groups.size());
+        for (TaskGroup g : groups) {
+            if (g.getId() != mGroup.getId()) {
+                ret.add(g);
+            }
+        }
+        return ret;
     }
 
 }

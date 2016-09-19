@@ -71,7 +71,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteTaskGroup(@NonNull TaskGroup taskGroup) {
-        // 不需要在这一层实现，由{@link TaskRepository}完成转换
+        deleteTaskGroup(taskGroup.getId());
     }
 
     @Override
@@ -222,7 +222,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void startRunningTask(@NonNull Task task) {
-        // 不需要在这一层实现，由{@link TaskRepository}完成转换
+        startRunningTask(task.getId());
     }
 
     @Override
@@ -498,7 +498,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteTask(@NonNull Task task) {
-        // 不需要在这一层实现，由{@link TaskRepository}完成转换
+        deleteTask(task.getId());
     }
 
     @Override
@@ -575,7 +575,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteRecord(@NonNull Record record) {
-        // 不需要在这一层实现，由{@link TaskRepository}完成转换
+        deleteRecord(record.getId());
     }
 
     @Override
@@ -641,7 +641,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteEpisode(@NonNull Episode episode) {
-        // 不需要在这一层实现，由{@link TaskRepository}完成转换
+        deleteEpisode(episode.getId());
     }
 
     @Override

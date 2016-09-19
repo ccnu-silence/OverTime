@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import wistcat.overtime.base.BasePresenter;
 import wistcat.overtime.base.BaseView;
 import wistcat.overtime.model.Task;
+import wistcat.overtime.model.TaskGroup;
 
 /**
  * @author wistcat 2016/9/2
@@ -16,9 +17,7 @@ public interface MainTasksContract {
 
         void setLoadingIndicator(boolean active);
 
-        void showTasks(Cursor tasks);
-
-        void showNoTasks();
+        void showList(Cursor tasks);
 
         void showLoadingTasksError();
 
@@ -33,6 +32,20 @@ public interface MainTasksContract {
         void showMoreTasks();
 
         void clearCursor();
+
+        void showTaskMenu(String name, String group);
+
+        void showToast(String msg);
+
+        void dismissTaskMenu();
+
+        void showDeleteDialog(@NonNull Task task);
+
+        void dismissDeleteDialog();
+
+        void showNoText(boolean isNull);
+
+        void redirectGroup(@NonNull TaskGroup group);
     }
 
     interface Presenter extends BasePresenter {
@@ -48,6 +61,18 @@ public interface MainTasksContract {
         void moreTasks();
 
         void statisticsTasks();
+
+        void openTaskMenu(@NonNull Task task);
+
+        void openDeleteDialog();
+
+        void closeDeleteDialog();
+
+        void openGroup();
+
+        void doDelete();
+
+        void doStart();
     }
 
 }

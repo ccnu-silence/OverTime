@@ -20,8 +20,9 @@
     <style name="ManualTaskStyle" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/Primary_Manual</item>
         <item name="colorPrimaryDark">@color/Primary_Manual_Dark</item>
-        <item name="colorControlNormal">@color/Primary_Manual</item>
-        <item name="colorControlActivated">@color/Primary_Manual</item>
+        <item name="colorAccent">@color/Primary_Manual</item>
+        <item name="colorControlNormal">@color/White</item>
+        <item name="colorControlActivated">@color/White</item>
         <item name="tintBackground">@color/Primary_Manual</item>
     </style>
 
