@@ -43,6 +43,7 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
     private List<TaskGroup> mGroups;
     private int mCount;
     private boolean isShowAllSelect = true;
+    private boolean isCommon;
 
     private String mBottomTitle;
     private String[] mBottomItems;
@@ -54,6 +55,7 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
         mRepository = repository;
         mView = view;
         mTaskGroup = group;
+        isCommon = mTaskGroup.getId() != Const.COMPLETED_GROUP_ID && mTaskGroup.getId() != Const.RECYCLED_GROUP_ID;
         switch (group.getId()) {
             case Const.COMPLETED_GROUP_ID:
                 mGroupType = TYPE_COMPLETED;
@@ -159,7 +161,7 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
     }
 
     @Override
-    public void doSelectAll() {
+    public void doSelectAll() { // FIXME
         if (isShowAllSelect) {
             // 全选
             isShowAllSelect = false;
@@ -256,8 +258,17 @@ public class EditTasksListPresenter implements EditTasksListContract.Presenter, 
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
+                    /* FIXME: 这里有个似乎不很好的处理方式： 在正常任务组的任务列表编辑界面，
+                     * 会有两种任务状态（Running，Activate），Running是实时运行态，
+                     * 因此考虑在此处进行修改保护，措施是直接无法选取..
+                     * *任务运行功能尚未开始编写，所以这里的方式有待考量....
+                     */
                     String state = cursor.getString(TaskTableHelper.QUERY_TASK_PROJECTION.TASK_STATE);
-                    if (state.equals(TaskState.Activate.name())) {
+                    if (isCommon) {
+                        if (state.equals(TaskState.Activate.name()) ) {
+                            list.add(cursor.getInt(0));
+                        }
+                    } else {
                         list.add(cursor.getInt(0));
                     }
                 } while (cursor.moveToNext());

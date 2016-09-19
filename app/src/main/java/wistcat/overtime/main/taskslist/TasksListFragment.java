@@ -362,6 +362,7 @@ public class TasksListFragment extends Fragment implements TasksListContract.Vie
 
     @Override
     public void showItemMenu(@NonNull Task task) {
+        /* FIXME: Running态的任务有待处理.. */
         BottomFragment fragment = BottomFragment.getInstance(task.getName(), TASK_MENU);
         fragment.setSelectListener(new ItemSelectListener<Integer>() {
             @Override

@@ -53,6 +53,7 @@ import wistcat.overtime.widget.ScrollChildSwipeRefreshLayout;
 public class TasksFragment extends Fragment implements MainTasksContract.View, EditItemSelectListener<Task> {
 
     private String[] ITEMS = new String[]{null, "启动任务", "删除任务"};
+//    private String[] ITEMS_RUNNING = new String[]{null, "停止任务"};
     private final String MENU = "menu";
     private final String DELETE = "delete";
     private TextView mNoText;
@@ -219,6 +220,7 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, E
 
     @Override
     public void showTaskMenu(String name, String group) {
+        /* FIXME：未将Running状态考虑进去 */
         ITEMS[0] = String.format("任务组: %s", group);
         BottomFragment fragment = BottomFragment.getInstance(name, ITEMS);
         fragment.setSelectListener(new ItemSelectListener<Integer>() {

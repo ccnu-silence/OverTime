@@ -23,6 +23,7 @@ import wistcat.overtime.interfaces.GetDataListCallback;
 import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
+import wistcat.overtime.util.Const;
 
 /**
  * @author wistcat 2016/9/12
@@ -202,7 +203,7 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
     @Override
     public void doSave() {
         mView.dismissSaveDialog();
-        mRepository.saveTask(mSelectedTask, new ResultCallback() {
+        mRepository.completeTask(mSelectedTask, new ResultCallback() {
             @Override
             public void onSuccess() {
                 mView.showToast("保存成功");
@@ -218,17 +219,31 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
     @Override
     public void doDelete() {
         mView.dismissDeleteDialog();
-        mRepository.recycleTask(mSelectedTask, new ResultCallback() {
-            @Override
-            public void onSuccess() {
-                mView.showToast("删除成功");
-            }
+        if (mGroup.getId() == Const.RECYCLED_GROUP_ID) {
+            mRepository.deleteTask(mSelectedTask, new ResultCallback() {
+                @Override
+                public void onSuccess() {
+                    mView.showToast("删除成功");
+                }
 
-            @Override
-            public void onError() {
-                mView.showToast("删除失败");
-            }
-        });
+                @Override
+                public void onError() {
+                    mView.showToast("删除失败");
+                }
+            });
+        } else {
+            mRepository.recycleTask(mSelectedTask, new ResultCallback() {
+                @Override
+                public void onSuccess() {
+                    mView.showToast("删除成功");
+                }
+
+                @Override
+                public void onError() {
+                    mView.showToast("删除失败");
+                }
+            });
+        }
     }
 
     private CursorLoader createLoader(String str) {

@@ -56,6 +56,7 @@ public class EditTasksListAdapter extends CursorAdapter {
         holder.name.setText(itemName);
 
         // 非Running任务，则可以选择
+        /* FIXME：Running任务保护处理，有待测试...  */
         if (!isActivate) {
             holder.linear.setOnClickListener(new View.OnClickListener() {
                 @Override

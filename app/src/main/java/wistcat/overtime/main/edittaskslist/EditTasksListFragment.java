@@ -148,13 +148,13 @@ public class EditTasksListFragment extends ListFragment
     }
 
     @Override
-    public void showMenuAllSelect() {
+    public void showMenuAllSelect() { // 显示全选按钮: 至少有一个没有选中
         isAllSelected = true;
         getActivity().invalidateOptionsMenu();
     }
 
     @Override
-    public void showMenuReverseAllSelect() {
+    public void showMenuReverseAllSelect() { // 显示取消全选按钮，此时全部选中
         isAllSelected = false;
         getActivity().invalidateOptionsMenu();
     }

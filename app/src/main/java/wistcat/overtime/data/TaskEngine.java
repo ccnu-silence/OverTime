@@ -63,6 +63,7 @@ public class TaskEngine {
         ContentValues values = new ContentValues();
         values.put(TaskEntry.COLUMN_UUID, task.getUUID());
         values.put(TaskEntry.COLUMN_NAME_GROUP_ID, task.getGroupId());
+        values.put(TaskEntry.COLUMN_NAME_GROUP_NAME, task.getGroupName());
         values.put(TaskEntry.COLUMN_NAME_TASK_STATE, task.getState().name());
         values.put(TaskEntry.COLUMN_NAME_TASK_NAME, task.getName());
         values.put(TaskEntry.COLUMN_NAME_TASK_TYPE, task.getType());
