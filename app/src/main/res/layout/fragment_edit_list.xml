@@ -19,14 +19,14 @@
         <wistcat.overtime.widget.OutButton
             android:id="@+id/confirm"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="@dimen/bottom_peek_height"
             android:layout_gravity="bottom"
             android:paddingTop="4dp"
-            android:background="@color/colorPrimary"
+            android:background="@color/White"
             android:text="@string/Delete"
             android:drawableTop="@drawable/vec_delete"
             android:drawablePadding="0dp"
-            android:textColor="@color/White"
+            android:textColor="@color/colorPrimary"
             android:gravity="center"/>
 
     </FrameLayout>

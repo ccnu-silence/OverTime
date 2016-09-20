@@ -32,7 +32,7 @@ public class OutButton extends TextView {
     }
 
     private void init() {
-        mForegroundDrawable = ContextCompat.getDrawable(getContext(), R.drawable.foreground_dim_grey);
+        mForegroundDrawable = ContextCompat.getDrawable(getContext(), R.drawable.foreground_grey);
         mForegroundDrawable.setCallback(this);
     }
 

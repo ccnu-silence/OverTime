@@ -54,15 +54,23 @@ import wistcat.overtime.widget.DividerItemDecoration;
 public class TasksListFragment extends Fragment implements TasksListContract.View,
         SearchView.OnQueryTextListener, MenuItemCompat.OnActionExpandListener, EditItemSelectListener<Task> {
 
-    private final String GROUP = "group";
-    private final String ITEM = "item";
-    private final String DELETE = "delete";
-    private final String MOVE = "move";
-    private final String SAVE = "save";
-    private final String[] TASK_MENU = new String[] {"移动任务", "收藏任务", "删除任务"};
-    private final String[] COMMON_MENU = new String[] {"编辑分组", "管理任务", "新建任务"};
-    private final String[] SPECIAL_MENU = new String[] {"编辑分组", "管理任务"};
+    private final int TYPE_COMMON = 1;
+    private final int TYPE_COMPLETED = 2;
+    private final int TYPE_RECYCLED = 3;
+    private final String GROUP = "group";       // 打开Task列表管理菜单
+    private final String ITEM = "item";         // 打开Task管理菜单
+    private final String DELETE = "delete";     // 彻底删除
+    private final String MOVE = "move";         // 移动到其他分组
+    private final String SAVE = "save";         // 放入收藏夹
+    private final String RECYCLE = "recycle";   // 放入回收站
+    private final String[] COMPLETED_TASK_MENU = new String[] {"恢复任务", "删除任务"};
+    private final String[] RECYCLED_TASK_MENU = new String[] {"恢复任务", "彻底删除"};
+    private final String[] COMMON_TASK_MENU = new String[] {"移动任务", "收藏任务", "删除任务"};
+    private final String[] EDIT_MENU = new String[] {"新建任务", "编辑分组", "管理任务"};
+    private final String[] SPECIAL_EDIT_MENU = new String[] {"编辑分组", "管理任务"};
 
+    private int mListType;
+    private String[] mTaskMenu;
     private String[] mMoreMenu;
     private TaskGroup mTaskGroup;
     private OnSearchTermChanged mTermChangedListener;
@@ -87,10 +95,19 @@ public class TasksListFragment extends Fragment implements TasksListContract.Vie
                 throw new NullPointerException("找不到TaskGroup");
             }
             mTaskGroup = taskGroup;
-            if (mTaskGroup.getId() == Const.COMPLETED_GROUP_ID || mTaskGroup.getId() == Const.RECYCLED_GROUP_ID) {
-                mMoreMenu = SPECIAL_MENU;
+            // 初始化列表类型，共三种，在于弹出菜单显示的不同
+            if (mTaskGroup.getId() == Const.COMPLETED_GROUP_ID) {
+                mListType = TYPE_COMPLETED;
+                mMoreMenu = SPECIAL_EDIT_MENU;
+                mTaskMenu = COMPLETED_TASK_MENU;
+            } else if (mTaskGroup.getId() == Const.RECYCLED_GROUP_ID){
+                mListType = TYPE_RECYCLED;
+                mMoreMenu = SPECIAL_EDIT_MENU;
+                mTaskMenu = RECYCLED_TASK_MENU;
             } else {
-                mMoreMenu = COMMON_MENU;
+                mListType = TYPE_COMMON;
+                mMoreMenu = EDIT_MENU;
+                mTaskMenu = COMMON_TASK_MENU;
             }
         }
     }
@@ -263,13 +280,26 @@ public class TasksListFragment extends Fragment implements TasksListContract.Vie
                 public void onSelected(Integer item) {
                     switch (item) {
                         case 0:
-                            mPresenter.openTaskGroupDetails();
+                            if (mListType == TYPE_COMMON) {
+                                mPresenter.createNewTask();
+                            } else {
+                                mPresenter.openTaskGroupDetails();
+                            }
                             break;
                         case 1:
-                            mPresenter.openEditTasksList();
+                            if (mListType == TYPE_COMMON) {
+                                mPresenter.openTaskGroupDetails();
+                            } else {
+                                mPresenter.openEditTasksList();
+                            }
                             break;
                         case 2:
-                            mPresenter.createNewTask();
+                            if (mListType == TYPE_COMMON) {
+                                mPresenter.openEditTasksList();
+                            } else {
+                                throw new IllegalArgumentException("错误：特殊类型列表只有两个选项");
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -330,7 +360,7 @@ public class TasksListFragment extends Fragment implements TasksListContract.Vie
 
     @Override
     public void showDeleteDialog() {
-        MoveTaskDialog dialog = MoveTaskDialog.getInstance("将任务放入回收站，是否确认？");
+        MoveTaskDialog dialog = MoveTaskDialog.getInstance("彻底删除任务，是否确认？");
         dialog.setListener(new DialogButtonListener() {
             @Override
             public void onNegative() {
@@ -363,19 +393,30 @@ public class TasksListFragment extends Fragment implements TasksListContract.Vie
     @Override
     public void showItemMenu(@NonNull Task task) {
         /* FIXME: Running态的任务有待处理.. */
-        BottomFragment fragment = BottomFragment.getInstance(task.getName(), TASK_MENU);
+        BottomFragment fragment = BottomFragment.getInstance(task.getName(), mTaskMenu);
         fragment.setSelectListener(new ItemSelectListener<Integer>() {
             @Override
             public void onSelected(Integer item) {
                 switch (item) {
-                    case 0: // 移动任务
+                    case 0:
+                        // 移动任务
                         mPresenter.openMoveDialog();
                         break;
-                    case 1: // 收藏任务
-                        mPresenter.openSaveDialog();
+                    case 1:
+                        if (mListType == TYPE_RECYCLED) { // 彻底删除任务
+                            mPresenter.openDeleteDialog();
+                        } else if (mListType == TYPE_COMPLETED) { // 回收任务
+                            mPresenter.openRecycleDialog();
+                        } else { // 收藏任务
+                            mPresenter.openSaveDialog();
+                        }
                         break;
-                    case 2: // 删除任务
-                        mPresenter.openDeleteDialog();
+                    case 2:
+                        if (mListType == TYPE_COMMON) { // 回收任务
+                            mPresenter.openRecycleDialog();
+                        } else {
+                            throw new IllegalArgumentException("错误：特殊类型列表只有两个选项");
+                        }
                         break;
                     default:
                         break;
@@ -455,6 +496,38 @@ public class TasksListFragment extends Fragment implements TasksListContract.Vie
     }
 
     @Override
+    public void showRecycleDialog() {
+        MoveTaskDialog dialog = MoveTaskDialog.getInstance("将任务放入回收站，是否确认？");
+        dialog.setListener(new DialogButtonListener() {
+            @Override
+            public void onNegative() {
+                mPresenter.closeRecycleDialog();
+            }
+
+            @Override
+            public void onNeutral() {
+                //
+            }
+
+            @Override
+            public void onPositive() {
+                mPresenter.doRecycle();
+            }
+
+            @Override
+            public void onData(Object data) {
+                // null
+            }
+        });
+        dialog.show(getFragmentManager(), RECYCLE);
+    }
+
+    @Override
+    public void dismissRecycleDialog() {
+        dismissDialog(RECYCLE);
+    }
+
+    @Override
     public void showToast(String msg) {
         App.showToast(msg);
     }
@@ -477,4 +550,5 @@ public class TasksListFragment extends Fragment implements TasksListContract.Vie
             fragment.dismiss();
         }
     }
+
 }

@@ -51,6 +51,10 @@ public interface TasksListContract {
 
         void dismissSaveDialog();
 
+        void showRecycleDialog();
+
+        void dismissRecycleDialog();
+
         void showToast(String msg);
     }
 
@@ -80,6 +84,10 @@ public interface TasksListContract {
 
         void closeSaveDialog();
 
+        void openRecycleDialog();
+
+        void closeRecycleDialog();
+
         void createNewTask();
 
         void doMove(@NonNull TaskGroup group);
@@ -87,5 +95,7 @@ public interface TasksListContract {
         void doSave();
 
         void doDelete();
+
+        void doRecycle();
     }
 }

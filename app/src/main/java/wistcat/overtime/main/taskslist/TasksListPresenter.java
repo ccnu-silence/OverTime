@@ -23,7 +23,6 @@ import wistcat.overtime.interfaces.GetDataListCallback;
 import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
-import wistcat.overtime.util.Const;
 
 /**
  * @author wistcat 2016/9/12
@@ -177,6 +176,17 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
     }
 
     @Override
+    public void openRecycleDialog() {
+        mView.dismissItemMenu();
+        mView.showRecycleDialog();
+    }
+
+    @Override
+    public void closeRecycleDialog() {
+        mView.dismissRecycleDialog();
+    }
+
+    @Override
     public void createNewTask() {
         mView.dismissMoreMenu();
         mView.redirectCreateTask();
@@ -219,31 +229,33 @@ public class TasksListPresenter implements TasksListContract.Presenter, LoaderMa
     @Override
     public void doDelete() {
         mView.dismissDeleteDialog();
-        if (mGroup.getId() == Const.RECYCLED_GROUP_ID) {
-            mRepository.deleteTask(mSelectedTask, new ResultCallback() {
-                @Override
-                public void onSuccess() {
-                    mView.showToast("删除成功");
-                }
+        mRepository.deleteTask(mSelectedTask, new ResultCallback() {
+            @Override
+            public void onSuccess() {
+                mView.showToast("删除成功");
+            }
 
-                @Override
-                public void onError() {
-                    mView.showToast("删除失败");
-                }
-            });
-        } else {
-            mRepository.recycleTask(mSelectedTask, new ResultCallback() {
-                @Override
-                public void onSuccess() {
-                    mView.showToast("删除成功");
-                }
+            @Override
+            public void onError() {
+                mView.showToast("删除失败");
+            }
+        });
+    }
 
-                @Override
-                public void onError() {
-                    mView.showToast("删除失败");
-                }
-            });
-        }
+    @Override
+    public void doRecycle() {
+        mView.dismissRecycleDialog();
+        mRepository.recycleTask(mSelectedTask, new ResultCallback() {
+            @Override
+            public void onSuccess() {
+                mView.showToast("回收成功");
+            }
+
+            @Override
+            public void onError() {
+                mView.showToast("回收失败");
+            }
+        });
     }
 
     private CursorLoader createLoader(String str) {
