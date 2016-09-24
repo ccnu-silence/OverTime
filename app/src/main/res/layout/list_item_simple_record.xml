@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/White">
+    <TextView
+        android:id="@+id/seq"
+        android:text="@string/test"
+        android:layout_width="@dimen/default_task_item_seq_width"
+        android:layout_height="56dp"
+        android:gravity="center"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"/>
+    <ImageButton
+        android:id="@+id/edit"
+        android:layout_width="32dp"
+        android:layout_height="56dp"
+        android:src="@drawable/vec_edit"
+        android:background="@drawable/list_item_selector_grey"
+        android:layout_gravity="center_vertical"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        tools:ignore="contentDescription"/>
+    <TextView
+        android:id="@+id/start_time"
+        android:text="@string/test"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="28dp"
+        android:gravity="center_vertical"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@id/seq"
+        android:layout_toRightOf="@id/seq"
+        android:layout_toStartOf="@id/edit"
+        android:layout_toLeftOf="@id/edit"/>
+    <TextView
+        android:id="@+id/end_time"
+        android:text="@string/test"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="28dp"
+        android:gravity="center_vertical"
+        android:layout_below="@id/start_time"
+        android:layout_toEndOf="@id/seq"
+        android:layout_toRightOf="@id/seq"
+        android:layout_toStartOf="@id/edit"
+        android:layout_toLeftOf="@id/edit"/>
+
+</RelativeLayout>

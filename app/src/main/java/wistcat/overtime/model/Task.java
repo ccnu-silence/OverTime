@@ -22,6 +22,7 @@ public class Task extends Entity implements Comparable<Task> {
     private final String mRemark;
     private final int mCompletedDegree;
     private final long mSumTime;
+    /* 用于放置创建日期 */
     private String extra_1;
     private String extra_2;
     private String extra_3;
@@ -83,11 +84,12 @@ public class Task extends Entity implements Comparable<Task> {
         return mType;
     }
 
+    /* 设置创建日期 */
     public Task setExtra1(String extra) {
         extra_1 = extra;
         return this;
     }
-
+    /* 获取创建日期 */
     public String getExtra_1() {
         return extra_1;
     }
