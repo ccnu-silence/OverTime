@@ -18,11 +18,18 @@ import java.util.Locale;
 public class Utils {
 
     // Date相关
-    public static final String FORMAT_DATE_TEMPLATE_FULL = "yyyy-MM-dd hh:mm:ss";
+    public static final String FORMAT_DATE_TEMPLATE_FULL = "yyyy-MM-dd HH:mm:ss";
     public static final String FORMAT_DATE_TEMPLATE_DATE = "yyyy-MM-dd";
-    public static final String FORMAT_DATE_TEMPLATE_TIME = "hh:mm:ss";
+    public static final String FORMAT_DATE_TEMPLATE_TIME = "HH:mm:ss";
     public static final String FORMAT_DATE_TEMPLATE_CHN  = "yyyy年MM月dd日";
-    /* 计算日期差时，用于对齐格林尼治时间，默认本地+8时区初始值为-28800000 */
+    /*
+     * 1) String->Date: SimpleDateFormat.parse("1970-01-01 00:00:00").getTime() 结果为-28800000
+     *    输入本地时间，返回本地时间（距离UTC之差）
+     * 2) new Date(0) 结果为 1970-01-01 08:00:00
+     *    输入本地时间，返回本地时间
+     * 总结：Date与SimpleDateFormat本身只和系统时间相关，也依赖于系统所设时区，比如这里为GMT+8,
+     *       因此，在时间表现形式转换时，不必担心对齐问题
+     */
     public static final int FORMATE_DATE_OFFSET_MILLIS = 28800000;
     public static final String FORMAT_TIME_TEMPLATE_SUM  = "{0}小时{1}分{2}秒";
 
@@ -50,7 +57,7 @@ public class Utils {
      * @return 返回Date类型
      */
     public static Date getDate() {
-        // 1970-01-01 00:00:00 > -28800000 ( 8 * 60 * 60 * 1000)
+        /* 获取的是系统时间 */
         return new Date(System.currentTimeMillis());
     }
 
@@ -62,8 +69,16 @@ public class Utils {
         return format.parse(date);
     }
 
+    public static long parseTime(@NonNull String template, @NonNull String date) throws ParseException {
+        return parseStringDate(template, date).getTime();
+    }
+
     /**
-     * 计算两个日期之差，过零点即为第二天
+     * 计算两个日期之差，过零点即为第二天<br/>
+     * getTime()返回的是本地时间下 GMT的当前时间，
+     * 比如在本地日期"1970-01-01 00:00:00"的时候，返回-28800000，
+     * 因此需要将本地零点对齐到GMT零点时间，才能通过除法正确划分一天时间
+     *
      */
     public static int dateDiff(@NonNull Date from, @NonNull Date to) {
         // 1 day = 24 * 60 * 60 * 1000 = 86400000 milliseconds

@@ -98,7 +98,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
+                            android:layout_alignParentEnd="true"
                             android:layout_marginRight="4dp"
+                            android:layout_marginEnd="4dp"
                             android:gravity="center_vertical"
                             android:text="@string/tasks_more"
                             android:textSize="14sp"
@@ -135,15 +137,17 @@
             </android.support.v4.widget.NestedScrollView>
 
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/running"
+        <TextView
+            android:id="@+id/bottom_guide"
             android:layout_width="match_parent"
             android:layout_height="@dimen/bottom_peek_height"
             android:background="@color/White"
-            android:orientation="horizontal"
             android:layout_gravity="bottom"
-            android:visibility="gone">
-        </LinearLayout>
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="@string/cd_running"
+            android:textColor="@color/Pink_"/>
     </FrameLayout>
 
 </wistcat.overtime.widget.ScrollChildSwipeRefreshLayout>

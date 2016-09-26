@@ -32,8 +32,6 @@ import wistcat.overtime.interfaces.ItemSelectListener;
 public class EditTasksListFragment extends ListFragment
         implements EditTasksListContract.View, ItemSelectListener<Integer>{
 
-    /* TODO: 不展示正在执行中的任务 */
-
     public static final String TAG = "EditTasksList";
     private EditTasksListContract.Presenter mPresenter;
     private final String TITLE = "已选择{0}项";

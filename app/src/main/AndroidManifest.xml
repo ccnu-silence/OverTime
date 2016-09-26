@@ -80,12 +80,6 @@
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
-        <service
-            android:name=".service.TaskService"
-            android:enabled="true"
-            android:exported="false">
-        </service>
-
         <activity
             android:name=".main.runningpage.RunningTasksActivity"
             android:screenOrientation="portrait"

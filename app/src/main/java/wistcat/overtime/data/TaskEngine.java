@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import java.text.ParseException;
 import java.util.UUID;
 
 import wistcat.overtime.App;
@@ -14,6 +15,7 @@ import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
 import wistcat.overtime.model.TaskState;
 import wistcat.overtime.util.Const;
+import wistcat.overtime.util.Utils;
 
 import static wistcat.overtime.data.db.TaskContract.EpisodeEntry;
 import static wistcat.overtime.data.db.TaskContract.RecordEntry;
@@ -41,6 +43,7 @@ public class TaskEngine {
         values.put(TaskGroupEntry.COLUMN_NAME_GROUP_NAME, name);
         values.put(TaskGroupEntry.COLUMN_NAME_GROUP_ACCOUNT, account);
         values.put(TaskGroupEntry.COLUMN_NAME_COUNT, 0);
+        values.put(TaskGroupEntry.COLUMN_NAME_RUNNING, 0);
         values.put(TaskGroupEntry.COLUMN_NAME_EXTRA_1, "");
         values.put(TaskGroupEntry.COLUMN_NAME_EXTRA_1, "");
         return values;
@@ -53,6 +56,7 @@ public class TaskEngine {
         values.put(TaskGroupEntry.COLUMN_NAME_GROUP_NAME, group.getName());
         values.put(TaskGroupEntry.COLUMN_NAME_GROUP_ACCOUNT, group.getAccount());
         values.put(TaskGroupEntry.COLUMN_NAME_COUNT, group.getTaskCount());
+        values.put(TaskGroupEntry.COLUMN_NAME_RUNNING, group.getRunningCount());
         values.put(TaskGroupEntry.COLUMN_NAME_EXTRA_1, group.getExtra_1());
         values.put(TaskGroupEntry.COLUMN_NAME_EXTRA_2, group.getExtra_2());
         return values;
@@ -65,11 +69,12 @@ public class TaskEngine {
         values.put(TaskEntry.COLUMN_NAME_GROUP_ID, task.getGroupId());
         values.put(TaskEntry.COLUMN_NAME_GROUP_NAME, task.getGroupName());
         values.put(TaskEntry.COLUMN_NAME_TASK_STATE, task.getState().name());
+        values.put(TaskEntry.COLUMN_NAME_IS_RUNNING, task.getRunning());
         values.put(TaskEntry.COLUMN_NAME_TASK_NAME, task.getName());
         values.put(TaskEntry.COLUMN_NAME_TASK_TYPE, task.getType());
         values.put(TaskEntry.COLUMN_NAME_DESCREPTION, task.getDescription());
+        values.put(TaskEntry.COLUMN_NAME_CREATE_TIME, task.getCreateTime());
         values.put(TaskEntry.COLUMN_NAME_REMARK, task.getRemark());
-        values.put(TaskEntry.COLUMN_NAME_COMPLETED_DEGREE, task.getCompletedDegree());
         values.put(TaskEntry.COLUMN_NAME_ACCUMULATED_TIME, task.getSumTime());
         values.put(TaskEntry.COLUMN_NAME_EXTRA_1, task.getExtra_1());
         values.put(TaskEntry.COLUMN_NAME_EXTRA_2, task.getExtra_2());
@@ -83,6 +88,7 @@ public class TaskEngine {
         ContentValues values = new ContentValues();
         values.put(RecordEntry.COLUMN_UUID, record.getUUID());
         values.put(RecordEntry.COLUMN_NAME_TASK_ID, record.getTaskId());
+        values.put(RecordEntry.COLUMN_NAME_TASK_NAME, record.getTaskName());
         values.put(RecordEntry.COLUMN_NAME_REOCRD_TYPE, record.getType());
         values.put(RecordEntry.COLUMN_NAME_USED_TIME, record.getUsedTime());
         values.put(RecordEntry.COLUMN_NAME_START_TIME, record.getStartTime());
@@ -92,6 +98,31 @@ public class TaskEngine {
         values.put(RecordEntry.COLUMN_NAME_EXTRA_2, record.getExtra_2());
         values.put(RecordEntry.COLUMN_NAME_EXTRA_3, record.getExtra_3());
         values.put(RecordEntry.COLUMN_NAME_EXTRA_4, record.getExtra_4());
+        return values;
+    }
+
+    public static ContentValues recordBegin(@NonNull Task task, int type) {
+        ContentValues values = new ContentValues();
+        String startTime = Utils.getDate(Utils.FORMAT_DATE_TEMPLATE_FULL);
+        values.put(RecordEntry.COLUMN_UUID, createId());
+        values.put(RecordEntry.COLUMN_NAME_TASK_ID, task.getId());
+        values.put(RecordEntry.COLUMN_NAME_TASK_NAME, task.getName());
+        values.put(RecordEntry.COLUMN_NAME_REOCRD_TYPE, type);
+        values.put(RecordEntry.COLUMN_NAME_START_TIME, startTime);
+        return values;
+    }
+
+    public static long recordUsedTime(@NonNull Record record) throws ParseException {
+        return System.currentTimeMillis()
+                - Utils.parseTime(Utils.FORMAT_DATE_TEMPLATE_FULL, record.getStartTime());
+    }
+
+    public static ContentValues recordEnd(long used, String remark) throws ParseException {
+        ContentValues values = new ContentValues();
+        String endTime = Utils.getDate(Utils.FORMAT_DATE_TEMPLATE_FULL);
+        values.put(RecordEntry.COLUMN_NAME_USED_TIME, used);
+        values.put(RecordEntry.COLUMN_NAME_END_TIME, endTime);
+        values.put(RecordEntry.COLUMN_NAME_REMARK, remark);
         return values;
     }
 
@@ -118,10 +149,11 @@ public class TaskEngine {
         String name = cursor.getString(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_GROUP_NAME);
         String account = cursor.getString(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_GROUP_ACCOUNT);
         int count = cursor.getInt(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_COUNT);
+        int running = cursor.getInt(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_RUNNING);
         String extra1 = cursor.getString(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_EXTRA_1);
         String extra2 = cursor.getString(QUERY_TASK_GROUP_PROJECTION.COLUMN_NAME_EXTRA_2);
         TaskGroup ret = new TaskGroup(id, uuid, name, account);
-        ret.setCount(count).setExtra_1(extra1).setExtra_2(extra2);
+        ret.setCount(count).setRunningCount(running).setExtra_1(extra1).setExtra_2(extra2);
         return ret;
     }
 
@@ -133,22 +165,24 @@ public class TaskEngine {
         TaskState state = stateFrom(cursor.getString(QUERY_TASK_PROJECTION.TASK_STATE));
         String name = cursor.getString(QUERY_TASK_PROJECTION.TASK_NAME);
         int type = cursor.getInt(QUERY_TASK_PROJECTION.TASK_TYPE);
+        int isRunning = cursor.getInt(QUERY_TASK_PROJECTION.IS_RUNNING);
         String description = cursor.getString(QUERY_TASK_PROJECTION.TASK_DESCRIPTION);
+        String start = cursor.getString(QUERY_TASK_PROJECTION.CREATE_TIME);
         String remark = cursor.getString(QUERY_TASK_PROJECTION.TASK_REMARK);
-        int degree = cursor.getInt(QUERY_TASK_PROJECTION.TASK_COMPLETED_DEGREE);
-        long time = cursor.getLong(QUERY_TASK_PROJECTION.TASK_ACCUMULATED_TIME);
+        long sum = cursor.getLong(QUERY_TASK_PROJECTION.TASK_ACCUMULATED_TIME);
         String extra1 = cursor.getString(QUERY_TASK_PROJECTION.EXTRA_1);
         String extra2 = cursor.getString(QUERY_TASK_PROJECTION.EXTRA_2);
         String extra3 = cursor.getString(QUERY_TASK_PROJECTION.EXTRA_3);
         String extra4 = cursor.getString(QUERY_TASK_PROJECTION.EXTRA_4);
-        Task ret = new Task(group_id, group_name, id, uuid, type, state, name, description, time, remark, degree);
-        return ret.setExtra1(extra1).setExtra2(extra2).setExtra3(extra3).setExtra4(extra4);
+        Task ret = new Task(group_id, group_name, id, uuid, type, isRunning, state, name, sum, description, start);
+        return ret.setRemark(remark).setExtra1(extra1).setExtra2(extra2).setExtra3(extra3).setExtra4(extra4);
     }
 
     public static Record recordFrom(@NonNull Cursor cursor) {
         int id = cursor.getInt(QUERY_RECORD_PROJECTION._ID);
         int uuid = cursor.getInt(QUERY_RECORD_PROJECTION._UUID);
         int task_id = cursor.getInt(QUERY_RECORD_PROJECTION.COLUMN_NAME_TASK_ID);
+        String task_name = cursor.getString(QUERY_RECORD_PROJECTION.COLUMN_NAME_TASK_NAME);
         int type = cursor.getInt(QUERY_RECORD_PROJECTION.COLUMN_NAME_REOCRD_TYPE);
         long used = cursor.getLong(QUERY_RECORD_PROJECTION.COLUMN_NAME_USED_TIME);
         String start = cursor.getString(QUERY_RECORD_PROJECTION.COLUMN_NAME_START_TIME);
@@ -158,7 +192,7 @@ public class TaskEngine {
         String extra2 = cursor.getString(QUERY_RECORD_PROJECTION.COLUMN_NAME_EXTRA_2);
         String extra3 = cursor.getString(QUERY_RECORD_PROJECTION.COLUMN_NAME_EXTRA_3);
         String extra4 = cursor.getString(QUERY_RECORD_PROJECTION.COLUMN_NAME_EXTRA_4);
-        Record ret = new Record(id, uuid, task_id, type, used, start, end, remark);
+        Record ret = new Record(id, uuid, task_id, task_name, type, used, start, end, remark);
         return ret.setExtra1(extra1).setExtra2(extra2).setExtra3(extra3).setExtra4(extra4);
     }
 
@@ -183,8 +217,6 @@ public class TaskEngine {
         switch (state) {
             case "Activate":
                 return TaskState.Activate;
-            case "Running":
-                return TaskState.Running;
             case "Completed":
                 return TaskState.Completed;
             case "Recycled":
@@ -222,24 +254,25 @@ public class TaskEngine {
         return values;
     }
 
-    public static ContentValues taskToRunning() {
+    public static ContentValues taskToRunning(int isRunning) {
         ContentValues values = new ContentValues();
-        values.put(TaskEntry.COLUMN_NAME_TASK_STATE, TaskState.Running.name());
+        values.put(TaskEntry.COLUMN_NAME_IS_RUNNING, isRunning);
         return values;
     }
 
     public static TaskGroup clone(TaskGroup group) {
         TaskGroup ret = new TaskGroup(group.getId(), group.getUUID(), group.getName(), group.getAccount());
-        ret.setCount(group.getTaskCount()).setExtra_1(group.getExtra_1()).setExtra_2(group.getExtra_2());
+        ret.setCount(group.getTaskCount()).setRunningCount(group.getRunningCount())
+                .setExtra_1(group.getExtra_1()).setExtra_2(group.getExtra_2());
         return ret;
     }
 
     public static Task clone(Task task) {
         Task ret = new Task(task.getGroupId(), task.getGroupName(), task.getId(), task.getUUID(),
-                task.getType(), task.getState(), task.getName(), task.getDescription(), task.getSumTime(),
-                task.getRemark(), task.getCompletedDegree());
-        ret.setExtra1(task.getExtra_1()).setExtra2(task.getExtra_2()).setExtra3(task.getExtra_3())
-                .setExtra4(task.getExtra_4());
+                task.getType(), task.getRunning(), task.getState(), task.getName(), task.getSumTime(),
+                task.getDescription(), task.getCreateTime());
+        ret.setRemark(task.getRemark()).setExtra1(task.getExtra_1()).setExtra2(task.getExtra_2())
+                .setExtra3(task.getExtra_3()).setExtra4(task.getExtra_4());
         return ret;
     }
 

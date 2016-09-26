@@ -9,9 +9,12 @@ public class Record extends Entity {
     public static final int TYPE_NORMAL = 0x01;
 
     private final int mTaskId;
+    private final String mTaskName;
     private final int mType;
     private final long mUsedTime;
+    /** 保存格式化的String时间，yyyy-MM-dd hh:mm:ss */
     private final String mStartTime;
+    /** 保存格式化的String时间，yyyy-MM-dd hh:mm:ss */
     private final String mEndTime;
     private final String mRemark;
     private String extra_1;
@@ -19,10 +22,11 @@ public class Record extends Entity {
     private String extra_3;
     private String extra_4;
 
-    public Record(int id, int uuid, int taskId, int type,
+    public Record(int id, int uuid, int taskId, String taskName, int type,
                   long usedTime, String startTime, String endTime, String remark) {
         super(id, uuid);
         mTaskId = taskId;
+        mTaskName = taskName;
         mType = type;
         mUsedTime = usedTime;
         mStartTime = startTime;
@@ -48,6 +52,10 @@ public class Record extends Entity {
 
     public int getTaskId() {
         return mTaskId;
+    }
+
+    public String getTaskName() {
+        return mTaskName;
     }
 
     @Override

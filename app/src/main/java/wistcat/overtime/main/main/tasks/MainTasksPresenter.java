@@ -17,6 +17,7 @@ import wistcat.overtime.data.datasource.TaskRepository;
 import wistcat.overtime.data.db.SelectionBuilder;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
+import wistcat.overtime.data.running.RunningManager;
 import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
@@ -30,15 +31,19 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     private static final int TASKS_QUERY = 0x01;
     private final MainTasksContract.View mView;
     private final LoaderManager mLoaderManager;
+    private final RunningManager mRunningManager;
     private final TaskRepository mRepository;
+
     private boolean isFirst = true;
     private Handler mHandler = new Handler();
     private Task mSelectedTask;
 
     @Inject
-    public MainTasksPresenter(MainTasksContract.View view, LoaderManager loaderManager, TaskRepository repository) {
+    public MainTasksPresenter(MainTasksContract.View view, LoaderManager loaderManager,
+                              RunningManager runningManager, TaskRepository repository) {
         mView = view;
         mLoaderManager = loaderManager;
+        mRunningManager = runningManager;
         mRepository = repository;
     }
 
@@ -47,8 +52,8 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
         if (id == TASKS_QUERY) {
             // 创建搜索语句
             SelectionBuilder builder = new SelectionBuilder();
-            builder.whereOr(TaskTableHelper.WHERE_TASK_STATE, TaskTableHelper.WHERE_TASK_STATE_ACTIVATE)
-                    .whereOr(TaskTableHelper.WHERE_TASK_STATE, TaskTableHelper.WHERE_TASK_STATE_RUNNING);
+            builder.whereOr(TaskTableHelper.WHERE_TASK_STATE, TaskTableHelper.WHERE_TASK_STATE_ACTIVATE);
+            // FIXME
             return new CursorLoader(
                     App.getInstance(),
                     TaskContract.buildTasksUriWith(App.getInstance().getAccountName()),
@@ -122,7 +127,11 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     @Override
     public void openTaskMenu(@NonNull Task task) {
         mSelectedTask = task;
-        mView.showTaskMenu(task.getName(), task.getGroupName());
+        if (task.isRunning()) {
+            mView.showRunningTaskMenu(task.getName(), task.getGroupName());
+        } else {
+            mView.showTaskMenu(task.getName(), task.getGroupName());
+        }
     }
 
     @Override
@@ -164,7 +173,25 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     @Override
     public void doStart() {
         mView.dismissTaskMenu();
-        mView.showToast(Const.X);
+        mRepository.startRunningTask(mSelectedTask);
+        mRepository.beginRecord(mSelectedTask);
+        mRunningManager.startRunning();
+        mView.redirectRunningPage(mSelectedTask);
+    }
+
+    @Override
+    public void openRunningPage() {
+        mView.dismissTaskMenu();
+        mView.redirectRunningPage();
+    }
+
+    @Override
+    public void checkRunning() {
+        if (mRunningManager.getRunningTaskCount() > 0) {
+            mView.showRunningBottom();
+        } else {
+            mView.hideRunningBottom();
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package wistcat.overtime.main.taskdetail;
 
+import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -171,7 +172,7 @@ public class TaskDetailsFragment extends Fragment implements TaskDetailsContract
         List<String[]> data = new ArrayList<>();
         String group = mTask.getGroupName();
         int type = mTask.getType();
-        String date = mTask.getExtra_1();
+        String date = mTask.getCreateTime();
         String sum = Utils.getSumTime(mTask.getSumTime());
         data.add(new String[]{"任务组: ", group});
         data.add(new String[]{"任务类型: ", getTaskType(type)});
@@ -218,4 +219,13 @@ public class TaskDetailsFragment extends Fragment implements TaskDetailsContract
         }
     }
 
+    @Override
+    public void showList(Cursor data) {
+        mAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void clearList() {
+        showList(null);
+    }
 }

@@ -2,6 +2,7 @@ package wistcat.overtime.data.datasource;
 
 import android.support.annotation.NonNull;
 
+import java.text.ParseException;
 import java.util.List;
 
 import wistcat.overtime.interfaces.GetDataListCallback;
@@ -10,7 +11,6 @@ import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
-import wistcat.overtime.model.TaskState;
 
 /**
  * 数据源
@@ -44,17 +44,15 @@ public interface TaskDataSource {
 
     void saveTask(@NonNull Task task, ResultCallback callback);
 
-    /* Activate -> Running */
+    /* Activate */
     void startRunningTask(@NonNull Task task);
-
-    void startRunningTask(int taskId);
 
     void startRunningTask(@NonNull Task task, ResultCallback callback);
 
-    /* Running -> Activate/Completed */
-    void stopRunningTask(@NonNull Task task, TaskState state);
+    /* Activate */
+    void stopRunningTask(@NonNull Record record);
 
-    void stopRunningTask(@NonNull Task task, TaskState state, ResultCallback callback);
+    void stopRunningTask(@NonNull Record record, ResultCallback callback);
 
     /* 更改Task所属 Activate -> Activate */
     void transformTasks(@NonNull List<Integer> taskIds, @NonNull TaskGroup from, @NonNull TaskGroup to);
@@ -107,19 +105,25 @@ public interface TaskDataSource {
 
     void initAndCheckRecords(@NonNull GetDataListCallback<Record> callback);
 
-    void saveRecord(@NonNull Record record);
+    void beginRecord(@NonNull Task task);
 
-    void saveRecord(@NonNull Record record, ResultCallback callback);
+    void beginRecord(@NonNull Task task, ResultCallback callback);
+
+    void endRecord(@NonNull Record record, String remark) throws ParseException;
+
+    void endRecord(@NonNull Record record, String remark, ResultCallback callback);
+
+    void updateRecord(@NonNull Record record, String remark);
+
+    void updateRecord(@NonNull Record record, String remark, ResultCallback callback);
 
     void deleteRecord(@NonNull Record record);
 
-    void deleteRecord(int recordId);
-
     void deleteRecord(@NonNull Record record, ResultCallback callback);
 
-    void deleteRecords(@NonNull List<Integer> recordIds);
+    void deleteRecords(@NonNull Task task, long time, @NonNull List<Integer> recordIds);
 
-    void deleteRecords(@NonNull List<Integer> recordIds, ResultCallback callback);
+    void deleteRecords(@NonNull Task task, long time, @NonNull List<Integer> recordIds, ResultCallback callback);
 
     // ----Episode----
 

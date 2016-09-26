@@ -34,7 +34,7 @@ public class TaskProvider extends ContentProvider {
     public static final int ROUTE_EPISODES_ID   = 6;
     public static final int ROUTE_TASK_GROUPS   = 7;
     public static final int ROUTE_TASK_GROUPS_ID = 8;
-    public static final int ROUTE_TASK_GROUPS_ID_AUTO = 9;
+    public static final int ROUTE_RAW_UPDATE = 9;
 
     /* 提供列别名到真实列名的映射 TODO ... */
     private static HashMap<String, String> mProjectionMap = new HashMap<>();
@@ -44,13 +44,13 @@ public class TaskProvider extends ContentProvider {
         mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         mUriMatcher.addURI(AUTHORITY, "tasks/*", ROUTE_TASKS);
         mUriMatcher.addURI(AUTHORITY, "tasks/*/#", ROUTE_TASKS_ID);
-        mUriMatcher.addURI(AUTHORITY, "records/*", ROUTE_TASKS);
-        mUriMatcher.addURI(AUTHORITY, "records/*/#", ROUTE_TASKS_ID);
-        mUriMatcher.addURI(AUTHORITY, "episodes/*", ROUTE_TASKS);
-        mUriMatcher.addURI(AUTHORITY, "episodes/*/#", ROUTE_TASKS_ID);
+        mUriMatcher.addURI(AUTHORITY, "records/*", ROUTE_RECORDS);
+        mUriMatcher.addURI(AUTHORITY, "records/*/#", ROUTE_RECORDS_ID);
+        mUriMatcher.addURI(AUTHORITY, "episodes/*", ROUTE_EPISODES);
+        mUriMatcher.addURI(AUTHORITY, "episodes/*/#", ROUTE_EPISODES_ID);
         mUriMatcher.addURI(AUTHORITY, "taskgroups/*", ROUTE_TASK_GROUPS);
         mUriMatcher.addURI(AUTHORITY, "taskgroups/*/#", ROUTE_TASK_GROUPS_ID);
-        mUriMatcher.addURI(AUTHORITY, "taskgroups/*/#/auto", ROUTE_TASK_GROUPS_ID_AUTO);
+        mUriMatcher.addURI(AUTHORITY, "raw", ROUTE_RAW_UPDATE);
         mUriMatcher.addURI(AUTHORITY, "delete/*", ROUTE_DELETE);
     }
 
@@ -226,7 +226,7 @@ public class TaskProvider extends ContentProvider {
                 where = TaskTableHelper.WHERE_ID;
                 whereArgs = new String[]{getLastSeg(uri)};
                 break;
-            case ROUTE_TASK_GROUPS_ID_AUTO:
+            case ROUTE_RAW_UPDATE:
                 mDatabase.update(where);
                 return 0;
             default:

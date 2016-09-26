@@ -16,35 +16,32 @@ public class Task extends Entity implements Comparable<Task> {
     private final int mGroupId;
     private final String mGroupName;
     private final int mType;
+    private final int mRunning;
+    private final boolean isRunning;
     private final TaskState mState;
     private final String mName;
     private final String mDescription;
-    private final String mRemark;
-    private final int mCompletedDegree;
+    private final String mCreateTime;
     private final long mSumTime;
-    /* 用于放置创建日期 */
+    private String mRemark;
     private String extra_1;
     private String extra_2;
     private String extra_3;
     private String extra_4;
 
-    public Task(int groupId, String groupName, int id, int uuid, int type, TaskState taskState, String name,
-                String description, long sumTime) {
-        this(groupId, groupName, id, uuid, type, taskState, name, description, sumTime, null, -1);
-    }
-
-    public Task(int groupId, String groupName, int id, int uuid, int type, TaskState taskState, String name,
-                String description, long sumTime, String remark, int completedDegree) {
+    public Task(int groupId, String groupName, int id, int uuid, int type, int running, TaskState taskState,
+                String name, long sumTime, String description, String createTime) {
         super(id, uuid);
         mGroupId = groupId;
         mGroupName = groupName;
+        mRunning = running;
+        isRunning = running == 1;
         mType = type;
         mState = taskState;
         mName = name;
-        mDescription = description;
         mSumTime = sumTime;
-        mRemark = remark;
-        mCompletedDegree = completedDegree;
+        mDescription = description;
+        mCreateTime = createTime;
     }
 
     public int getGroupId() {
@@ -53,6 +50,14 @@ public class Task extends Entity implements Comparable<Task> {
 
     public String getGroupName() {
         return mGroupName;
+    }
+
+    public int getRunning() {
+        return mRunning;
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 
     public TaskState getState() {
@@ -67,12 +72,8 @@ public class Task extends Entity implements Comparable<Task> {
         return mDescription;
     }
 
-    public String getRemark() {
-        return mRemark;
-    }
-
-    public int getCompletedDegree() {
-        return mCompletedDegree;
+    public String getCreateTime() {
+        return mCreateTime;
     }
 
     public long getSumTime() {
@@ -84,12 +85,20 @@ public class Task extends Entity implements Comparable<Task> {
         return mType;
     }
 
-    /* 设置创建日期 */
+    public Task setRemark(String remark) {
+        mRemark = remark;
+        return this;
+    }
+
+    public String getRemark() {
+        return mRemark;
+    }
+
     public Task setExtra1(String extra) {
         extra_1 = extra;
         return this;
     }
-    /* 获取创建日期 */
+
     public String getExtra_1() {
         return extra_1;
     }

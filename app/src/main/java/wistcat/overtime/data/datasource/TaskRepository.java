@@ -3,6 +3,7 @@ package wistcat.overtime.data.datasource;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -22,7 +23,6 @@ import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
-import wistcat.overtime.model.TaskState;
 
 /**
  * 数据接口，向上为Presenter层提供统一服务接口， 向下直接管理全部的数据源
@@ -150,15 +150,10 @@ public class TaskRepository implements TaskDataSource {
 
     @Override
     public void startRunningTask(@NonNull final Task task) {
-        startRunningTask(task.getId());
-    }
-
-    @Override
-    public void startRunningTask(final int taskId) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.startRunningTask(taskId);
+                mLocalDataSource.startRunningTask(task);
             }
         });
     }
@@ -174,21 +169,21 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
-    public void stopRunningTask(@NonNull final Task task, final TaskState state) {
+    public void stopRunningTask(@NonNull final Record record) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.stopRunningTask(task, state);
+                mLocalDataSource.stopRunningTask(record);
             }
         });
     }
 
     @Override
-    public void stopRunningTask(@NonNull final Task task, final TaskState state, final ResultCallback callback) {
+    public void stopRunningTask(@NonNull final Record record, final ResultCallback callback) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.stopRunningTask(task, state, callback);
+                mLocalDataSource.stopRunningTask(record, callback);
             }
         });
     }
@@ -397,36 +392,75 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
-    public void saveRecord(@NonNull final Record record) {
+    public void beginRecord(@NonNull final Task task) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.saveRecord(record);
+                mLocalDataSource.beginRecord(task);
             }
         });
     }
 
     @Override
-    public void saveRecord(@NonNull final Record record, final ResultCallback callback) {
+    public void beginRecord(@NonNull final Task task, final ResultCallback callback) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.saveRecord(record, callback);
+                mLocalDataSource.beginRecord(task, callback);
+            }
+        });
+    }
+
+    @Override
+    public void endRecord(@NonNull final Record record, final String remark) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mLocalDataSource.endRecord(record, remark);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void endRecord(@NonNull final Record record, final String remark, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.endRecord(record, remark, callback);
+            }
+        });
+    }
+
+    @Override
+    public void updateRecord(@NonNull final Record record, final String remark) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.updateRecord(record, remark);
+            }
+        });
+    }
+
+    @Override
+    public void updateRecord(@NonNull final Record record, final String remark, final ResultCallback callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.updateRecord(record, remark, callback);
             }
         });
     }
 
     @Override
     public void deleteRecord(@NonNull final Record record) {
-        deleteRecord(record.getId());
-    }
-
-    @Override
-    public void deleteRecord(final int recordId) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.deleteRecord(recordId);
+                mLocalDataSource.deleteRecord(record);
             }
         });
     }
@@ -442,21 +476,22 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
-    public void deleteRecords(@NonNull final List<Integer> recordIds) {
+    public void deleteRecords(@NonNull final Task task, final long time, @NonNull final List<Integer> recordIds) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.deleteRecords(recordIds);
+                mLocalDataSource.deleteRecords(task, time, recordIds);
             }
         });
     }
 
     @Override
-    public void deleteRecords(@NonNull final List<Integer> recordIds, final ResultCallback callback) {
+    public void deleteRecords(@NonNull final Task task, final long time,
+                              @NonNull final List<Integer> recordIds, final ResultCallback callback) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                mLocalDataSource.deleteRecords(recordIds, callback);
+                mLocalDataSource.deleteRecords(task, time, recordIds, callback);
             }
         });
     }

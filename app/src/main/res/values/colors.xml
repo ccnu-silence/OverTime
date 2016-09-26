@@ -9,8 +9,9 @@
     <color name="colorAccent">#FF4081</color>
 
     <!-- MainActivity -->
-    <color name="bg_tasks_fragment">#EEE8E8E8</color>
-    <color name="fg_dim_grey">#11000000</color>
+    <color name="bg_tasks_fragment">@color/fg_dim_grey</color>
+    <color name="fg_dim_grey">#E0E0E0E0</color>
+    <color name="foreground_grey">#11000000</color>
 
     <color name="toast_background">#88000000</color>
 

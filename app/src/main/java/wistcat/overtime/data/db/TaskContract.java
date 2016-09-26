@@ -23,6 +23,11 @@ public final class TaskContract {
 
     private TaskContract(){}
 
+    /** 用于自定义的update语句 */
+    public static Uri buildRawUpdateUri(@NonNull String account) {
+        return BASE_CONTENT_URI.buildUpon().appendPath("raw").build();
+    }
+
     /** 使用账户名创建相应的Uri路径， 匹配整个Task表 */
     public static Uri buildTasksUriWith(@NonNull String account) {
         return TaskEntry.CONTENT_URI.buildUpon().appendPath(account).build();
@@ -87,12 +92,6 @@ public final class TaskContract {
         return TaskGroupEntry.CONTENT_URI.buildUpon().appendPath(account).appendPath(id).build();
     }
 
-    /** 创建TaskGroup的Uri的路径，用于update自增/自减 */
-    public static Uri buildAutoTaskGroupUriWith(@NonNull String account, long id) {
-        Uri base = buildTaskGroupUriWith(account, id);
-        return base.buildUpon().appendPath("auto").build();
-    }
-
     /**
      * Task表数据操作相关常量
      */
@@ -118,16 +117,18 @@ public final class TaskContract {
         public static final String COLUMN_NAME_GROUP_NAME = "group_name";
         /** 任务状态 */
         public static final String COLUMN_NAME_TASK_STATE = "task_state";
+        /** 任务是否运行 */
+        public static final String COLUMN_NAME_IS_RUNNING = "is_running";
         /** 任务名称 */
         public static final String COLUMN_NAME_TASK_NAME = "name";
         /** 任务类型 */
         public static final String COLUMN_NAME_TASK_TYPE = "type";
         /** 任务描述*/
         public static final String COLUMN_NAME_DESCREPTION = "description";
+        /** 任务创建时间 */
+        public static final String COLUMN_NAME_CREATE_TIME = "start_time";
         /** 任务评价 */
         public static final String COLUMN_NAME_REMARK = "remark";
-        /** 任务完成度 */
-        public static final String COLUMN_NAME_COMPLETED_DEGREE = "completed_degree";
         /** 任务累计时间 */
         public static final String COLUMN_NAME_ACCUMULATED_TIME = "accumulated_time";
         /** 扩展列 */
@@ -165,6 +166,8 @@ public final class TaskContract {
         public static final String COLUMN_UUID = UUID;
         /** 所属任务的id */
         public static final String COLUMN_NAME_TASK_ID = "task_id";
+        /** 所属任务 */
+        public static final String COLUMN_NAME_TASK_NAME = "task_name";
         /** 记录类型 */
         public static final String COLUMN_NAME_REOCRD_TYPE = "type";
         /** 记录用时 */
@@ -256,6 +259,8 @@ public final class TaskContract {
         public static final String COLUMN_NAME_GROUP_ACCOUNT = "account";
         /** 包含的Task的统计 */
         public static final String COLUMN_NAME_COUNT = "count";
+        /** 包含的运行的Task的统计 */
+        public static final String COLUMN_NAME_RUNNING = "running";
         /** 扩展列 */
         public static final String COLUMN_NAME_EXTRA_1 = "extra1";
         /** 扩展列 */

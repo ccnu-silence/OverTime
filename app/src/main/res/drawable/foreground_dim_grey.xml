@@ -5,7 +5,7 @@
             <corners android:radius="@dimen/default_radius"/>
             <stroke android:color="@color/Transparent"
                     android:width="3dp"/>
-            <solid android:color="@color/fg_dim_grey"/>
+            <solid android:color="@color/foreground_grey"/>
         </shape>
     </item>
     <item android:drawable="@color/Transparent"/>

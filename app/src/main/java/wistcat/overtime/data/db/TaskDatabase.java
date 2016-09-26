@@ -9,10 +9,10 @@ import android.net.Uri;
 
 import wistcat.overtime.util.Const;
 
+import static wistcat.overtime.data.db.TaskContract.EpisodeEntry;
 import static wistcat.overtime.data.db.TaskContract.RecordEntry;
 import static wistcat.overtime.data.db.TaskContract.TaskEntry;
 import static wistcat.overtime.data.db.TaskContract.TaskGroupEntry;
-import static wistcat.overtime.data.db.TaskContract.EpisodeEntry;
 
 /**
  * Task 数据库
@@ -42,6 +42,7 @@ public class TaskDatabase {
         if (!account.equals(Const.ACCOUNT_GUEST)) {
             TaskTableHelper.createTables(db, account);
         }
+
         return db.query(table, columns, selection, SelectionArgs, groupBy, having, orderBy);
     }
 
@@ -232,7 +233,7 @@ public class TaskDatabase {
 
     /* */
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        public static final int DB_VERSION = 1;
+        public static final int DB_VERSION = 2;
 
         public DatabaseHelper(Context context) {
             super(context, DB_NAME, null, DB_VERSION);

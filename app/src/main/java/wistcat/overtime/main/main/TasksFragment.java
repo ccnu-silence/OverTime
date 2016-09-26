@@ -35,6 +35,7 @@ import wistcat.overtime.main.main.tasks.MainTasksComponent;
 import wistcat.overtime.main.main.tasks.MainTasksContract;
 import wistcat.overtime.main.main.tasks.MainTasksModule;
 import wistcat.overtime.main.main.tasks.MainTasksPresenter;
+import wistcat.overtime.main.runningpage.RunningTasksActivity;
 import wistcat.overtime.main.taskdetail.TaskDetailsActivity;
 import wistcat.overtime.main.taskslist.TasksListActivity;
 import wistcat.overtime.main.tasksmanage.TasksManageActivity;
@@ -53,10 +54,11 @@ import wistcat.overtime.widget.ScrollChildSwipeRefreshLayout;
 public class TasksFragment extends Fragment implements MainTasksContract.View, EditItemSelectListener<Task> {
 
     private String[] ITEMS = new String[]{null, "启动任务", "删除任务"};
-//    private String[] ITEMS_RUNNING = new String[]{null, "停止任务"};
+    private String[] ITEMS_RUNNING = new String[]{null, "运行中"};
     private final String MENU = "menu";
     private final String DELETE = "delete";
     private TextView mNoText;
+    private View mBottom;
     private CursorRecyclerViewAdapter mAdapter;
 
     @Inject
@@ -118,6 +120,15 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, E
                 mPresenter.loadTasks();
             }
         });
+
+        //
+        mBottom = root.findViewById(R.id.bottom_guide);
+        mBottom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPresenter.openRunningPage();
+            }
+        });
         return root;
     }
 
@@ -125,6 +136,7 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, E
     public void onResume() {
         super.onResume();
         mPresenter.start();
+        mPresenter.checkRunning();
     }
 
     @Override
@@ -220,7 +232,6 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, E
 
     @Override
     public void showTaskMenu(String name, String group) {
-        /* FIXME：未将Running状态考虑进去 */
         ITEMS[0] = String.format("任务组: %s", group);
         BottomFragment fragment = BottomFragment.getInstance(name, ITEMS);
         fragment.setSelectListener(new ItemSelectListener<Integer>() {
@@ -235,6 +246,30 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, E
                         break;
                     case 2: // 删除任务
                         mPresenter.openDeleteDialog();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        fragment.show(getFragmentManager(), MENU);
+    }
+
+    @Override
+    public void showRunningTaskMenu(String name, String group) {
+        ITEMS_RUNNING[0] = String.format("任务组: %s", group);
+        BottomFragment fragment = BottomFragment.getInstance(name, ITEMS_RUNNING);
+        fragment.setSelectListener(new ItemSelectListener<Integer>() {
+            @Override
+            public void onSelected(Integer item) {
+                switch (item) {
+                    case 0: // 打开任务组
+                        mPresenter.openGroup();
+                        break;
+                    case 1: // 打开运行页面
+                        mPresenter.openRunningPage();
+                        break;
+                    default:
                         break;
                 }
             }
@@ -314,6 +349,31 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, E
         Intent intent = new Intent(getActivity(), TasksListActivity.class);
         intent.putExtras(data);
         startActivity(intent);
+    }
+
+    @Override
+    public void redirectRunningPage() {
+        Intent intent = new Intent(getActivity(), RunningTasksActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void redirectRunningPage(@NonNull Task task) {
+        Intent intent = new Intent(getActivity(), RunningTasksActivity.class);
+        Bundle data = new Bundle();
+        data.putSerializable(RunningTasksActivity.RUNNING_TASK, task);
+        intent.putExtras(data);
+        startActivity(intent);
+    }
+
+    @Override
+    public void showRunningBottom() {
+        mBottom.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideRunningBottom() {
+        mBottom.setVisibility(View.GONE);
     }
 
     @Override

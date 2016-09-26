@@ -33,6 +33,12 @@ public class MainTasksAdapter extends CursorRecyclerViewAdapter<MainTasksAdapter
     }
 
     @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View root = LayoutInflater.from(mContext).inflate(R.layout.list_item_simple_task, parent, false);
+        return new ViewHolder(root);
+    }
+
+    @Override
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor, int position) {
         final Task task = TaskEngine.taskFrom(cursor);
         final int res = TaskEngine.taskToColor(task.getType());
@@ -49,15 +55,14 @@ public class MainTasksAdapter extends CursorRecyclerViewAdapter<MainTasksAdapter
                 mItemListener.onEditSelected(task);
             }
         });
+        if (task.isRunning()) {
+            viewHolder.running.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.running.setVisibility(View.GONE);
+        }
         viewHolder.seq.setText(String.valueOf(position + 1));
         viewHolder.header.setBackgroundColor(res);
         viewHolder.name.setText(name);
-    }
-
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View root = LayoutInflater.from(mContext).inflate(R.layout.list_item_simple_task, parent, false);
-        return new ViewHolder(root);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -66,6 +71,7 @@ public class MainTasksAdapter extends CursorRecyclerViewAdapter<MainTasksAdapter
         TextView seq;
         TextView name;
         View edit;
+        View running;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -74,6 +80,7 @@ public class MainTasksAdapter extends CursorRecyclerViewAdapter<MainTasksAdapter
             seq = (TextView) root.findViewById(R.id.seq);
             name = (TextView) root.findViewById(R.id.task_name);
             edit = root.findViewById(R.id.edit);
+            running = root.findViewById(R.id.running);
         }
     }
 

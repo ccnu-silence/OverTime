@@ -33,6 +33,7 @@ public final class TaskTableHelper {
                     TaskGroupEntry.COLUMN_NAME_GROUP_NAME +  TYPE_TEXT + COMMA_SEP +
                     TaskGroupEntry.COLUMN_NAME_GROUP_ACCOUNT + TYPE_TEXT + COMMA_SEP +
                     TaskGroupEntry.COLUMN_NAME_COUNT + TYPE_INTEGER + COMMA_SEP +
+                    TaskGroupEntry.COLUMN_NAME_RUNNING + TYPE_INTEGER + COMMA_SEP +
                     TaskGroupEntry.COLUMN_NAME_EXTRA_1 + TYPE_TEXT + COMMA_SEP +
                     TaskGroupEntry.COLUMN_NAME_EXTRA_2 + TYPE_TEXT + ")";
 
@@ -44,11 +45,12 @@ public final class TaskTableHelper {
                     TaskEntry.COLUMN_NAME_GROUP_ID + TYPE_INTEGER + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_GROUP_NAME + TYPE_TEXT + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_TASK_STATE + TYPE_TEXT + COMMA_SEP +
+                    TaskEntry.COLUMN_NAME_IS_RUNNING + TYPE_INTEGER + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_TASK_NAME + TYPE_TEXT + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_TASK_TYPE + TYPE_INTEGER + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_DESCREPTION + TYPE_TEXT + COMMA_SEP +
+                    TaskEntry.COLUMN_NAME_CREATE_TIME + TYPE_TEXT + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_REMARK + TYPE_TEXT + COMMA_SEP +
-                    TaskEntry.COLUMN_NAME_COMPLETED_DEGREE + TYPE_INTEGER + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_ACCUMULATED_TIME +  TYPE_INTEGER + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_EXTRA_1 + TYPE_TEXT + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_EXTRA_2 + TYPE_TEXT + COMMA_SEP +
@@ -63,6 +65,7 @@ public final class TaskTableHelper {
                     RecordEntry._ID + " INTEGER PRIMARY KEY," +
                     RecordEntry.COLUMN_UUID + TYPE_INTEGER + COMMA_SEP +
                     RecordEntry.COLUMN_NAME_TASK_ID + TYPE_INTEGER + COMMA_SEP +
+                    RecordEntry.COLUMN_NAME_TASK_NAME + TYPE_TEXT + COMMA_SEP +
                     RecordEntry.COLUMN_NAME_REOCRD_TYPE + TYPE_INTEGER + COMMA_SEP +
                     RecordEntry.COLUMN_NAME_USED_TIME + TYPE_INTEGER + COMMA_SEP +
                     RecordEntry.COLUMN_NAME_START_TIME + TYPE_INTEGER + COMMA_SEP +
@@ -94,13 +97,17 @@ public final class TaskTableHelper {
                     EpisodeEntry.TABLE_NAME + BRACKETS + RecordEntry._ID + CASCADE;
 
     /** 删除TaskGroup表语句 */
-    public static final String DELETE_TASK_GROUP_TABLE = "DROP IF EXISTS %s" + TaskGroupEntry.TABLE_NAME;
+    public static final String DELETE_TASK_GROUP_TABLE = "DROP TABLE IF EXISTS '%s"
+            + TaskGroupEntry.TABLE_NAME + "'";
     /** 删除任务表语句 */
-    private static final String DELETE_TASK_TABLE = "DROP IF EXISTS %s" + TaskEntry.TABLE_NAME;
+    private static final String DELETE_TASK_TABLE = "DROP TABLE IF EXISTS '%s"
+            + TaskEntry.TABLE_NAME + "'";
     /** 删除记录表语句 */
-    private static final String DELETE_RECORD_TABLE = "DROP IF EXISTS %s" + RecordEntry.TABLE_NAME;
+    private static final String DELETE_RECORD_TABLE = "DROP TABLE IF EXISTS '%s"
+            + RecordEntry.TABLE_NAME + "'";
     /** 删除Episode表语句 */
-    private static final String DELETE_EPISODE_TABLE = "DROP IF EXISTS %s" + EpisodeEntry.TABLE_NAME;
+    private static final String DELETE_EPISODE_TABLE = "DROP TABLE IF EXISTS '%s"
+            + EpisodeEntry.TABLE_NAME + "'";
 
     /** 匹配_id的where语句 */
     public static final String WHERE_ID = BaseColumns._ID + " = ?";
@@ -108,6 +115,8 @@ public final class TaskTableHelper {
 
     /** 匹配taskState的where语句*/
     public static final String WHERE_TASK_STATE = TaskEntry.COLUMN_NAME_TASK_STATE + " = ?";
+
+    public static final String WHERE_RECORD_RUN = RecordEntry.COLUMN_NAME_END_TIME + " IS NULL";
 
     /** 更新TaskGroup数据，需要分别填入 tableName, columnName, columnName, data, taskGroup_id */
     public static final String SQL_AUTO_INCREASE = "UPDATE %s SET %s = %s + %d WHERE _id = %d";
@@ -125,10 +134,6 @@ public final class TaskTableHelper {
             TaskState.Activate.name()
     };
 
-    /** whereArgs: TastState == Running */
-    public static final String[] WHERE_TASK_STATE_RUNNING = new String[] {
-            TaskState.Running.name()
-    };
     /** whereArgs: TastState == Recycled */
     public static final String[] WHERE_TASK_STATE_RECYCLED = new String[] {
             TaskState.Recycled.name()
@@ -141,6 +146,7 @@ public final class TaskTableHelper {
             TaskGroupEntry.COLUMN_NAME_GROUP_NAME,
             TaskGroupEntry.COLUMN_NAME_GROUP_ACCOUNT,
             TaskGroupEntry.COLUMN_NAME_COUNT,
+            TaskGroupEntry.COLUMN_NAME_RUNNING,
             TaskGroupEntry.COLUMN_NAME_EXTRA_1,
             TaskGroupEntry.COLUMN_NAME_EXTRA_2
     };
@@ -152,11 +158,12 @@ public final class TaskTableHelper {
             TaskEntry.COLUMN_NAME_GROUP_ID,
             TaskEntry.COLUMN_NAME_GROUP_NAME,
             TaskEntry.COLUMN_NAME_TASK_STATE,
+            TaskEntry.COLUMN_NAME_IS_RUNNING,
             TaskEntry.COLUMN_NAME_TASK_NAME,
             TaskEntry.COLUMN_NAME_TASK_TYPE,
             TaskEntry.COLUMN_NAME_DESCREPTION,
+            TaskEntry.COLUMN_NAME_CREATE_TIME,
             TaskEntry.COLUMN_NAME_REMARK,
-            TaskEntry.COLUMN_NAME_COMPLETED_DEGREE,
             TaskEntry.COLUMN_NAME_ACCUMULATED_TIME,
             TaskEntry.COLUMN_NAME_EXTRA_1,
             TaskEntry.COLUMN_NAME_EXTRA_2,
@@ -164,21 +171,12 @@ public final class TaskTableHelper {
             TaskEntry.COLUMN_NAME_EXTRA_4
     };
 
-    public static final String[] SIMPLE_TASK_PROJECTION = new String[] {
-            TaskEntry._ID,
-            TaskEntry.COLUMN_UUID,
-            TaskEntry.COLUMN_NAME_GROUP_ID,
-            TaskEntry.COLUMN_NAME_GROUP_NAME,
-            TaskEntry.COLUMN_NAME_TASK_STATE,
-            TaskEntry.COLUMN_NAME_TASK_NAME,
-            TaskEntry.COLUMN_NAME_TASK_TYPE,
-    };
-
     /** 全部Record列名 */
     public static final String[] RECORD_PROJECTION = new String[] {
             RecordEntry._ID,
             RecordEntry.COLUMN_UUID,
             RecordEntry.COLUMN_NAME_TASK_ID,
+            RecordEntry.COLUMN_NAME_TASK_NAME,
             RecordEntry.COLUMN_NAME_REOCRD_TYPE,
             RecordEntry.COLUMN_NAME_USED_TIME,
             RecordEntry.COLUMN_NAME_START_TIME,
@@ -241,8 +239,9 @@ public final class TaskTableHelper {
         int COLUMN_NAME_GROUP_NAME = 2;
         int COLUMN_NAME_GROUP_ACCOUNT = 3;
         int COLUMN_NAME_COUNT = 4;
-        int COLUMN_NAME_EXTRA_1 = 5;
-        int COLUMN_NAME_EXTRA_2 = 6;
+        int COLUMN_NAME_RUNNING = 5;
+        int COLUMN_NAME_EXTRA_1 = 6;
+        int COLUMN_NAME_EXTRA_2 = 7;
     }
 
     /** 返回{@link TaskTableHelper#TASK_PROJECTION}中查询的列号，用于结果Cursor的查询 */
@@ -252,16 +251,17 @@ public final class TaskTableHelper {
         int GROUP_ID = 2;
         int GROUP_NAME = 3;
         int TASK_STATE = 4;
-        int TASK_NAME = 5;
-        int TASK_TYPE = 6;
-        int TASK_DESCRIPTION = 7;
-        int TASK_REMARK = 8;
-        int TASK_COMPLETED_DEGREE = 9;
-        int TASK_ACCUMULATED_TIME = 10;
-        int EXTRA_1 = 11;
-        int EXTRA_2 = 12;
-        int EXTRA_3 = 13;
-        int EXTRA_4 = 14;
+        int IS_RUNNING = 5;
+        int TASK_NAME = 6;
+        int TASK_TYPE = 7;
+        int TASK_DESCRIPTION = 8;
+        int CREATE_TIME = 9;
+        int TASK_REMARK = 10;
+        int TASK_ACCUMULATED_TIME = 11;
+        int EXTRA_1 = 12;
+        int EXTRA_2 = 13;
+        int EXTRA_3 = 14;
+        int EXTRA_4 = 15;
     }
 
     /** 返回全部列 */
@@ -269,15 +269,16 @@ public final class TaskTableHelper {
         int _ID = 0;
         int _UUID = 1;
         int COLUMN_NAME_TASK_ID = 2;
-        int COLUMN_NAME_REOCRD_TYPE = 3;
-        int COLUMN_NAME_USED_TIME = 4;
-        int COLUMN_NAME_START_TIME = 5;
-        int COLUMN_NAME_END_TIME = 6;
-        int COLUMN_NAME_REMARK = 7;
-        int COLUMN_NAME_EXTRA_1 = 8;
-        int COLUMN_NAME_EXTRA_2 = 9;
-        int COLUMN_NAME_EXTRA_3 = 10;
-        int COLUMN_NAME_EXTRA_4 = 11;
+        int COLUMN_NAME_TASK_NAME = 3;
+        int COLUMN_NAME_REOCRD_TYPE = 4;
+        int COLUMN_NAME_USED_TIME = 5;
+        int COLUMN_NAME_START_TIME = 6;
+        int COLUMN_NAME_END_TIME = 7;
+        int COLUMN_NAME_REMARK = 8;
+        int COLUMN_NAME_EXTRA_1 = 9;
+        int COLUMN_NAME_EXTRA_2 = 10;
+        int COLUMN_NAME_EXTRA_3 = 11;
+        int COLUMN_NAME_EXTRA_4 = 12;
     }
 
     /** 返回全部列 */

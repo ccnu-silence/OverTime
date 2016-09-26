@@ -1,35 +1,41 @@
-package wistcat.overtime.main.taskdetail;
+package wistcat.overtime.main.runningpage;
 
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 
 import javax.inject.Inject;
 
 import wistcat.overtime.App;
+import wistcat.overtime.data.datasource.TaskRepository;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
-import wistcat.overtime.model.Task;
+import wistcat.overtime.data.running.RunningManager;
+import wistcat.overtime.interfaces.ResultCallback;
+import wistcat.overtime.model.Record;
 
 /**
- * @author wistcat 2016/9/22
+ * @author wistcat 2016/9/25
  */
-public class TaskDetailsPresenter implements TaskDetailsContract.Presenter, LoaderManager.LoaderCallbacks<Cursor> {
+public class RunningTasksPresenter
+        implements RunningTasksContract.Presenter, LoaderManager.LoaderCallbacks<Cursor> {
+    private final int QUERY_RECORDS = 0x10;
 
-    private final int QUERY_RECORDS = 0x11;
-    private final Task mTask;
     private final LoaderManager mLoaderManager;
-    private final TaskDetailsContract.View mView;
+    private final RunningManager mRunningManager;
+    private final TaskRepository mRepository;
+    private final RunningTasksContract.View mView;
     private boolean isFirst = true;
 
     @Inject
-    public TaskDetailsPresenter(Task task, LoaderManager manager, TaskDetailsContract.View view) {
-        mTask = task;
-        mLoaderManager = manager;
+    public RunningTasksPresenter(LoaderManager loaderManager, RunningManager runningManager,
+                                 TaskRepository repository, RunningTasksContract.View view) {
+        mLoaderManager = loaderManager;
+        mRunningManager = runningManager;
+        mRepository = repository;
         mView = view;
     }
 
@@ -48,14 +54,12 @@ public class TaskDetailsPresenter implements TaskDetailsContract.Presenter, Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == QUERY_RECORDS) {
-            Uri uri = TaskContract.buildRecordsUriWith(getAccount());
-            Log.i("TAG", uri.toString());
             return new CursorLoader(
                     App.getInstance().getApplicationContext(),
-                    uri,
+                    TaskContract.buildRecordsUriWith(getAccount()),
                     TaskTableHelper.RECORD_PROJECTION,
-                    TaskContract.RecordEntry.COLUMN_NAME_TASK_ID + " = ?",
-                    new String[]{String.valueOf(mTask.getId())},
+                    TaskTableHelper.WHERE_RECORD_RUN,
+                    null,
                     null
             );
         }
@@ -84,6 +88,27 @@ public class TaskDetailsPresenter implements TaskDetailsContract.Presenter, Load
         } else {
             mLoaderManager.restartLoader(QUERY_RECORDS, null, this);
         }
+    }
+
+    @Override
+    public void onItemSelected(@NonNull Record record) {
+        mView.redirectRunningRecord(record);
+    }
+
+    @Override
+    public void onRecordPaused(@NonNull Record record) {
+        mRepository.stopRunningTask(record);
+        mRepository.endRecord(record, null, new ResultCallback() {
+            @Override
+            public void onSuccess() {
+                mRunningManager.stopRunning();
+            }
+
+            @Override
+            public void onError() {
+                //
+            }
+        });
     }
 
     private String getAccount() {

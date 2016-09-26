@@ -11,6 +11,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -29,7 +30,6 @@ import wistcat.overtime.model.Episode;
 import wistcat.overtime.model.Record;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
-import wistcat.overtime.model.TaskState;
 import wistcat.overtime.util.Const;
 
 import static wistcat.overtime.data.db.TaskContract.TaskGroupEntry;
@@ -42,7 +42,9 @@ import static wistcat.overtime.data.db.TaskContract.TaskGroupEntry;
 public class LocalTaskDataSource implements TaskDataSource {
 
     private final ContentResolver mContentResolver;
+    /* 用于等待初始化默认任务组 */
     private CountDownLatch mDown;
+    /* UI线程Handler，用于调用回调 */
     private Handler mHandler = new Handler(Looper.getMainLooper());
 
     public LocalTaskDataSource(@NonNull Context context) {
@@ -76,7 +78,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteTaskGroup(int taskGroupId) {
-        // 转移Task
+        // 转移Task到Recycled分组
         mContentResolver.update(
                 TaskContract.buildTasksUriWith(getAccount()),
                 TaskEngine.taskToRecycled(),
@@ -105,7 +107,7 @@ public class LocalTaskDataSource implements TaskDataSource {
     public void deleteTaskGroups(@NonNull List<Integer> taskGroupIds) {
         // FIXME: 如果性能有问题，改进或者删除...
         for (int i : taskGroupIds) {
-            // 转移Task
+            // 转移Task到Recycled分组
             mContentResolver.update(
                     TaskContract.buildTasksUriWith(getAccount()),
                     TaskEngine.taskToRecycled(),
@@ -113,12 +115,13 @@ public class LocalTaskDataSource implements TaskDataSource {
                     new String[]{String.valueOf(i)}
             );
         }
-        // 从TaskGroup表删除
+        // 创建删除语句
         SelectionBuilder builder = new SelectionBuilder();
         builder.in(TaskGroupEntry._ID, null);
         for (int i : taskGroupIds) {
             builder.in(null, String.valueOf(i));
         }
+        // 从TaskGroup表删除
         mContentResolver.delete(
                 TaskContract.buildTaskGroupUri(getAccount()),
                 builder.getSelection(),
@@ -162,6 +165,7 @@ public class LocalTaskDataSource implements TaskDataSource {
                         .notIn(null, String.valueOf(Const.COMPLETED_GROUP_ID))
                         .notIn(null, String.valueOf(Const.RECYCLED_GROUP_ID));
                 final List<TaskGroup> data = new ArrayList<>();
+                // 完成任务组搜索
                 final Cursor c = mContentResolver.query(
                         TaskContract.buildTaskGroupUri(getAccount()),
                         TaskTableHelper.TASK_GROUP_PROJECTION,
@@ -169,7 +173,7 @@ public class LocalTaskDataSource implements TaskDataSource {
                         builder.getSelectionArgs(),
                         null
                 );
-
+                // 将Cursor转化为List
                 if (c != null) {
                     try {
                         if (c.moveToFirst()) {
@@ -196,15 +200,10 @@ public class LocalTaskDataSource implements TaskDataSource {
     @Override
     public void saveTask(@NonNull Task task) {
         // 插入或更新 Task 表
-        try {
-            mContentResolver.insert(
-                    TaskContract.buildTasksUriWith(getAccount()),
-                    TaskEngine.taskTo(task));
-        } catch (Exception e) {
-            e.printStackTrace();
-            App.showToast("保存任务失败！请重试！");
-        }
-        // 刷新TaskGroup表数据
+        mContentResolver.insert(
+                TaskContract.buildTasksUriWith(getAccount()),
+                TaskEngine.taskTo(task));
+        // 更新TaskGroup表数据
         updateTaskGroup(true, TaskGroupEntry.COLUMN_NAME_COUNT, 1, task.getGroupId());
         // 通知Loader框架刷新
         notifyUri(getTaskGroupUri());
@@ -216,25 +215,21 @@ public class LocalTaskDataSource implements TaskDataSource {
             saveTask(task);
             sendSuccess(callback);
         } catch (Exception e) {
+            e.printStackTrace();
             sendError(callback);
         }
     }
 
     @Override
     public void startRunningTask(@NonNull Task task) {
-        startRunningTask(task.getId());
-    }
-
-    @Override
-    public void startRunningTask(int taskId) {
-        // 更新Task表
         mContentResolver.update(
-                TaskContract.buildTasksUriWith(getAccount(), taskId),
-                TaskEngine.taskToRunning(),
+                TaskContract.buildTasksUriWith(getAccount(), task.getId()),
+                TaskEngine.taskToRunning(1),
                 null,
                 null
         );
-        // TODO something..
+        updateTaskGroup(true, TaskGroupEntry.COLUMN_NAME_RUNNING, 1, task.getGroupId());
+        notifyUri(getTaskGroupUri());
     }
 
     @Override
@@ -248,38 +243,41 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
-    public void stopRunningTask(@NonNull Task task, TaskState state) {
-        // Task 的状态可从 Running 转换为 Activate或Completed
-        ContentValues values;
-        switch (state) {
-            case Activate:
-                TaskGroup mock = TaskEngine.mockTaskGroup(task);
-                values = TaskEngine.taskToActivate(mock);
-                break;
-            case Completed:
-                values = TaskEngine.taskToCompleted();
-                break;
-            default:
-                throw new IllegalArgumentException("unsupported state : " + state);
-        }
+    public void stopRunningTask(@NonNull Record record) {
         mContentResolver.update(
-                TaskContract.buildTasksUriWith(getAccount(), task.getId()),
-                values,
+                TaskContract.buildTasksUriWith(getAccount(), record.getTaskId()),
+                TaskEngine.taskToRunning(0),
                 null,
                 null
         );
-        // 完成Task条目更新后，更新TaskGroup条目
-        if (state == TaskState.Completed) {
-            updateTaskGroup(false, TaskGroupEntry.COLUMN_NAME_COUNT, 1, task.getGroupId());
-            updateTaskGroup(true, TaskGroupEntry.COLUMN_NAME_COUNT, 1, Const.COMPLETED_GROUP_ID);
-            notifyUri(getTaskGroupUri());
-        }
+        String table1 = TaskContract.TaskGroupEntry.getTableName(getAccount());
+        String table2 = TaskContract.TaskEntry.getTableName(getAccount());
+        String sentence = String.format(
+                Locale.getDefault(),
+                "UPDATE %s SET %s = %s - 1 WHERE %s = (SELECT %s FROM %s WHERE %s = %d)",
+                table1,
+                TaskGroupEntry.COLUMN_NAME_RUNNING,
+                TaskGroupEntry.COLUMN_NAME_RUNNING,
+                TaskGroupEntry._ID,
+                TaskContract.TaskEntry.COLUMN_NAME_GROUP_ID,
+                table2,
+                TaskContract.TaskEntry._ID,
+                record.getTaskId()
+        );
+        // 更新任务组
+        mContentResolver.update(
+                TaskContract.buildRawUpdateUri(getAccount()),
+                null,
+                sentence,
+                null
+        );
+        notifyUri(getTaskGroupUri());
     }
 
     @Override
-    public void stopRunningTask(@NonNull Task task, TaskState state, ResultCallback callback) {
+    public void stopRunningTask(@NonNull Record record, ResultCallback callback) {
         try {
-            stopRunningTask(task, state);
+            stopRunningTask(record);
             sendSuccess(callback);
         } catch (Exception e) {
             sendError(callback);
@@ -288,6 +286,7 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void transformTasks(@NonNull List<Integer> taskIds, @NonNull TaskGroup from, @NonNull TaskGroup to) {
+        // 移动Task到另外的分组
         SelectionBuilder builder  = new SelectionBuilder();
         builder.in(TaskContract.TaskEntry._ID, null);
         for (int i : taskIds) {
@@ -305,7 +304,8 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
-    public void transformTasks(@NonNull List<Integer> taskIds, @NonNull TaskGroup from, @NonNull TaskGroup to, ResultCallback callback) {
+    public void transformTasks(@NonNull List<Integer> taskIds, @NonNull TaskGroup from,
+                               @NonNull TaskGroup to, ResultCallback callback) {
         try {
             transformTasks(taskIds, from, to);
             sendSuccess(callback);
@@ -556,17 +556,64 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
-    public void saveRecord(@NonNull Record record) {
+    public void beginRecord(@NonNull Task task) {
         mContentResolver.insert(
                 TaskContract.buildRecordsUriWith(getAccount()),
-                TaskEngine.recordTo(record)
+                TaskEngine.recordBegin(task, 0)
         );
     }
 
     @Override
-    public void saveRecord(@NonNull Record record, ResultCallback callback) {
+    public void beginRecord(@NonNull Task task, ResultCallback callback) {
         try {
-            saveRecord(record);
+            beginRecord(task);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
+    @Override
+    public void endRecord(@NonNull Record record, String remark) throws ParseException {
+        long usedTime = TaskEngine.recordUsedTime(record);
+        Log.i("TAG", "used time: " + usedTime);
+        // 更新Record
+        mContentResolver.update(
+                TaskContract.buildRecordsUriWith(getAccount(), record.getId()),
+                TaskEngine.recordEnd(usedTime, remark),
+                null,
+                null
+        );
+        // 更新Task
+        updateTaskTime(true, record.getTaskId(), usedTime);
+    }
+
+    @Override
+    public void endRecord(@NonNull Record record, String remark, ResultCallback callback) {
+        try {
+            endRecord(record, remark);
+            sendSuccess(callback);
+        } catch (Exception e) {
+            sendError(callback);
+        }
+    }
+
+    @Override
+    public void updateRecord(@NonNull Record record, String remark) {
+        ContentValues values = new ContentValues();
+        values.put(TaskContract.RecordEntry.COLUMN_NAME_REMARK, remark);
+        mContentResolver.update(
+                TaskContract.buildRecordsUriWith(getAccount(), record.getId()),
+                values,
+                null,
+                null
+        );
+    }
+
+    @Override
+    public void updateRecord(@NonNull Record record, String remark, ResultCallback callback) {
+        try {
+            updateRecord(record, remark);
             sendSuccess(callback);
         } catch (Exception e) {
             sendError(callback);
@@ -575,13 +622,8 @@ public class LocalTaskDataSource implements TaskDataSource {
 
     @Override
     public void deleteRecord(@NonNull Record record) {
-        deleteRecord(record.getId());
-    }
-
-    @Override
-    public void deleteRecord(int recordId) {
         mContentResolver.delete(
-                TaskContract.buildRecordsUriWith(getAccount(), recordId),
+                TaskContract.buildRecordsUriWith(getAccount(), record.getId()),
                 null,
                 null
         );
@@ -598,7 +640,7 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
-    public void deleteRecords(@NonNull List<Integer> recordIds) {
+    public void deleteRecords(@NonNull Task task, long time, @NonNull List<Integer> recordIds) {
         SelectionBuilder builder = new SelectionBuilder();
         builder.in(TaskContract.RecordEntry._ID, null);
         for (int i : recordIds) {
@@ -609,12 +651,13 @@ public class LocalTaskDataSource implements TaskDataSource {
                 builder.getSelection(),
                 builder.getSelectionArgs()
         );
+        updateTaskTime(false, task.getId(), time);
     }
 
     @Override
-    public void deleteRecords(@NonNull List<Integer> recordIds, ResultCallback callback) {
+    public void deleteRecords(@NonNull Task task, long time, @NonNull List<Integer> recordIds, ResultCallback callback) {
         try {
-            deleteRecords(recordIds);
+            deleteRecords(task, time, recordIds);
             sendSuccess(callback);
         } catch (Exception e) {
             sendError(callback);
@@ -742,7 +785,20 @@ public class LocalTaskDataSource implements TaskDataSource {
         String template = increase ? TaskTableHelper.SQL_AUTO_INCREASE : TaskTableHelper.SQL_AUTO_DECREASE;
         String sentence = String.format(Locale.getDefault(), template, table, column, column, delta, groupId);
         mContentResolver.update(
-                TaskContract.buildAutoTaskGroupUriWith(getAccount(), groupId),
+                TaskContract.buildRawUpdateUri(getAccount()),
+                null,
+                sentence,
+                null
+        );
+    }
+
+    private void updateTaskTime(boolean increase, int taskId, long delta) {
+        String table = TaskContract.TaskEntry.getTableName(getAccount());
+        String column = TaskContract.TaskEntry.COLUMN_NAME_ACCUMULATED_TIME;
+        String template = increase ? TaskTableHelper.SQL_AUTO_INCREASE : TaskTableHelper.SQL_AUTO_DECREASE;
+        String sentence = String.format(template, table, column, column, delta, taskId);
+        mContentResolver.update(
+                TaskContract.buildRawUpdateUri(getAccount()),
                 null,
                 sentence,
                 null

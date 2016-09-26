@@ -10,6 +10,7 @@ public class TaskGroup extends Entity {
     private final String mName;
     private final String mAccount;
     private int mTaskCount;
+    private int mRunningCount;
     private String extra_1;
     private String extra_2;
 
@@ -38,6 +39,15 @@ public class TaskGroup extends Entity {
 
     public TaskGroup setCount(int count) {
         mTaskCount = count;
+        return this;
+    }
+
+    public int getRunningCount() {
+        return mRunningCount;
+    }
+
+    public TaskGroup setRunningCount(int count) {
+        mRunningCount = count;
         return this;
     }
 

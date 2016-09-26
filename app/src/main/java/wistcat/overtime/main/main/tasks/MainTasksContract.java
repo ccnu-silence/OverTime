@@ -35,6 +35,8 @@ public interface MainTasksContract {
 
         void showTaskMenu(String name, String group);
 
+        void showRunningTaskMenu(String name, String group);
+
         void showToast(String msg);
 
         void dismissTaskMenu();
@@ -46,6 +48,14 @@ public interface MainTasksContract {
         void showNoText(boolean isNull);
 
         void redirectGroup(@NonNull TaskGroup group);
+
+        void redirectRunningPage();
+
+        void redirectRunningPage(@NonNull Task task);
+
+        void showRunningBottom();
+
+        void hideRunningBottom();
     }
 
     interface Presenter extends BasePresenter {
@@ -73,6 +83,10 @@ public interface MainTasksContract {
         void doDelete();
 
         void doStart();
+
+        void openRunningPage();
+
+        void checkRunning();
     }
 
 }

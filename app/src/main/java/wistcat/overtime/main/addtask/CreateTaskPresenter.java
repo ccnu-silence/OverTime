@@ -56,9 +56,8 @@ public class CreateTaskPresenter implements CreateTaskContract.Presenter {
     @Override
     public void saveTask(TaskGroup group, String name, String description, int type) {
         String date = Utils.getDate(Utils.FORMAT_DATE_TEMPLATE_CHN);
-        Task task = new Task(group.getId(), group.getName(), 0,
-                TaskEngine.createId(), type, TaskState.Activate, name, description, 0);
-        task.setExtra1(date);
+        Task task = new Task(group.getId(), group.getName(), 0, TaskEngine.createId(), type, 0,
+                TaskState.Activate, name, 0, description, date);
         mRespository.saveTask(task, new ResultCallback() {
             @Override
             public void onSuccess() {
