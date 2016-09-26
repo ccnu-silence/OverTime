@@ -463,6 +463,7 @@ public class LocalTaskDataSource implements TaskDataSource {
             recycleTask(task);
             sendSuccess(callback);
         } catch (Exception e) {
+            e.printStackTrace();
             sendError(callback);
         }
     }
@@ -751,7 +752,7 @@ public class LocalTaskDataSource implements TaskDataSource {
                     // 生成默认 Recycled
                     mContentResolver.insert(groupUri, TaskEngine.taskGroupToDefault(
                             account, Const.DEFAULT_RECYCLED_GROUP, Const.RECYCLED_GROUP_ID));
-                    // 保持至SharedPreferences
+                    // 更新SharedPreferences
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putBoolean(acountFirst, true);
                     editor.apply();

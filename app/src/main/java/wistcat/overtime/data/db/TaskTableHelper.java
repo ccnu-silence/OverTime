@@ -57,7 +57,7 @@ public final class TaskTableHelper {
                     TaskEntry.COLUMN_NAME_EXTRA_3 + TYPE_TEXT + COMMA_SEP +
                     TaskEntry.COLUMN_NAME_EXTRA_4 + TYPE_TEXT + COMMA_SEP +
                     FOREIGN_KEY + TaskEntry.COLUMN_NAME_GROUP_ID + REFERENCES +
-                    TaskEntry.TABLE_NAME + BRACKETS + TaskGroupEntry._ID + CASCADE;
+                    TaskGroupEntry.TABLE_NAME + BRACKETS + TaskGroupEntry._ID + CASCADE;
 
     /** 创建记录表语句 */
     private static final String CREATE_RECORD_TABLE =
@@ -76,7 +76,7 @@ public final class TaskTableHelper {
                     RecordEntry.COLUMN_NAME_EXTRA_3 + TYPE_TEXT + COMMA_SEP +
                     RecordEntry.COLUMN_NAME_EXTRA_4 + TYPE_TEXT + COMMA_SEP +
                     FOREIGN_KEY + RecordEntry.COLUMN_NAME_TASK_ID + REFERENCES +
-                    RecordEntry.TABLE_NAME + BRACKETS + TaskEntry._ID + CASCADE;
+                    TaskEntry.TABLE_NAME + BRACKETS + TaskEntry._ID + CASCADE;
 
     /** 创建Episode表语句 */
     private static final String CREATE_EPISODE_TABLE =
@@ -94,7 +94,7 @@ public final class TaskTableHelper {
                     EpisodeEntry.COLUMN_NAME_EXTRA_3 + TYPE_TEXT + COMMA_SEP +
                     EpisodeEntry.COLUMN_NAME_EXTRA_4 + TYPE_TEXT + COMMA_SEP +
                     FOREIGN_KEY + EpisodeEntry.COLUMN_NAME_RECORD_ID + REFERENCES +
-                    EpisodeEntry.TABLE_NAME + BRACKETS + RecordEntry._ID + CASCADE;
+                    RecordEntry.TABLE_NAME + BRACKETS + RecordEntry._ID + CASCADE;
 
     /** 删除TaskGroup表语句 */
     public static final String DELETE_TASK_GROUP_TABLE = "DROP TABLE IF EXISTS '%s"

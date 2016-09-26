@@ -165,6 +165,7 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
 
             @Override
             public void onError() {
+                mView.setLoadingIndicator(false);
                 mView.showToast("删除失败");
             }
         });

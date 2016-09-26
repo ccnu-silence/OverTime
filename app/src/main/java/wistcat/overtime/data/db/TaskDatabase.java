@@ -233,7 +233,7 @@ public class TaskDatabase {
 
     /* */
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        public static final int DB_VERSION = 2;
+        public static final int DB_VERSION = 4;
 
         public DatabaseHelper(Context context) {
             super(context, DB_NAME, null, DB_VERSION);
@@ -248,6 +248,12 @@ public class TaskDatabase {
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
             TaskTableHelper.deleteTables(sqLiteDatabase, Const.ACCOUNT_GUEST);
             onCreate(sqLiteDatabase);
+        }
+
+        @Override
+        public void onOpen(SQLiteDatabase db) {
+            super.onOpen(db);
+            db.execSQL("PRAGMA foreign_keys=ON");
         }
     }
 
