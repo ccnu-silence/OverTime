@@ -12,16 +12,17 @@ import android.support.v4.content.Loader;
 import javax.inject.Inject;
 
 import wistcat.overtime.App;
+import wistcat.overtime.data.CursorProvider;
 import wistcat.overtime.data.TaskEngine;
 import wistcat.overtime.data.datasource.TaskRepository;
 import wistcat.overtime.data.db.SelectionBuilder;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
-import wistcat.overtime.data.running.RunningManager;
 import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Task;
 import wistcat.overtime.model.TaskGroup;
 import wistcat.overtime.util.Const;
+import wistcat.overtime.util.NotificationHelper;
 
 /**
  * @author wistcat 2016/9/2
@@ -29,21 +30,21 @@ import wistcat.overtime.util.Const;
 public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final int TASKS_QUERY = 0x01;
+    private static final int RECORD_QUERY = 0x13;
     private final MainTasksContract.View mView;
     private final LoaderManager mLoaderManager;
-    private final RunningManager mRunningManager;
     private final TaskRepository mRepository;
 
     private boolean isFirst = true;
     private Handler mHandler = new Handler();
     private Task mSelectedTask;
+    private int mRunningCount;
 
     @Inject
     public MainTasksPresenter(MainTasksContract.View view, LoaderManager loaderManager,
-                              RunningManager runningManager, TaskRepository repository) {
+                              TaskRepository repository) {
         mView = view;
         mLoaderManager = loaderManager;
-        mRunningManager = runningManager;
         mRepository = repository;
     }
 
@@ -56,12 +57,15 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
             // FIXME
             return new CursorLoader(
                     App.getInstance(),
-                    TaskContract.buildTasksUriWith(App.getInstance().getAccountName()),
+                    TaskContract.buildTasksUriWith(getAccount()),
                     TaskTableHelper.TASK_PROJECTION,
                     builder.getSelection(),
                     builder.getSelectionArgs(),
                     null
             );
+        }
+        if (id == RECORD_QUERY) {
+            return CursorProvider.queryRunningRecords();
         }
         return null;
     }
@@ -77,6 +81,16 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
             } else {
                 mView.showNoText(false);
             }
+        }
+        if (loader.getId() == RECORD_QUERY) {
+            if (data != null && data.getCount() > 0) {
+                mRunningCount = data.getCount();
+                mView.showRunningBottom();
+            } else {
+                mRunningCount = 0;
+                mView.hideRunningBottom();
+            }
+
         }
     }
 
@@ -175,8 +189,17 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     public void doStart() {
         mView.dismissTaskMenu();
         mRepository.startRunningTask(mSelectedTask);
-        mRepository.beginRecord(mSelectedTask);
-        mRunningManager.startRunning();
+        mRepository.beginRecord(mSelectedTask, new ResultCallback() {
+            @Override
+            public void onSuccess() {
+                NotificationHelper.notifyNormal(App.getInstance().getApplicationContext(), mRunningCount);
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
         mView.redirectRunningPage(mSelectedTask);
     }
 
@@ -184,15 +207,6 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     public void openRunningPage() {
         mView.dismissTaskMenu();
         mView.redirectRunningPage();
-    }
-
-    @Override
-    public void checkRunning() {
-        if (mRunningManager.getRunningTaskCount() > 0) {
-            mView.showRunningBottom();
-        } else {
-            mView.hideRunningBottom();
-        }
     }
 
     @Override
@@ -206,8 +220,13 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
             isFirst = false;
             loadTasks();
             mRepository.initAccount(App.getInstance().getAccountName());
+            mLoaderManager.initLoader(RECORD_QUERY, null, this);
         } else if (mRepository.isDirty()) {
             loadTasks();
         }
+    }
+
+    private String getAccount() {
+        return App.getInstance().getAccountName();
     }
 }

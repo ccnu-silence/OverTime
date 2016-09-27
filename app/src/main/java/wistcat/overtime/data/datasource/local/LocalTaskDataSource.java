@@ -24,6 +24,7 @@ import wistcat.overtime.data.datasource.TaskRepository;
 import wistcat.overtime.data.db.SelectionBuilder;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
+import wistcat.overtime.interfaces.GetDataCallback;
 import wistcat.overtime.interfaces.GetDataListCallback;
 import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Episode;
@@ -550,6 +551,22 @@ public class LocalTaskDataSource implements TaskDataSource {
         }
     }
 
+    @Override
+    public void checkRunningTasks(@NonNull GetDataCallback<Integer> callback) {
+        Cursor ret = mContentResolver.query(
+                TaskContract.buildRecordsUriWith(getAccount()),
+                new String[]{TaskContract.RecordEntry._ID},
+                TaskTableHelper.WHERE_RECORD_RUN,
+                null,
+                null
+        );
+        int count = 0;
+        if (ret != null) {
+            count = ret.getCount();
+            ret.close();
+        }
+        callback.onDataLoaded(count);
+    }
 
     @Override
     public void initAndCheckRecords(@NonNull GetDataListCallback<Record> callback) {
@@ -577,7 +594,6 @@ public class LocalTaskDataSource implements TaskDataSource {
     @Override
     public void endRecord(@NonNull Record record, String remark) throws ParseException {
         long usedTime = TaskEngine.recordUsedTime(record);
-        Log.i("TAG", "used time: " + usedTime);
         // 更新Record
         mContentResolver.update(
                 TaskContract.buildRecordsUriWith(getAccount(), record.getId()),

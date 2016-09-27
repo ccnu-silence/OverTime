@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import java.text.ParseException;
 import java.util.List;
 
+import wistcat.overtime.interfaces.GetDataCallback;
 import wistcat.overtime.interfaces.GetDataListCallback;
 import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Episode;
@@ -100,6 +101,8 @@ public interface TaskDataSource {
     void deleteTasks(@NonNull List<Integer> taskIds, int groupId);
 
     void deleteTasks(@NonNull List<Integer> taskIds, int groupId, ResultCallback callback);
+
+    void checkRunningTasks(GetDataCallback<Integer> callback);
 
     // ----Record----
 

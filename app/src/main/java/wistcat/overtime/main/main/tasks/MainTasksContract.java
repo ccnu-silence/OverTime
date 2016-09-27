@@ -85,8 +85,6 @@ public interface MainTasksContract {
         void doStart();
 
         void openRunningPage();
-
-        void checkRunning();
     }
 
 }

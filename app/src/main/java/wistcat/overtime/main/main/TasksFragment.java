@@ -136,7 +136,6 @@ public class TasksFragment extends Fragment implements MainTasksContract.View, E
     public void onResume() {
         super.onResume();
         mPresenter.start();
-        mPresenter.checkRunning();
     }
 
     @Override

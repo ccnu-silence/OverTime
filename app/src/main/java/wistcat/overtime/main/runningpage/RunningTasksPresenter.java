@@ -13,9 +13,9 @@ import wistcat.overtime.App;
 import wistcat.overtime.data.datasource.TaskRepository;
 import wistcat.overtime.data.db.TaskContract;
 import wistcat.overtime.data.db.TaskTableHelper;
-import wistcat.overtime.data.running.RunningManager;
 import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Record;
+import wistcat.overtime.util.NotificationHelper;
 
 /**
  * @author wistcat 2016/9/25
@@ -25,16 +25,14 @@ public class RunningTasksPresenter
     private final int QUERY_RECORDS = 0x10;
 
     private final LoaderManager mLoaderManager;
-    private final RunningManager mRunningManager;
     private final TaskRepository mRepository;
     private final RunningTasksContract.View mView;
     private boolean isFirst = true;
 
     @Inject
-    public RunningTasksPresenter(LoaderManager loaderManager, RunningManager runningManager,
-                                 TaskRepository repository, RunningTasksContract.View view) {
+    public RunningTasksPresenter(LoaderManager loaderManager, TaskRepository repository,
+                                 RunningTasksContract.View view) {
         mLoaderManager = loaderManager;
-        mRunningManager = runningManager;
         mRepository = repository;
         mView = view;
     }
@@ -70,6 +68,13 @@ public class RunningTasksPresenter
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == QUERY_RECORDS) {
             mView.showList(data);
+            int count;
+            if (data == null || data.getCount() == 0) {
+                count = 0;
+            } else {
+                count = data.getCount();
+            }
+            NotificationHelper.notifyNormal(App.getInstance().getApplicationContext(), count);
         }
     }
 
@@ -101,7 +106,7 @@ public class RunningTasksPresenter
         mRepository.endRecord(record, null, new ResultCallback() {
             @Override
             public void onSuccess() {
-                mRunningManager.stopRunning();
+                //
             }
 
             @Override

@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import wistcat.overtime.data.datasource.local.Local;
+import wistcat.overtime.interfaces.GetDataCallback;
 import wistcat.overtime.interfaces.GetDataListCallback;
 import wistcat.overtime.interfaces.ResultCallback;
 import wistcat.overtime.model.Episode;
@@ -377,6 +378,16 @@ public class TaskRepository implements TaskDataSource {
             @Override
             public void run() {
                 mLocalDataSource.deleteTasks(taskIds, groupId, callback);
+            }
+        });
+    }
+
+    @Override
+    public void checkRunningTasks(final GetDataCallback<Integer> callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.checkRunningTasks(callback);
             }
         });
     }
