@@ -65,7 +65,7 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
             );
         }
         if (id == RECORD_QUERY) {
-            return CursorProvider.queryRunningRecords();
+            return CursorProvider.queryRunningRecordsCount();
         }
         return null;
     }
@@ -86,6 +86,7 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
             if (data != null && data.getCount() > 0) {
                 mRunningCount = data.getCount();
                 mView.showRunningBottom();
+                NotificationHelper.notifyNormal(App.getInstance(), mRunningCount);
             } else {
                 mRunningCount = 0;
                 mView.hideRunningBottom();
@@ -206,7 +207,7 @@ public class MainTasksPresenter implements MainTasksContract.Presenter, LoaderMa
     @Override
     public void openRunningPage() {
         mView.dismissTaskMenu();
-        mView.redirectRunningPage();
+        mView.redirectRunningPage(mSelectedTask);
     }
 
     @Override

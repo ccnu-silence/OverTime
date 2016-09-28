@@ -125,7 +125,7 @@
                             android:id="@+id/tasks_list"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@color/White"
+                            android:background="@color/Semi_White"
                             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
                     </FrameLayout>
 

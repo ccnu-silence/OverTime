@@ -59,7 +59,6 @@ public class RunningTasksAdapter extends CursorRecyclerViewAdapter<RunningTasksA
         TextView seq;
         TextView task;
         TextView start;
-        TextView used;
         View pause;
         public ViewHolder(View itemView) {
             super(itemView);
@@ -67,7 +66,6 @@ public class RunningTasksAdapter extends CursorRecyclerViewAdapter<RunningTasksA
             seq = (TextView) root.findViewById(R.id.seq);
             task = (TextView) root.findViewById(R.id.task);
             start = (TextView) root.findViewById(R.id.start);
-            used = (TextView) root.findViewById(R.id.used);
             pause = root.findViewById(R.id.pause);
         }
     }

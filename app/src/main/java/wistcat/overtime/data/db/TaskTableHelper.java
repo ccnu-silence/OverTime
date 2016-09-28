@@ -116,7 +116,14 @@ public final class TaskTableHelper {
     /** 匹配taskState的where语句*/
     public static final String WHERE_TASK_STATE = TaskEntry.COLUMN_NAME_TASK_STATE + " = ?";
 
+    public static final String WHERE_RECORD_TAKS_ID = RecordEntry.COLUMN_NAME_TASK_ID + " = ?";
+
+    public static final String WHERE_EPISODES_RECORD_ID = EpisodeEntry.COLUMN_NAME_RECORD_ID + " = ?";
+
     public static final String WHERE_RECORD_RUN = RecordEntry.COLUMN_NAME_END_TIME + " IS NULL";
+
+    public static final String WHERE_RECORD_RUN_LIMITED =
+            RecordEntry.COLUMN_NAME_END_TIME + " IS NULL LIMIT %d OFFSET %d";
 
     /** 更新TaskGroup数据，需要分别填入 tableName, columnName, columnName, data, taskGroup_id */
     public static final String SQL_AUTO_INCREASE = "UPDATE %s SET %s = %s + %d WHERE _id = %d";

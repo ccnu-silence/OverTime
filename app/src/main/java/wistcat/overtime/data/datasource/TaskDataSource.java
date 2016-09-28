@@ -102,7 +102,7 @@ public interface TaskDataSource {
 
     void deleteTasks(@NonNull List<Integer> taskIds, int groupId, ResultCallback callback);
 
-    void checkRunningTasks(GetDataCallback<Integer> callback);
+    void checkRunningTasks(@NonNull GetDataCallback<Integer> callback);
 
     // ----Record----
 
@@ -127,6 +127,9 @@ public interface TaskDataSource {
     void deleteRecords(@NonNull Task task, long time, @NonNull List<Integer> recordIds);
 
     void deleteRecords(@NonNull Task task, long time, @NonNull List<Integer> recordIds, ResultCallback callback);
+
+    void queryRecords(String selection, String[] selectionArgs, String orderBy,
+                      @NonNull GetDataListCallback<Record> callback);
 
     // ----Episode----
 

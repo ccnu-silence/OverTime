@@ -13,10 +13,13 @@ public class RunningTasksModule {
 
     private final LoaderManager mManager;
     private final RunningTasksContract.View mView;
+    private final RunningTasksContract.RunningView mMainView;
 
-    public RunningTasksModule(LoaderManager manager, RunningTasksContract.View view) {
+    public RunningTasksModule(LoaderManager manager, RunningTasksContract.View view,
+                              RunningTasksContract.RunningView mainView) {
         mManager = manager;
         mView = view;
+        mMainView = mainView;
     }
 
     @Provides
@@ -29,5 +32,9 @@ public class RunningTasksModule {
         return mView;
     }
 
+    @Provides
+    public RunningTasksContract.RunningView provideMainView() {
+        return mMainView;
+    }
 
 }

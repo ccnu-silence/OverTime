@@ -59,4 +59,11 @@
     <string name="stop_all">全部停止</string>
     <string name="stop_task">停止任务</string>
     <string name="has_running">任务执行中</string>
+    <string name="task_running_list">运行的任务列表</string>
+    <string name="add_episode">添加事件</string>
+    <string name="start_time">开始时间：</string>
+    <string name="current_used">已进行时间：</string>
+    <string name="episode_empty">^_^</string>
+    <string name="insert_episode">创建事件</string>
+    <string name="time_zero">00:00:00</string>
 </resources>

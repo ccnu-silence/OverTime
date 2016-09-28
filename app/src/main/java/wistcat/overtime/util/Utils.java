@@ -1,10 +1,10 @@
 package wistcat.overtime.util;
 
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.text.DateFormat;
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,7 +31,8 @@ public class Utils {
      *       因此，在时间表现形式转换时，不必担心对齐问题
      */
     public static final int FORMATE_DATE_OFFSET_MILLIS = 28800000;
-    public static final String FORMAT_TIME_TEMPLATE_SUM  = "{0}小时{1}分{2}秒";
+    public static final String FORMAT_TIME_TEMPLATE_SUM  = "%d小时%d分%d秒";
+    public static final String FORMAT_TIME_TEMPLATE_ACCUMULATE = "%02d:%02d:%02d";
 
     //
     private Utils(){}
@@ -73,6 +74,10 @@ public class Utils {
         return parseStringDate(template, date).getTime();
     }
 
+    public static long parseTime(@NonNull String data) throws ParseException {
+        return parseStringDate(FORMAT_DATE_TEMPLATE_FULL, data).getTime();
+    }
+
     /**
      * 计算两个日期之差，过零点即为第二天<br/>
      * getTime()返回的是本地时间下 GMT的当前时间，
@@ -95,6 +100,14 @@ public class Utils {
      * @return 格式化时间
      */
     public static String getSumTime(long accumulated) {
+        return getTemplateTime(FORMAT_TIME_TEMPLATE_SUM, accumulated);
+    }
+
+    public static String getAccumulateTime(long accumulated) {
+        return getTemplateTime(FORMAT_TIME_TEMPLATE_ACCUMULATE, accumulated);
+    }
+
+    public static String getTemplateTime(String template, long accumulated) {
         if (accumulated < 0) {
             throw new IllegalArgumentException();
         }
@@ -103,7 +116,11 @@ public class Utils {
         accumulated %= 3600;
         final int minutes = (int) (accumulated / 60);
         accumulated %= 60;
-        return MessageFormat.format(FORMAT_TIME_TEMPLATE_SUM, hours, minutes, accumulated);
+        return String.format(template, hours, minutes, accumulated);
+    }
+
+    public static boolean isCursorEmpty(Cursor c) {
+        return c == null || c.getCount() == 0;
     }
 
 }

@@ -682,6 +682,37 @@ public class LocalTaskDataSource implements TaskDataSource {
     }
 
     @Override
+    public void queryRecords(String selection, String[] selectionArgs, String sortOrder,
+                             @NonNull final GetDataListCallback<Record> callback) {
+        Cursor c = mContentResolver.query(
+                TaskContract.buildRecordsUriWith(getAccount()),
+                TaskTableHelper.RECORD_PROJECTION,
+                selection,
+                selectionArgs,
+                sortOrder
+        );
+        final ArrayList<Record> list = new ArrayList<>();
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    do {
+                        Record group = TaskEngine.recordFrom(c);
+                        list.add(group);
+                    } while (c.moveToNext());
+                }
+            } finally {
+                c.close();
+            }
+        }
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onDataLoaded(list);
+            }
+        });
+    }
+
+    @Override
     public void saveEpisode(@NonNull Episode episode) {
         mContentResolver.insert(
                 TaskContract.buildEpisodesUriWith(getAccount()),

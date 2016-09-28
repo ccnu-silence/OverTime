@@ -1,14 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fg_dim_grey">
-    <include layout="@layout/include_empty_toolbar"/>
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/list"
+    android:background="@color/Semi_White">
+    <FrameLayout
+        android:id="@+id/record_content"
         android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <android.support.v4.widget.Space
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"/>
+                <TextView
+                    android:id="@+id/time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:padding="16dp"
+                    android:text="@string/test"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:gravity="center"/>
+                <TextView
+                    android:id="@+id/start"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/episode_node_0"
+                    android:drawableLeft="@drawable/episode_node_0"
+                    android:drawablePadding="@dimen/episode_running_padding"
+                    android:text="@string/test"
+                    android:textColor="@color/Pink_"
+                    android:gravity="center_vertical"/>
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/list2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+                <android.support.v4.widget.Space
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/listPreferredItemHeight"/>
+            </LinearLayout>
+        </android.support.v4.widget.NestedScrollView>
+
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/White"
+            android:orientation="horizontal"
+            android:layout_gravity="top">
+            <ImageView
+                android:id="@+id/menu"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"
+                android:src="@drawable/vec_menu"
+                android:scaleType="center"
+                tools:ignore="contentDescription"/>
+            <TextView
+                android:id="@+id/task_name"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:textSize="16sp"
+                android:textColor="@color/colorPrimary"
+                android:text="@string/test"/>
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/stop"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:textOn="@string/stop"
+                android:layout_gravity="end|center_vertical"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/add"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/listPreferredItemHeight"
+            android:layout_gravity="bottom"
+            android:background="@color/White"
+            android:foreground="@drawable/foreground_grey">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/vec_add"
+                android:drawableStart="@drawable/vec_add"
+                android:text="@string/add_episode"
+                android:textColor="@color/colorPrimary"
+                android:layout_gravity="center"
+                android:gravity="center"/>
+        </FrameLayout>
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/no_task"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/White"/>
-</LinearLayout>
+        android:text="@string/no_tasks"
+        android:layout_gravity="center"
+        android:textColor="@color/Grey"
+        android:visibility="gone"/>
+</FrameLayout>

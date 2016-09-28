@@ -39,7 +39,7 @@ public class NotificationHelper {
                 .setContentTitle("OverTime")
                 .setContentText("我的任务")
                 .setNumber(count)
-                .setTicker("添加任务")
+//                .setTicker("添加任务")
                 .setContentIntent(pending)
                 .setOngoing(true);
         if (PlatformVersion.isJellyBean()) {

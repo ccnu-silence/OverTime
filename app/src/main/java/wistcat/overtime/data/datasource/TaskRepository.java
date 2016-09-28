@@ -383,7 +383,7 @@ public class TaskRepository implements TaskDataSource {
     }
 
     @Override
-    public void checkRunningTasks(final GetDataCallback<Integer> callback) {
+    public void checkRunningTasks(@NonNull final GetDataCallback<Integer> callback) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -503,6 +503,17 @@ public class TaskRepository implements TaskDataSource {
             @Override
             public void run() {
                 mLocalDataSource.deleteRecords(task, time, recordIds, callback);
+            }
+        });
+    }
+
+    @Override
+    public void queryRecords(final String selection, final String[] selectionArgs, final String orderBy,
+                             @NonNull final GetDataListCallback<Record> callback) {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                mLocalDataSource.queryRecords(selection, selectionArgs, orderBy, callback);
             }
         });
     }

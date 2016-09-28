@@ -1,55 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="48dp">
     <TextView
         android:id="@+id/seq"
         android:layout_width="32dp"
-        android:layout_height="48dp"
+        android:layout_height="match_parent"
         android:gravity="center"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:text="@string/test"
         android:textSize="12sp"/>
-    <ImageButton
-        android:id="@+id/pause"
-        android:layout_width="32dp"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="8dp"
-        android:layout_marginEnd="8dp"
-        android:src="@drawable/vec_pause"
-        android:background="@drawable/foreground_grey"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignBottom="@id/seq"
-        android:contentDescription="@string/stop_task"/>
-    <TextView
-        android:id="@+id/task"
-        android:layout_width="wrap_content"
-        android:layout_height="24dp"
-        android:text="@string/test"
-        android:textColor="@color/text_dark"
-        android:gravity="bottom"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@id/seq"
-        android:layout_toEndOf="@id/seq"
-        android:layout_toLeftOf="@id/pause"
-        android:layout_toStartOf="@id/pause"/>
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_toRightOf="@id/seq"
-        android:layout_toEndOf="@id/seq"
-        android:layout_below="@id/task"
-        android:layout_toLeftOf="@id/pause"
-        android:layout_toStartOf="@id/pause"
-        android:layout_alignBottom="@id/seq">
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/task"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:text="@string/test"
+            android:textColor="@color/text_dark"
+            android:gravity="bottom"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"/>
         <TextView
             android:id="@+id/start"
             android:layout_width="wrap_content"
@@ -60,16 +35,16 @@
             android:text="@string/test"
             android:textSize="12sp"
             android:textColor="@color/Pink300"/>
-        <TextView
-            android:id="@+id/used"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:text="@string/test"
-            android:textSize="12sp"
-            android:textColor="@color/Pink_"/>
     </LinearLayout>
-</RelativeLayout>
+    <TextView
+        android:id="@+id/pause"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:background="@drawable/foreground_grey"
+        android:gravity="center_vertical"
+        android:text="@string/stop"
+        android:textColor="@color/colorPrimary"
+        android:textSize="12sp"/>
+</LinearLayout>
